@@ -35,7 +35,7 @@ This specification defines how utilities and other central entities ("Servers") 
     * [5.4. Modifying Clients](#clients-modify)  
 * [6. Client Settings API](#client-settings-api)  
     * [6.1. Client Settings Object Format](#client-settings-format)
-    * [6.2. Profile Visibilities](#profile-visibilities)  
+    * [6.2. Profile Visibility](#profile-visibility)  
     * [6.3. Button Styles](#button-styles)  
     * [6.4. Modifying Client Settings](#clients-settings-modify)  
 * [7. Client Updates API](#client-updates-api)  
@@ -141,7 +141,7 @@ In addition to the standard set of OAuth [Authorization Server Metadata](https:/
   This array of values MUST be the same as `scopes_supported`.
 * `pushed_authorization_request_endpoint` - _URL_ - (REQUIRED) OAuth's [Pushed Authorization Requests](https://www.rfc-editor.org/rfc/rfc9126) functionality is required.
 
-In addition to the above additionally required set of OAuth [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) values, this specification clarifies use of the following OAuth sandard values:
+In addition to the above additionally required set of OAuth [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) values, this specification clarifies use of the following OAuth standard values:
 
 * `response_types_supported` - _Array[string]_ - (REQUIRED) The response types in this array MUST represent a union of all `response_types_supported` values contained in the `cds_scope_descriptions` object.
 * `grant_types_supported` - _Array[string]_ - (REQUIRED) The response types in this array MUST represent a union of all `grant_types_supported` values contained in the `cds_scope_descriptions` object.
@@ -410,12 +410,12 @@ Clients request their current [Client Settings object](#client-settings-format) 
 Client Settings objects are formatted as JSON objects and contain the following named values:
 
 * `default_scope` - _string_ - (REQUIRED) A space-separated list of scopes the Server will use for OAuth's [Authorization Requests](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) if the Client does not supply a `scope` or `authorization_details` parameter in the request.
-* `profile_visibility` - _[ProfileVisibility](#profile-visibilities)_ - (REQUIRED) This is visibility configuration of a Client in the [Directory API](#directory-api).
-* `profile_visibility_options` - _Array[[ProfileVisibility](#profile-visibilities)]_ - (REQUIRED) This is the list of available Profile Visibility values that the Client may choose to set as their `profile_visiblity`.
+* `profile_visibility` - _[ProfileVisibility](#profile-visibility)_ - (REQUIRED) This is visibility configuration of a Client in the [Directory API](#directory-api).
+* `profile_visibility_options` - _Array[[ProfileVisibility](#profile-visibility)]_ - (REQUIRED) This is the list of available Profile Visibility values that the Client may choose to set as their `profile_visibility`.
 * `profile_description` - _string_ - (REQUIRED) This is the description that the Client wishes to be displayed in their public directory entry, if `profile_visibility` is set to `autolist`, `unlisted`, or `listed`.
 * `profile_uri` - _URL_ - (REQUIRED) This is the URL that links directly to the Client's entry in the Server's publicly accessible directory web interface, if `profile_visibility` is set to `autolist`, `unlisted`, or `listed`.
   If a Client has set their `profile_visibility` to `disabled`, the Server MUST respond to requests to this URL with a 404 Not Found response code.
-* `profile_slug` - _string_ - (OPTIONAL) For Servers that have the ability to partially customize the `profile_uri` string to be a more human-readable URL, this is the part of the URL that is customizeable by the Client.
+* `profile_slug` - _string_ - (OPTIONAL) For Servers that have the ability to partially customize the `profile_uri` string to be a more human-readable URL, this is the part of the URL that is customizable by the Client.
 * `profile_button_uri` - _URL or `null`_ - (REQUIRED) In the profile entry for a Client, Servers MUST offer the ability for the Client to link users to a Client-provided URL.
   Servers MUST implement this as an anchor link styled as one of the specified [Button Styles](#button-styles) that opens a new tab via the `target="_blank"` anchor attribute for the user.
   If a Client sets this value to `null`, then the Server MUST NOT render the button link in the Client's directory profile entry.
@@ -428,7 +428,7 @@ Client Settings objects are formatted as JSON objects and contain the following 
 * `profile_contact_website` - _URL or `null`_ - (REQUIRED) This is a link to a website the Client wishes the user to visit for more information on how to contact them.
   If the Client sets this to `null`, the website field MUST be hidden on the Client's public directory profile entry by the Server.
 
-### 6.2. Profile Visibilities <a id="profile-visibilities" href="#profile-visibilities" class="permalink">🔗</a>
+### 6.2. Profile Visibility <a id="profile-visibility" href="#profile-visibility" class="permalink">🔗</a>
 
 Servers MUST make available the following Profile Visibility options in the `profile_visibility_options` list:
 
@@ -657,7 +657,7 @@ Scope Credentials objects are formatted as JSON objects and contain the followin
 * `response_types` - _Array[[OAuth ResponseType](https://www.rfc-editor.org/rfc/rfc7591#section-2)]_ - (REQUIRED) What type of OAuth [`response_types`](https://www.rfc-editor.org/rfc/rfc7591#section-2) are available for use with this Scope Credential.
   Only a `response_type` value of `code` is supported by this specification.
 * `grant_types` - _Array[[OAuth GrantType](https://www.rfc-editor.org/rfc/rfc7591#section-2)]_ - (REQUIRED) What type of OAuth [`grant_types`](https://www.rfc-editor.org/rfc/rfc7591#section-2) are available for use with this Scope Credential.
-* `token_endpoint_auth_method` - _[OAuth TokenEnpointAuthMethod](https://www.rfc-editor.org/rfc/rfc7591#section-2)_ - (REQUIRED) What type of OAuth [`token_endpoint_auth_method`](https://www.rfc-editor.org/rfc/rfc7591#section-2) MUST be used when requesting an `access_token` from the Server's OAuth [token endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-3.2).
+* `token_endpoint_auth_method` - _[OAuth TokenEndpointAuthMethod](https://www.rfc-editor.org/rfc/rfc7591#section-2)_ - (REQUIRED) What type of OAuth [`token_endpoint_auth_method`](https://www.rfc-editor.org/rfc/rfc7591#section-2) MUST be used when requesting an `access_token` from the Server's OAuth [token endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-3.2).
   This value MUST be `client_secret_basic` for which scopes the Server requires a non-public Client.
   This value MAY be `none` when the Server allows the scope to be used by public Clients.
 * `redirect_uris` - _Array[URL]_ - (REQUIRED) A list of URLs that the Client MAY use as `redirect_uri` parameter values in the Server's OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1).
@@ -729,7 +729,7 @@ The fields included in JSON object MUST include the following:
   If the `type` field of an authorization detail object in this list is the same as a value in the `scope` string, the authorization detail object replaces the scope with additional more refined access details for the scope.
 * `redirect_uris` - _Array[URL]_ - A list of URLs that the Client MAY use as `redirect_uri` parameter values in the Server's OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) when requesting user authorization for the scopes (`scope` or `authorization_details`). If the scopes do not require user authorization (e.g. a `grant_type` value of`client_credentials`), this list may be an empty list (`[]`).
   For scopes that require user authorization (e.g. a `response_type` value of `code`), this list may also be empty (`[]`) and updated by the Client later using the [Scope Credentials modification API](#scope-creds-modify).
-* `token_endpoint_auth_method` - _[OAuth TokenEnpointAuthMethod](https://www.rfc-editor.org/rfc/rfc7591#section-2)_ - Either `none` or `client_secret_basic`, depending on if the Client is adding a Scope Credential for a public or non-public use case, respectively.
+* `token_endpoint_auth_method` - _[OAuth TokenEndpointAuthMethod](https://www.rfc-editor.org/rfc/rfc7591#section-2)_ - Either `none` or `client_secret_basic`, depending on if the Client is adding a Scope Credential for a public or non-public use case, respectively.
   Server MUST only allow `none` to be valid in cases where the requested scopes require user authorization and authorization requests are permitted by public Clients.
 
 Servers MUST reject requests with a `400 Bad Request` response when a Client submits an incomplete request or the submitted values are invalid.
@@ -936,7 +936,7 @@ Directory Entry objects are formatted as JSON objects and contain the following 
 Clients may request to list Directory Entry objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_directory_api` URL included in the [Client Registration Response](#registration-response) or [Client object](#client-format).
 The Client listing request responses are formatted as JSON objects and contain the following named values.
 
-* `entries` - _Array[[DirectoryEntry](#directory-entry-format)]_ - (REQUIRED) A list of Directory Entry objects for Clients who have set their `profile_visiblity` to `listed`.
+* `entries` - _Array[[DirectoryEntry](#directory-entry-format)]_ - (REQUIRED) A list of Directory Entry objects for Clients who have set their `profile_visibility` to `listed`.
   If no Clients are listed, this value is an empty list (`[]`).
   If more than 100 Directory Entry objects are available to be listed, Servers MAY truncate the list and use the `next` value to link to the next segment of the list of Directory Entry objects.
 * `next` - _URL_ or `null` - Where to request the next segment of the list of Directory Entry objects.
