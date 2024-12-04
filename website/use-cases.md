@@ -52,7 +52,7 @@ Therefore, to enable and unblock scalable adoption of grid communication specifi
 #### Needs:
 
 * **Use Case 1 Needs:**
-In order to be able to manage client credentials, configuration, and communication, this use case depends on the ability for Servers and Clients to initially establish secure connectivity, the needs of which are described in [Use Case #1](initial-configuration).
+In order to be able to manage client credentials, configuration, and communication, this use case depends on the ability for Servers and Clients to initially establish secure connectivity, the needs of which are described in [Use Case #1](#initial-configuration).
 
 * **Client Configuration Management:**
 After initially establishing secure connectivity between Servers and Clients, the configuration details for that Client registration may change (e.g. API endpoints, enabled scopes of access, webhook URLs, etc.).
@@ -62,14 +62,14 @@ These specifications must prescribe APIs by which Clients may retrieve configura
 Cybersecurity best practices require that Client API credentials (e.g. `client_secret`, TLS certificates, API tokens, etc.) be rotated periodically.
 To enable automated rotation for client secrets and credentials, these specifications must prescribe APIs by which Clients can retrieve their currently configured credentials, as well as adding of newly generated secrets and removing obsolete secrets.
 
-* **Client Communication Protocols:**
+* **Client Messaging Protocols:**
 As part of many grid specifications and protocols, Servers and Clients frequently need to send automated and manual messages to each other for notifications and other communications about the status of their systems, alert of system changes, ask questions, or get technical support.
 These ad-hoc or "out-of-band" communications have traditionally been via email, which because they are not standardized requires significant resources by both Server and Client to process.
 To alleviate this unstandardized communication processing overhead, these specifications must prescribe APIs by which Servers and Clients and send secure messages to each other for transactional and ad-hoc communication.
 
 #### Examples of users in this use case:
 
-* Examples for this use case are the same as [Use Case #1](initial-configuration).
+* Examples for this use case are the same as [Use Case #1](#initial-configuration).
 
 ## Use cases NOT in scope for this working group <a id="not-in-scope" href="#not-in-scope" class="permalink">🔗</a>
 
