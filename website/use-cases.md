@@ -32,7 +32,7 @@ Because many grid communication specifications and protocols require establishin
 
 #### Examples of users in this use case:
 
-* Other specifications and protocols that require secure, confidential connectivity ([CDSC Customer Data](https://customerdata.carbondataspec.org/), [CDSC Power Systems Data](https://powersystemsdata.carbondataspec.org/), [LF Energy TROLIE](https://lfenergy.org/projects/trolie/), [Super Advanced Meter](https://github.com/super-advanced-meter), etc.)
+* Other specifications and protocols that require secure, confidential connectivity ([CDSC Customer Data](https://customerdata.carbondataspec.org/), [CDSC Power Systems Data](https://powersystemsdata.carbondataspec.org/), [LF Energy TROLIE](https://lfenergy.org/projects/trolie/), [Super Advanced Meter](https://github.com/super-advanced-meter), [OpenADR](https://www.openadr.org/), [IEEE 1547](https://ieeexplore.ieee.org/document/8332112), etc.)
 
 * Energy programs and markets that require secure communication with external entities ([FERC 2222](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy), [CEC Load Management Standards](https://www.energy.ca.gov/programs-and-topics/topics/load-flexibility/load-management-standards), etc.)
 
