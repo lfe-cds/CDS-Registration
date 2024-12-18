@@ -62,15 +62,22 @@ These entities can include, but are not limited to, carbon tracking applications
 
 <a id="referenced-technologies" href="#referenced-technologies" class="permalink">🔗</a> Referenced Technologies:
 "[HTTPS](https://www.rfc-editor.org/rfc/rfc9110#name-https-uri-scheme)",
-"[URL](https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3)",
 "[Request Methods](https://www.rfc-editor.org/rfc/rfc9110#name-methods)",
 "[Status Codes](https://www.rfc-editor.org/rfc/rfc9110#name-status-codes)",
 "[JSON](https://www.rfc-editor.org/rfc/rfc8259)",
 "[Well-Known URI](https://www.rfc-editor.org/rfc/rfc5785)",
 "[ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html)",
 "[OAuth](https://oauth.net/specs/)",
-"[GeoJSON](https://datatracker.ietf.org/doc/html/rfc7946)",
+"[GeoJSON](https://datatracker.ietf.org/doc/html/rfc7946#section-3)",
 <span style="background-color:yellow">TODO: add more as needed</span> are defined by their referenced standards documents.
+
+<a id="string" href="#string" class="permalink">🔗</a> "string" - A series of unicode characters as defined in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259#section-7).
+
+<a id="datetime" href="#datetime" class="permalink">🔗</a> "datetime" - A string representing date and time in the format of `date-time` as defined by [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) (e.g. "2024-01-01T00:00:00Z").
+
+<a id="url" href="#url" class="permalink">🔗</a> "URL" - A string representing resource as defined in [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3) (e.g. "https://example.com/page1").
+
+<a id="mime-type" href="#mime-type" class="permalink">🔗</a> "MIME type" - A string representing a document media type as defined in [RFC 6838](https://datatracker.ietf.org/doc/html/rfc6838) (e.g. "image/png").
 
 <a id="key-words" href="#key-words" class="permalink">🔗</a> Key Words: "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" are defined in accordance with [BCP 14](https://www.rfc-editor.org/info/bcp14).
 
@@ -94,20 +101,20 @@ Servers MAY additionally support other public and restricted URLs for special ca
 Metadata objects are formatted as JSON objects and contain named values, some of which are required and some of which are optional.
 The following values are included in the default list available in metadata objects.
 
-* `cds_metadata_version` - _string_ - (REQUIRED) The version of metadata object format this Server follows, which for this version of the specification is `v1`
-* `cds_metadata_url` - _string_ - (REQUIRED) A URL link to this metadata object's canonical network location
-* `created` - _ISO8601 datetime_ - (REQUIRED) When the metadata url was first made available
-* `updated` - _ISO8601 datetime_ - (REQUIRED) When this metadata object was last modified
-* `name` - _string_ - (REQUIRED) The name of the utility or entity (e.g. "Demo Gas & Electric")
-* `description` - _string_ - (REQUIRED) A brief description about the utility or entity (e.g. "An electric and gas utility serving customers in Northern California")
-* `website` - _URL_ - (REQUIRED) Where users can learn more about the utility or entity and its capabilities
-* `documentation` - _URL_ - (REQUIRED) Where Clients can find the utility or entity's technical reference documentation
-* `support` - _URL_ - (REQUIRED) Where Clients can find contact information for technical support on the Server's capabilities
+* `cds_metadata_version` - _[string](#string)_ - (REQUIRED) The version of metadata object format this Server follows, which for this version of the specification is `v1`
+* `cds_metadata_url` - _[string](#string)_ - (REQUIRED) A URL link to this metadata object's canonical network location
+* `created` - _[datetime](#datetime)_ - (REQUIRED) When the metadata url was first made available
+* `updated` - _[datetime](#datetime)_ - (REQUIRED) When this metadata object was last modified
+* `name` - _[string](#string)_ - (REQUIRED) The name of the utility or entity (e.g. "Demo Gas & Electric")
+* `description` - _[string](#string)_ - (REQUIRED) A brief description about the utility or entity (e.g. "An electric and gas utility serving customers in Northern California")
+* `website` - _[URL](#url)_ - (REQUIRED) Where users can learn more about the utility or entity and its capabilities
+* `documentation` - _[URL](#url)_ - (REQUIRED) Where Clients can find the utility or entity's technical reference documentation
+* `support` - _[URL](#url)_ - (REQUIRED) Where Clients can find contact information for technical support on the Server's capabilities
 * `infrastructure_types` - _Array[[InfrastructureType](#infrastructure-types)]_ - (REQUIRED) A list of infrastructure categories that are applicable to this utility or entity, which may be an empty array if the Server is not any of the possible infrastructure types
 * `commodity_types` - _Array[[CommodityType](#commodity-types)]_ - (REQUIRED) A list of services or commodities that are applicable to this utility or entity, which may be an empty array if the Server does not have an applicable commodity
 * `capabilities` - _Array[[ServerCapability](#server-capabilities)]_ - (REQUIRED) What capabilities and functionality this Server supports, which may be an empty array if the Server is not offering any additional capabilities beyond just this metadata object
-* `coverage` - _URL_ - (OPTIONAL) Where to find the [Coverage Endpoint](#coverage-endpoint)
-* `related_metadata` - _Array[URL]_ - (OPTIONAL) Where to find other related [Metadata Endpoints](#metadata-endpoint)
+* `coverage` - _[URL](#url)_ - (OPTIONAL) Where to find the [Coverage Endpoint](#coverage-endpoint)
+* `related_metadata` - _Array[[URL](#url)]_ - (OPTIONAL) Where to find other related [Metadata Endpoints](#metadata-endpoint)
 
 Values and arrays of values in the metadata object is assumed to only related to the array of capabilities the Server is offering.
 For example, if a utility that offers both electricity and natural gas, but is only offering data access capabilities to electric service accounts, the Server only needs to include `electricity` in its `commodity_types` array and not `natural_gas`.
@@ -167,22 +174,22 @@ For invalid requests and error responses, Servers MUST respond with the appropri
 Coverage objects are formatted as JSON objects and contain the following named values. This object serves mostly as an object wrapper around a list of [coverage entries](#coverage-entry-format), so that the list of coverage entries can be paginated by the Server if too long for one response.
 
 * `coverage_entries` - _Array[[CoverageEntry](#coverage-entry-format)]_ - (REQUIRED) A list of segments this Server covers
-* `next` - _`null` or URL_ - (REQUIRED) Link to the next page of coverage entries (`null` if no more subsequent pages)
-* `previous` - _`null` or URL_ - (REQUIRED) Link to the previous page of coverage entries (`null` if no more prior pages)
+* `next` - _`null` or [URL](#url)_ - (REQUIRED) Link to the next page of coverage entries (`null` if no more subsequent pages)
+* `previous` - _`null` or [URL](#url)_ - (REQUIRED) Link to the previous page of coverage entries (`null` if no more prior pages)
 
 ### 4.2. Coverage Entry Format <a id="coverage-entry-format" href="#coverage-entry-format" class="permalink">🔗</a>
 
 Coverage entries are formatted as JSON objects and contain named values, some of which are required and some of which are optional.
 The following values are included in the default list available in coverage entries.
 
-* `id` - _string_ - (REQUIRED) A unique identifier for the coverage entry
+* `id` - _[string](#string)_ - (REQUIRED) A unique identifier for the coverage entry
 * `type` - _[CoverageEntryType](#coverage-entry-types)_ - (REQUIRED) Which Coverage Entry Type this coverage entry is
-* `updated` - _ISO8601 datetime_ - (REQUIRED) When this coverage entry was last modified
-* `name` - _string_ - (REQUIRED) A human readable name for the coverage area or category (e.g. "Upstate New York")
-* `description` - _string_ - (OPTIONAL) A brief description the coverage area or category (e.g. "Most of the northern half of New York state")
-* `map_resource` - _URL_ - (OPTIONAL) Link to a map of the coverage territory
-* `map_content_type` - _MIME type_ - (OPTIONAL) Content-Type format of the `map_resource`
-* `geojson_resource` - _URL_ - (OPTIONAL) Link to a GeoJSON object mapping the coverage territory
+* `updated` - _[datetime](#datetime)_ - (REQUIRED) When this coverage entry was last modified
+* `name` - _[string](#string)_ - (REQUIRED) A human readable name for the coverage area or category (e.g. "Upstate New York")
+* `description` - _[string](#string)_ - (OPTIONAL) A brief description the coverage area or category (e.g. "Most of the northern half of New York state")
+* `map_resource` - _[URL](#url)_ - (OPTIONAL) Link to a map of the coverage territory
+* `map_content_type` - _[MIME type](#mime-type)_ - (OPTIONAL) Content-Type format of the `map_resource`
+* `geojson_resource` - _[URL](#url)_ - (OPTIONAL) Link to a GeoJSON object mapping the coverage territory
 
 When `type` is a geographic entry type, one or both of `map_resource` and `geojson_resource` MUST be provided.
 If `map_resource` is provided, then `map_content_type` MUST also be provided.
