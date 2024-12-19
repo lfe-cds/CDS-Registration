@@ -142,15 +142,13 @@ In addition to requiring that the URL be included in the [CDSC-WG1-01 Metadata O
 A Server's Authorization Server Metadata Object follows OAuth's [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) object format with the following modifications from OPTIONAL or RECOMMENDED to REQUIRED:
 
 * `registration_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Dynamic Client Registration](https://www.rfc-editor.org/rfc/rfc7591) functionality is required to enable the [Client Registration Process](#client-registration-process).
-* `scopes_supported` - _Array[[string](#string)]_ - (REQUIRED) Disclosure of available scopes is required to enable integration capabilities into other platforms.
-  This array MUST contain the `client_admin` scope.
+* `scopes_supported` - _Array[[string](#string)]_ - (REQUIRED) The scopes in this array MUST represent a union of all scope `id` values contained in the `cds_scope_descriptions` objects.
 * `service_documentation` - _[URL](#url)_ - (REQUIRED) Developer documentation is required by the Server to help streamline Client integration.
 * `op_policy_uri` - _[URL](#url)_ - (REQUIRED) Policies for Clients registering is required.
 * `op_tos_uri` - _[URL](#url)_ - (REQUIRED) Terms of use for Clients registering is required.
 * `revocation_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Token Revocation](https://www.rfc-editor.org/rfc/rfc7009) functionality is required.
 * `introspection_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Token Introspection](https://www.rfc-editor.org/rfc/rfc7662) functionality is required.
-* `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) OAuth's [Proof Key for Code Exchange by OAuth Public Clients](https://www.rfc-editor.org/rfc/rfc7636) functionality is required.
-  Servers MUST offer `S256` and MUST NOT offer `plain` code verifier methods.
+* `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The code challenge methods in this array MUST represent a union of all `code_challenge_methods_supported` values contained in the `cds_scope_descriptions` objects.
 
 In addition to the standard set of OAuth [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) values, this specification also requires the following OAuth extension capabilities to be included in the metadata object values:
 
@@ -160,14 +158,14 @@ In addition to the standard set of OAuth [Authorization Server Metadata](https:/
 
 In addition to the above additionally required set of OAuth [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) values, this specification clarifies use of the following OAuth standard values:
 
-* `response_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `response_types_supported` values contained in the `cds_scope_descriptions` object.
-* `grant_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `grant_types_supported` values contained in the `cds_scope_descriptions` object.
+* `response_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `response_types_supported` values contained in the `cds_scope_descriptions` objects.
+* `grant_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `grant_types_supported` values contained in the `cds_scope_descriptions` objects.
 * `token_endpoint_auth_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `token_endpoint_auth_methods_supported` values contained in the `cds_scope_descriptions` object.
 
 In addition to OAuth capabilities included in the metadata object, this specification adds the following Carbon Data Specification (CDS) values:
 
 * `cds_oauth_version` - _[string](#string)_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`
-* `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a web browser
+* `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a user device
 * `cds_human_directory` - _[URL](#url)_ - (REQUIRED) A public web interface where users may browse the list of Clients who have registered and set their Client Settings `profile_visibility` to `listed`
 * `cds_test_accounts` - _[URL](#url)_ - (REQUIRED) Where Clients can find developer documentation on what test account credentials may be used for testing OAuth `response_type=code` authorization requests
 * `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api)
@@ -205,6 +203,7 @@ Scope Description objects are formatted as JSON objects and contain named values
   This array MUST contain at least one grant type.
 * `token_endpoint_auth_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The OAuth client authentication methods that can be used for granting tokens with this scope.
   This value follows the same behavior as OAuth's [Metadata object `token_endpoint_auth_methods_supported`](https://www.rfc-editor.org/rfc/rfc8414#section-2), except that this value represents the client authentication methods supported for this individual scope and not all scopes for the Client. A value of `"none"` this array indicates that the scope may be used for public application without using a client secret.
+* `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) For scope descriptions where `grant_types_supported` includes the value `authorization_code`, OAuth's [Proof Key for Code Exchange by OAuth Public Clients](https://www.rfc-editor.org/rfc/rfc7636) functionality is required, and Servers MUST offer `S256` and MUST NOT offer `plain` code verifier methods. For scope descriptions where  `grant_types_supported` does not include `authorization_code`, no authorization request is performed, so no code challenge is required and this field value is and empty list (`[]`).
 * `authorization_details_fields` - _Array[[AuthorizationDetailsField](#auth-details-fields-format)]_ - (REQUIRED) A list of fields that MAY be included in [Rich Authorization Requests](https://www.rfc-editor.org/rfc/rfc9396) the authorization details object for this scope `type`.
   If no extra authorization details fields are available, this value is an empty list (`[]`).
 
@@ -273,7 +272,7 @@ The following values are included in the default list available in authorization
 * `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the authorization details field.
 * `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what submitting values for this authorization details field means.
 * `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this authorization details field.
-* `format` - _[AuthorizationDetailsFieldFormats](#auth-details-field-formats)_ - (OPTIONAL) The data format that MUST be used in the value of the field when including it as a data field in `authorization_details` objects.
+* `format` - _[AuthorizationDetailsFieldFormats](#auth-details-field-formats)_ - (REQUIRED) The data format that MUST be used in the value of the field when including it as a data field in `authorization_details` objects.
 * `default` - _various_ - (REQUIRED) The default value that will be used in lieu of the Client submitting a value themselves.
   This is also the value that will be used if a basic OAuth `scope` string parameter is used instead of an `authorization_details` parameter.
 * `relative_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date`, this is the largest relative date range that may be submitted.
@@ -497,7 +496,7 @@ If all submitted fields have been synchronously updated as part of the response,
 
 ## 7. Client Updates API <a id="client-updates-api" href="#client-updates-api" class="permalink">🔗</a>
 
-To facilitate automated integration between Servers and Clients, this specification requires that official communication between Servers and Clients be performed using the Client Updates APIs.
+To facilitate automated communication and notificatiosn between Servers and Clients, this specification requires that official communication between Servers and Clients be performed using the Client Updates APIs.
 Servers MAY implement other means of communications for exchanging messages and notifications, such as email support, but they MUST also mirror any official communications that impact Client or Grant statuses, settings, or access using the Client Updates API.
 
 The Client Updates API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the `client_id` used is for a Client that includes the `client_admin` scope.
@@ -903,7 +902,7 @@ Clients may modify fields in the Grants API by sending an authenticated HTTPS `P
 The fields included in JSON object are the fields the Client intends to update with the submitted fields' values.
 If a field is not included in the `PATCH` request, the Server MUST leave the field unmodified from its current value.
 
-The following are fields that MAY be included in the `PATCH` request, and modification MUST be supported by Servers:
+The following are fields that MAY be included in the `PATCH` request body, and modification MUST be supported by Servers:
 
 * `status` - Servers MUST only accept a value of `closed` from the Client.
 * `scope` - Servers MUST evaluate the updated scope for whether another user authorization is required.
@@ -983,8 +982,6 @@ For Client profile entries, Servers MUST render the Client profile entry with at
 * `profile_description` - From the [Client Settings object](#client-settings-format), as a block of text as a description of the Client.
   Servers MUST NOT render URLs, phone numbers, emails, and other text that may be auto-detected as a link as links, and instead MUST render the description text as text.
   Servers MUST render line breaks in the profile entry as submitted by the Client.
-* `profile_button_uri` - From the [Client Settings object](#client-settings-format), as an anchor link styled as one of the specified [Button Styles](#button-styles) that opens a new tab via the `target="_blank"` anchor attribute for the user.
-  If a Client sets this value to `null`, then the Server MUST NOT render this button link.
 * `profile_button_uri` - From the [Client Settings object](#client-settings-format), as an anchor link styled as the specified `profile_button_style` [Button Styles](#button-styles) and when clicked opens a new tab via the `target="_blank"` and `rel="noopener noreferrer nofollow"` anchor attributes.
   If a Client sets this value to `null`, then the Server MUST NOT render this button link.
 * `profile_contact_name` - From the [Client Settings object](#client-settings-format), as text of the Client's contact name.
