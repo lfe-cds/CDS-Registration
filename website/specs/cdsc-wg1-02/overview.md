@@ -48,7 +48,6 @@ Content-Type: application/json;charset=UTF-8
     ...
 
     "oauth_metadata": "https://demoutility.com/.well-known/oauth-authorization-server",
-    "client_directory": "https://demoutility.com/directory",
 }
 ```
 
@@ -86,12 +85,12 @@ Content-Type: application/json;charset=UTF-8
     ## OAuth Metadata - Scopes available
     "scopes_supported": [
         "client_admin",
-        "usage",
+        "customer_bills",
         ...
     ],
     "authorization_details_types_supported": [
         "client_admin",
-        "usage",
+        "customer_bills",
         ... (same as "scopes_supported")
     ]
 
@@ -135,9 +134,9 @@ Content-Type: application/json;charset=UTF-8
             "authorization_details_fields": [],
         },
 
-        "bills": {
+        "customer_bills": {
             ## Information about the scope
-            "id": "bills",
+            "id": "customer_bills",
             "name": "Customer bill data access",
             "description": "Allows access to the authorizing customer's utility bill data.",
             "documentation": "https://demoutility.com/docs/customer-data-access/bills",
@@ -159,7 +158,7 @@ Content-Type: application/json;charset=UTF-8
                     "description": "This is the earliest date of historical bill data coverage that will be shared.",
                     "documentation": "https://demoutility.com/docs/customer-data-access/bills#historical-start",
                     "format": "relative_or_absolute_date",
-                    "default": "3y",
+                    "default": "P3Y",
                 },
                 {
                     "id": "ongoing_end",
@@ -167,7 +166,7 @@ Content-Type: application/json;charset=UTF-8
                     "description": "This is the cutoff date for ongoing access to bill data.",
                     "documentation": "https://demoutility.com/docs/customer-data-access/bills#ongoing-end",
                     "format": "relative_or_absolute_date",
-                    "default": "3y",
+                    "default": "P3Y",
                 },
             ],
         },
@@ -229,7 +228,7 @@ Content-Type: application/json;charset=UTF-8
 
 ```
 ==Request==
-POST /.well-known/carbon-data-spec.json HTTP/1.1
+POST /oauth/register HTTP/1.1
 Content-Type: application/json
 Host: demoutility.com
 
@@ -275,6 +274,11 @@ GET /api/clients HTTP/1.1
 Host: demoutility.com
 Authorization: Bearer <access_token>
 
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
 {
     "results": [
         {
@@ -313,6 +317,11 @@ Authorization: Bearer <access_token>
 GET /api/clients/11111111/settings HTTP/1.1
 Host: demoutility.com
 Authorization: Bearer <access_token>
+
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
 
 {
     "default_scope": "accounts ...",
@@ -355,6 +364,11 @@ Authorization: Bearer <access_token>
 GET /api/clients/11111111/updates HTTP/1.1
 Host: demoutility.com
 Authorization: Bearer <access_token>
+
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
 
 {
     "outstanding": [
@@ -422,6 +436,11 @@ GET /api/clients/11111111/scope-credentials HTTP/1.1
 Host: demoutility.com
 Authorization: Bearer <access_token>
 
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
 {
     "scope_credentials": [
         {
@@ -482,6 +501,11 @@ Authorization: Bearer <access_token>
 GET /api/clients/11111111/grants HTTP/1.1
 Host: demoutility.com
 Authorization: Bearer <access_token>
+
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
 
 {
     "grants": [
