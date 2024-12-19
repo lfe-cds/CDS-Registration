@@ -96,10 +96,27 @@ These entities can include, but are not limited to, distribution utilities, grid
 A Client can be any organization or user seeking to register with a Server for a specific scope of access.
 These entities can include, but are not limited to, carbon tracking applications, electric vehicle companies, clean energy technology providers, commercial utility customers, grid management applications, and energy efficiency organizations.
 
-<a id="referenced-technologies" href="#referenced-technologies" class="permalink">🔗</a> Referenced Technologies: "[HTTPS](https://www.rfc-editor.org/rfc/rfc9110#name-https-uri-scheme)", "[URL](https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3)", "[Request Methods](https://www.rfc-editor.org/rfc/rfc9110#name-methods)", "[Status Codes](https://www.rfc-editor.org/rfc/rfc9110#name-status-codes)", "[JSON](https://www.rfc-editor.org/rfc/rfc8259)", "[OAuth](https://oauth.net/specs/)", <span style="background-color:yellow">TODO: add more as needed</span> are defined by their referenced standards documents.
+<a id="referenced-technologies" href="#referenced-technologies" class="permalink">🔗</a> Referenced Technologies:
+"[HTTPS](https://www.rfc-editor.org/rfc/rfc9110#name-https-uri-scheme)",
+"[Request Methods](https://www.rfc-editor.org/rfc/rfc9110#name-methods)",
+"[Status Codes](https://www.rfc-editor.org/rfc/rfc9110#name-status-codes)",
+"[JSON](https://www.rfc-editor.org/rfc/rfc8259)",
+"[OAuth](https://oauth.net/specs/)",
+<span style="background-color:yellow">TODO: add more as needed</span> are defined by their referenced standards documents.
+
+<a id="string" href="#string" class="permalink">🔗</a> "string" - A series of unicode characters as defined in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259#section-7).
+
+<a id="integer" href="#integer" class="permalink">🔗</a> "integer" - A positive integer value as defined by `int` in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259#section-6).
+
+<a id="decimal" href="#decimal" class="permalink">🔗</a> "decimal" - A decimal value as defined by `number` in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259#section-6).
+
+<a id="date" href="#date" class="permalink">🔗</a> "date" - A string representing date in the format of `full-date` as defined by [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) (e.g. "2024-01-01").
+
+<a id="datetime" href="#datetime" class="permalink">🔗</a> "datetime" - A string representing date and time in the format of `date-time` as defined by [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) (e.g. "2024-01-01T00:00:00Z").
+
+<a id="url" href="#url" class="permalink">🔗</a> "URL" - A string representing resource as defined in [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3) (e.g. "https://example.com/page1").
 
 <a id="key-words" href="#key-words" class="permalink">🔗</a> Key Words: "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" are defined in accordance with [BCP 14](https://www.rfc-editor.org/info/bcp14).
-
 
 ## 3. Authorization Server Metadata <a id="auth-server-metadata" href="#auth-server-metadata" class="permalink">🔗</a>
 
@@ -112,11 +129,11 @@ Following OAuth's [Obtaining Authorization Server Metadata](https://www.rfc-edit
 
 To ensure discoverability to the specified URL, this specification extends [CDSC-WG1-01 Server Capabilities](/specs/cdsc-wg1-01/#server-capabilities) to require the following values:
 
-* `oauth` - _string_ - (REQUIRED) Including Client Registration via OAuth in the list of a Server's available capabilities
+* `oauth` - _[string](#string)_ - (REQUIRED) Including Client Registration via OAuth in the list of a Server's available capabilities
 
 As well as extending the [CDSC-WG1-01 Metadata Object Format](/specs/cdsc-wg1-01/#metadata-object-format) to require the following values:
 
-* `oauth_metadata` - _URL_ - (REQUIRED) Where Clients can obtain the Server's Authorization Server Metadata Object
+* `oauth_metadata` - _[URL](#url)_ - (REQUIRED) Where Clients can obtain the Server's Authorization Server Metadata Object
 
 In addition to requiring that the URL be included in the [CDSC-WG1-01 Metadata Object Format](/specs/cdsc-wg1-01/#metadata-object-format), Servers MAY also configure the URL such that it conforms to the default [Well-Known URI](#https://www.rfc-editor.org/rfc/rfc8414#section-7.3) format, which can increase interoperability beyond the above specified CDSC-WG1-01 extension.
 
@@ -124,41 +141,41 @@ In addition to requiring that the URL be included in the [CDSC-WG1-01 Metadata O
 
 A Server's Authorization Server Metadata Object follows OAuth's [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) object format with the following modifications from OPTIONAL or RECOMMENDED to REQUIRED:
 
-* `registration_endpoint` - _URL_ - (REQUIRED) OAuth's [Dynamic Client Registration](https://www.rfc-editor.org/rfc/rfc7591) functionality is required to enable the [Client Registration Process](#client-registration-process).
-* `scopes_supported` - _Array[string]_ - (REQUIRED) Disclosure of available scopes is required to enable integration capabilities into other platforms.
+* `registration_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Dynamic Client Registration](https://www.rfc-editor.org/rfc/rfc7591) functionality is required to enable the [Client Registration Process](#client-registration-process).
+* `scopes_supported` - _Array[[string](#string)]_ - (REQUIRED) Disclosure of available scopes is required to enable integration capabilities into other platforms.
   This array MUST contain the `client_admin` scope.
-* `service_documentation` - _URL_ - (REQUIRED) Developer documentation is required by the Server to help streamline Client integration.
-* `op_policy_uri` - _URL_ - (REQUIRED) Policies for Clients registering is required.
-* `op_tos_uri` - _URL_ - (REQUIRED) Terms of use for Clients registering is required.
-* `revocation_endpoint` - _URL_ - (REQUIRED) OAuth's [Token Revocation](https://www.rfc-editor.org/rfc/rfc7009) functionality is required.
-* `introspection_endpoint` - _URL_ - (REQUIRED) OAuth's [Token Introspection](https://www.rfc-editor.org/rfc/rfc7662) functionality is required.
-* `code_challenge_methods_supported` - _Array[string]_ - (REQUIRED) OAuth's [Proof Key for Code Exchange by OAuth Public Clients](https://www.rfc-editor.org/rfc/rfc7636) functionality is required.
+* `service_documentation` - _[URL](#url)_ - (REQUIRED) Developer documentation is required by the Server to help streamline Client integration.
+* `op_policy_uri` - _[URL](#url)_ - (REQUIRED) Policies for Clients registering is required.
+* `op_tos_uri` - _[URL](#url)_ - (REQUIRED) Terms of use for Clients registering is required.
+* `revocation_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Token Revocation](https://www.rfc-editor.org/rfc/rfc7009) functionality is required.
+* `introspection_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Token Introspection](https://www.rfc-editor.org/rfc/rfc7662) functionality is required.
+* `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) OAuth's [Proof Key for Code Exchange by OAuth Public Clients](https://www.rfc-editor.org/rfc/rfc7636) functionality is required.
   Servers MUST offer `S256` and MUST NOT offer `plain` code verifier methods.
 
 In addition to the standard set of OAuth [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) values, this specification also requires the following OAuth extension capabilities to be included in the metadata object values:
 
-* `authorization_details_types_supported` - _Array[string]_ - (REQUIRED) OAuth's [Rich Authorization Requests](https://www.rfc-editor.org/rfc/rfc9396) functionality is required.
+* `authorization_details_types_supported` - _Array[[string](#string)]_ - (REQUIRED) OAuth's [Rich Authorization Requests](https://www.rfc-editor.org/rfc/rfc9396) functionality is required.
   This array of values MUST be the same as `scopes_supported`.
-* `pushed_authorization_request_endpoint` - _URL_ - (REQUIRED) OAuth's [Pushed Authorization Requests](https://www.rfc-editor.org/rfc/rfc9126) functionality is required.
+* `pushed_authorization_request_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Pushed Authorization Requests](https://www.rfc-editor.org/rfc/rfc9126) functionality is required.
 
 In addition to the above additionally required set of OAuth [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) values, this specification clarifies use of the following OAuth standard values:
 
-* `response_types_supported` - _Array[string]_ - (REQUIRED) The response types in this array MUST represent a union of all `response_types_supported` values contained in the `cds_scope_descriptions` object.
-* `grant_types_supported` - _Array[string]_ - (REQUIRED) The response types in this array MUST represent a union of all `grant_types_supported` values contained in the `cds_scope_descriptions` object.
-* `token_endpoint_auth_methods_supported` - _Array[string]_ - (REQUIRED) The response types in this array MUST represent a union of all `token_endpoint_auth_methods_supported` values contained in the `cds_scope_descriptions` object.
+* `response_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `response_types_supported` values contained in the `cds_scope_descriptions` object.
+* `grant_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `grant_types_supported` values contained in the `cds_scope_descriptions` object.
+* `token_endpoint_auth_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `token_endpoint_auth_methods_supported` values contained in the `cds_scope_descriptions` object.
 
 In addition to OAuth capabilities included in the metadata object, this specification adds the following Carbon Data Specification (CDS) values:
 
-* `cds_oauth_version` - _string_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`
-* `cds_human_registration` - _URL_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a web browser
-* `cds_human_directory` - _URL_ - (REQUIRED) A public web interface where users may browse the list of Clients who have registered and set their Client Settings `profile_visibility` to `listed`
-* `cds_test_accounts` - _URL_ - (REQUIRED) Where Clients can find developer documentation on what test account credentials may be used for testing OAuth `response_type=code` authorization requests
-* `cds_clients_api` - _URL_ - (REQUIRED) The base url for the [Clients API](#clients-api)
-* `cds_client_settings_api` - _URL_ - (REQUIRED) The base url for the [Client Settings API](#client-settings-api)
-* `cds_client_updates_api` - _URL_ - (REQUIRED) The base url for the [Client Updates API](#client-updates-api)
-* `cds_scope_credentials_api` - _URL_ - (REQUIRED) The base url for the [Scope Credentials API](#scope-creds-api)
-* `cds_grants_api` - _URL_ - (REQUIRED) The base url for the [Grants API](#grants-api)
-* `cds_directory_api` - _URL_ - (REQUIRED) The base url for the [Directory API](#directory-api)
+* `cds_oauth_version` - _[string](#string)_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`
+* `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a web browser
+* `cds_human_directory` - _[URL](#url)_ - (REQUIRED) A public web interface where users may browse the list of Clients who have registered and set their Client Settings `profile_visibility` to `listed`
+* `cds_test_accounts` - _[URL](#url)_ - (REQUIRED) Where Clients can find developer documentation on what test account credentials may be used for testing OAuth `response_type=code` authorization requests
+* `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api)
+* `cds_client_settings_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Settings API](#client-settings-api)
+* `cds_client_updates_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Updates API](#client-updates-api)
+* `cds_scope_credentials_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Scope Credentials API](#scope-creds-api)
+* `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Grants API](#grants-api)
+* `cds_directory_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Directory API](#directory-api)
 * `cds_scope_descriptions` - _Map[[ScopeDescription](#scope-descriptions-format)]_ - (REQUIRED) An object providing additional information about what Scope values listed in `scopes_supported` mean.
   This object MUST include a key for each Scope listed in `scopes_supported` with a [Scope Description](#scope-descriptions-format) as that key's value.
 * `cds_registration_fields` - _Map[[RegistrationField](#registration-field-format)]_ - (REQUIRED) An object providing additional information about Registration Field that are referenced in [Scope Description's](#scope-descriptions-format) `registration_requirements` list.
@@ -171,22 +188,22 @@ Other values not mentioned here but listed in specifications for the Authorizati
 
 Scope Description objects are formatted as JSON objects and contain named values. The following values are included in the default list available in scope description objects.
 
-* `id` - _string_ - (REQUIRED) The unique identifier of the scope. This MUST be the same value as the object key the Metadata Object's `cds_scope_descriptions` object.
-* `name` - _string_ - (REQUIRED) A human-readable name of the scope.
-* `description` - _string_ - (REQUIRED) A human-readable description of what access or actions the scope will enable.
-* `documentation` - _URL_ - (REQUIRED) Where developers can find documentation for the scope.
-* `registration_requirements` - _Array[string]_ - (REQUIRED) A list of any registration fields that MUST be submitted with [Client Registration Requests](#registration-request) or requirements that must be completed after registration before the scope is available to use in the Server's production environment.
+* `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the scope. This MUST be the same value as the object key the Metadata Object's `cds_scope_descriptions` object.
+* `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the scope.
+* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what access or actions the scope will enable.
+* `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find documentation for the scope.
+* `registration_requirements` - _Array[[string](#string)]_ - (REQUIRED) A list of any registration fields that MUST be submitted with [Client Registration Requests](#registration-request) or requirements that must be completed after registration before the scope is available to use in the Server's production environment.
   All values in this array MUST be included in the Metadata Object's `cds_registration_fields` object for a complete description of the requirement.
   If no additional requirements are needed, this value is an empty array (`[]`).
-* `registration_optional` - _Array[string]_ - (REQUIRED) A list of any registration fields that Clients MAY submit with the [Client Registration Requests](#registration-request).
+* `registration_optional` - _Array[[string](#string)]_ - (REQUIRED) A list of any registration fields that Clients MAY submit with the [Client Registration Requests](#registration-request).
   If no additional fields are available, this value is an empty array (`[]`).
-* `response_types_supported` - _Array[string]_ - (REQUIRED) The OAuth `response_type` values that can be used with this scope.
+* `response_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The OAuth `response_type` values that can be used with this scope.
   This value follows the same behavior as OAuth's [Metadata object `response_types_supported`](https://www.rfc-editor.org/rfc/rfc8414#section-2), except that this value represents the response types supported for this individual scope and not all scopes for the Client.
   If a scope is not available for OAuth authorization requests (e.g. a `client_credentials`-only scope), this value is an empty array (`[]`).
-* `grant_types_supported` - _Array[string]_ - (REQUIRED) The OAuth grant type values that can be used with this scope.
+* `grant_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The OAuth grant type values that can be used with this scope.
   This value follows the same behavior as OAuth's [Metadata object `grant_types_supported`](https://www.rfc-editor.org/rfc/rfc8414#section-2), except that this value represents the grant types supported for this individual scope and not all scopes for the Client.
   This array MUST contain at least one grant type.
-* `token_endpoint_auth_methods_supported` - _Array[string]_ - (REQUIRED) The OAuth client authentication methods that can be used for granting tokens with this scope.
+* `token_endpoint_auth_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The OAuth client authentication methods that can be used for granting tokens with this scope.
   This value follows the same behavior as OAuth's [Metadata object `token_endpoint_auth_methods_supported`](https://www.rfc-editor.org/rfc/rfc8414#section-2), except that this value represents the client authentication methods supported for this individual scope and not all scopes for the Client. A value of `"none"` this array indicates that the scope may be used for public application without using a client secret.
 * `authorization_details_fields` - _Array[[AuthorizationDetailsField](#auth-details-fields-format)]_ - (REQUIRED) A list of fields that MAY be included in [Rich Authorization Requests](https://www.rfc-editor.org/rfc/rfc9396) the authorization details object for this scope `type`.
   If no extra authorization details fields are available, this value is an empty list (`[]`).
@@ -196,19 +213,19 @@ Scope Description objects are formatted as JSON objects and contain named values
 Registration Field objects are formatted as JSON objects and contain named values.
 The following values are included in the default list available in registration fields objects.
 
-* `id` - _string_ - (REQUIRED) The unique identifier of the registration field.
+* `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the registration field.
   This MUST be the same value as the object key the Metadata Object's `cds_registration_fields` object.
 * `type` - _[RegistrationFieldType](#registration-field-types)_ - (REQUIRED) What type of Registration Field this entry is.
-* `description` - _string_ - (REQUIRED) A human-readable description of what should be submitted or expected for this registration field.
-* `documentation` - _URL_ - (REQUIRED) Where developers can find more information about this registration field.
-* `field_name` - _string_ - (OPTIONAL) If type is `registration_field`, this is the name of the field to submit in the [Client Registration Request](#registration-request) and MUST start with `cds_`.
+* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what should be submitted or expected for this registration field.
+* `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this registration field.
+* `field_name` - _[string](#string)_ - (OPTIONAL) If type is `registration_field`, this is the name of the field to submit in the [Client Registration Request](#registration-request) and MUST start with `cds_`.
 * `format` - _[RegistrationFieldFormats](#registration-field-formats)_ - (OPTIONAL) If type is `registration_field`, this is the data format that MUST be used in the value of the field.
 * `default` - _various_ - (OPTIONAL) If type is `registration_field` and the field is optional, this is the default value that will be used in lieu of the Client submitting a value themselves.
   Including this `default` value in the object indicates the registration field is optional.
-* `max_length` - _integer_ - (OPTIONAL) If format is one of `string`, `string_or_null`, `url`, `url_or_null`, `email`, or `email_or_null`, this is the maximum length of the submitted value, if not `null`.
-* `max_size` - _integer_ - (OPTIONAL) If format is one of `image`, `image_or_null`, `pdf`, or `pdf_or_null`, this is the maximum file size of the submitted value before encoding into [Base64](https://en.wikipedia.org/wiki/Base64), if not `null`.
-* `amount` - _decimal_ - (OPTIONAL) If type is `payment_required`, this is the amount in `currency` that will be required to complete registration.
-* `currency` - _string_ - (OPTIONAL) If type is `payment_required`, this is the monetary currency in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code.
+* `max_length` - _[integer](#integer)_ - (OPTIONAL) If format is one of `string`, `string_or_null`, `url`, `url_or_null`, `email`, or `email_or_null`, this is the maximum length of the submitted value, if not `null`.
+* `max_size` - _[integer](#integer)_ - (OPTIONAL) If format is one of `image`, `image_or_null`, `pdf`, or `pdf_or_null`, this is the maximum file size of the submitted value before encoding into [Base64](https://en.wikipedia.org/wiki/Base64), if not `null`.
+* `amount` - _[decimal](#decimal)_ - (OPTIONAL) If type is `payment_required`, this is the amount in `currency` that will be required to complete registration.
+* `currency` - _[string](#string)_ - (OPTIONAL) If type is `payment_required`, this is the monetary currency in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code.
 
 ### 3.5. Registration Field Types <a id="registration-field-types" href="#registration-field-types" class="permalink">🔗</a>
 
@@ -233,9 +250,9 @@ Registration Field formats define the data type of submitted values for these fi
 
 The following list of strings are an enumerated set of registration field formats that are valid `format` values in the registration field object.
 
-* `string` - If required, a string value MUST be submitted.
+* `string` - If required, a [string](#string) value MUST be submitted.
 * `string_or_null` - Same as `string`, only with `null` being an additional possible value.
-* `url` - If required, a URL value MUST be submitted.
+* `url` - If required, a [URL](#url) value MUST be submitted.
 * `url_or_null` - Same as `url`, only with `null` being an additional possible value.
 * `email` - If required, a valid email address string MUST be submitted.
 * `email_or_null` - Same as `email`, only with `null` being an additional possible value.
@@ -251,19 +268,19 @@ The following list of strings are an enumerated set of registration field format
 Authorization Details Field objects are formatted as JSON objects and contain named values.
 The following values are included in the default list available in authorization details field objects.
 
-* `id` - _string_ - (REQUIRED) The unique identifier of the authorization details field.
+* `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the authorization details field.
   This value is used as the key for the field when added to `authorization_details` data fields as part of OAuth's [Rich Authorization Requests](https://www.rfc-editor.org/rfc/rfc9396).
-* `name` - _string_ - (REQUIRED) A human-readable name of the authorization details field.
-* `description` - _string_ - (REQUIRED) A human-readable description of what submitting values for this authorization details field means.
-* `documentation` - _URL_ - (REQUIRED) Where developers can find more information about this authorization details field.
+* `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the authorization details field.
+* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what submitting values for this authorization details field means.
+* `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this authorization details field.
 * `format` - _[AuthorizationDetailsFieldFormats](#auth-details-field-formats)_ - (OPTIONAL) The data format that MUST be used in the value of the field when including it as a data field in `authorization_details` objects.
 * `default` - _various_ - (REQUIRED) The default value that will be used in lieu of the Client submitting a value themselves.
   This is also the value that will be used if a basic OAuth `scope` string parameter is used instead of an `authorization_details` parameter.
-* `relative_date_limit` - _integer_ - (OPTIONAL) If `format` is `relative_or_absolute_date`, this is the largest relative date range that may be submitted.
+* `relative_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date`, this is the largest relative date range that may be submitted.
   Servers MUST validate both submitted absolute dates and relative dates against the relative date limit, where when comparing to a submitted absolute date, the current Server date in the Server's local timezone is used as the relative point of reference.
-* `absolute_date_limit` - _integer_ - (OPTIONAL) If `format` is `relative_or_absolute_date`, this is the furthest away date that may be submitted.
+* `absolute_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date`, this is the furthest away date that may be submitted.
   Servers MUST validate both submitted absolute dates and relative dates against the absolute date limit, where when comparing to a submitted relative date, the current Server date in the Server's local timezone is used as the relative point of reference.
-* `limit` - _integer_ - (OPTIONAL) If format is one of `int` or `decimal`, this is the largest value that can be the submitted.
+* `limit` - _[integer](#integer)_ - (OPTIONAL) If format is one of `int` or `decimal`, this is the largest value that can be the submitted.
 
 ### 3.8. Authorization Details Field Formats <a id="auth-details-field-formats" href="#auth-details-field-formats" class="permalink">🔗</a>
 
@@ -272,13 +289,13 @@ Authorization Details Field formats define the data type of submitted values for
 The following list of strings are an enumerated set of authorization details field formats that are valid `format` values in the [Authorization Details Field objects](#auth-details-fields-format).
 
 * `relative_or_absolute_date` - A relative or absolute date string.
-  Relative dates are formatted as a positive integer followed by a `y`, `m`, `w`, or `d` character, where the character represents the unit of duration (year, month, week, and day), and the integer represents the number of units for that duration.
-  For example, `3y` represents a relative date range of 3 years.
-  Absolute dates are formatted as ISO8601 dates (`YYYY-MM-DD`).
+  Relative dates are formatted as defined by `duration` in [RFC 3339 Appendix A](https://datatracker.ietf.org/doc/html/rfc3339#appendix-A).
+  For example, `P3Y` represents a relative date range of 3 years.
+  Absolute dates are formatted as [date](#date) (`YYYY-MM-DD`).
   For example, `2024-01-02` represents the 2nd of January, 2024.
   Dates are defined as the date from the perspective of the Server's local timezone.
-* `int` - An integer value.
-* `decimal` - A decimal value, which can have any number of significant units, but MUST NOT be stored or handled as a float value, in order to retain the precision of the value throughout Server and Client processing.
+* `int` - An [integer](#integer) value.
+* `decimal` - A [decimal](#decimal) value, which can have any number of significant units, but MUST NOT be stored or handled as a float value, in order to retain the precision of the value throughout Server and Client processing.
 
 ## 4. Client Registration Process <a id="client-registration-process" href="#client-registration-process" class="permalink">🔗</a>
 
@@ -303,15 +320,15 @@ This specification requires Servers follow the process described in OAuth's [Cli
 
 Additionally, the following additional named values MUST be included in the response.
 
-* `cds_server_metadata` - _URL_ - (REQUIRED) Where the Client can find their registration-specific version of the [CDSC-WG1-01 Server Metadata](/specs/cdsc-wg1-01/).
+* `cds_server_metadata` - _[URL](#url)_ - (REQUIRED) Where the Client can find their registration-specific version of the [CDSC-WG1-01 Server Metadata](/specs/cdsc-wg1-01/).
   If the Client's CDSC server metadata is no different from the public CDSC server metadata, Servers MAY simply link to the public URL.
   If this metadata endpoint requires authentication, Servers MUST authenticate Client requests to this endpoint via Bearer access token obtained using OAuth's `client_credentials` grant with a scope of `client_admin`, and reject unauthenticated requests with a `401 Unauthorized` response code.
   Clients know that they must use a Bearer token when Servers return a `401` response code for this endpoint when the Client makes an unauthenticated request to the endpoint.
-* `cds_clients_api` - _URL_ - (REQUIRED) The base url for the [Clients API](#clients-api).
-* `cds_client_settings_api` - _URL_ - (REQUIRED) The url to a Client's Settings object for the [Client Settings API](#client-settings-api).
-* `cds_client_updates_api` - _URL_ - (REQUIRED) The base url for the [Client Updates API](#client-updates-api).
-* `cds_scope_credentials_api` - _URL_ - (REQUIRED) The base url for the [Scope Credentials API](#scope-creds-api).
-* `cds_grants_api` - _URL_ - (REQUIRED) The base url for the [Grants API](#grants-api).
+* `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api).
+* `cds_client_settings_api` - _[URL](#url)_ - (REQUIRED) The url to a Client's Settings object for the [Client Settings API](#client-settings-api).
+* `cds_client_updates_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Updates API](#client-updates-api).
+* `cds_scope_credentials_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Scope Credentials API](#scope-creds-api).
+* `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Grants API](#grants-api).
 
 Upon valid registration, Servers MUST generate a [listed Scope Credential](#scope-creds-list) that is scoped to only `client_admin`, where the value of the Scope Credential's `client_secret` and the registration response `client_secret` are the same.
 Servers MUST also create [listed Scope Credentials](#scope-creds-list) that cover all additional valid scopes submitted, if any, where the Scope Credential objects are grouped by scopes that have the same `response_types`, `grant_types`, and `token_endpoint_auth_method` so as to maximize the number of scopes that may be accessed using the same `client_secret`.
@@ -331,9 +348,9 @@ These APIs are authenticated using a Bearer `access_token` granted to Clients us
 Client objects are formatted as JSON objects and contain named values.
 Client objects are required to follow the same object format as the [Client Registration Response](#registration-response), with the addition of the following named values.
 
-* `cds_created` - _ISO8601 datetime_ - (REQUIRED) When the Client was created.
-* `cds_modified` - _ISO8601 datetime_ - (REQUIRED) When the Client was last modified.
-* `cds_client_uri` - _URL_ - (REQUIRED) Where to submit modifications using the Clients API [Modifying Clients](#clients-modify) functionality.
+* `cds_created` - _[datetime](#datetime)_ - (REQUIRED) When the Client was created.
+* `cds_modified` - _[datetime](#datetime)_ - (REQUIRED) When the Client was last modified.
+* `cds_client_uri` - _[URL](#url)_ - (REQUIRED) Where to submit modifications using the Clients API [Modifying Clients](#clients-modify) functionality.
   Servers MUST make this URL unique for each Client registration.
 
 Additionally, while the [Client Registration Response](#registration-response) MUST contain the `client_secret` field.
@@ -348,9 +365,9 @@ The Client listing request responses are formatted as JSON objects and contain t
 * `clients` - _Array[[Client](#client-format)]_ - (REQUIRED) A list of Clients to which the requesting `access_token` is scoped to have access.
   If no Clients are accessible, this value is an empty list (`[]`).
   If more than 100 Clients are available to be listed, Servers MAY truncate the list and use the `next` value to link to the next segment of the list of Clients.
-* `next` - _URL_ or `null` - Where to request the next segment of the list of Clients.
+* `next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of Clients.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `previous` - _URL_ or `null` - Where to request the previous segment of the list of Clients.
+* `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Clients.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
 Listings of Client objects MUST be ordered in reverse chronological order by `cds_modified` timestamp, where the most recently updated relevant Client MUST be first in each listing.
@@ -409,23 +426,23 @@ Clients request their current [Client Settings object](#client-settings-format) 
 
 Client Settings objects are formatted as JSON objects and contain the following named values:
 
-* `default_scope` - _string_ - (REQUIRED) A space-separated list of scopes the Server will use for OAuth's [Authorization Requests](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) if the Client does not supply a `scope` or `authorization_details` parameter in the request.
+* `default_scope` - _[string](#string)_ - (REQUIRED) A space-separated list of scopes the Server will use for OAuth's [Authorization Requests](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) if the Client does not supply a `scope` or `authorization_details` parameter in the request.
 * `profile_visibility` - _[ProfileVisibility](#profile-visibility)_ - (REQUIRED) This is visibility configuration of a Client in the [Directory API](#directory-api).
 * `profile_visibility_options` - _Array[[ProfileVisibility](#profile-visibility)]_ - (REQUIRED) This is the list of available Profile Visibility values that the Client may choose to set as their `profile_visibility`.
-* `profile_description` - _string_ - (REQUIRED) This is the description that the Client wishes to be displayed in their public directory entry, if `profile_visibility` is set to `autolist`, `unlisted`, or `listed`.
-* `profile_uri` - _URL_ - (REQUIRED) This is the URL that links directly to the Client's entry in the Server's publicly accessible directory web interface, if `profile_visibility` is set to `autolist`, `unlisted`, or `listed`.
+* `profile_description` - _[string](#string)_ - (REQUIRED) This is the description that the Client wishes to be displayed in their public directory entry, if `profile_visibility` is set to `autolist`, `unlisted`, or `listed`.
+* `profile_uri` - _[URL](#url)_ - (REQUIRED) This is the URL that links directly to the Client's entry in the Server's publicly accessible directory web interface, if `profile_visibility` is set to `autolist`, `unlisted`, or `listed`.
   If a Client has set their `profile_visibility` to `disabled`, the Server MUST respond to requests to this URL with a 404 Not Found response code.
-* `profile_slug` - _string_ - (OPTIONAL) For Servers that have the ability to partially customize the `profile_uri` string to be a more human-readable URL, this is the part of the URL that is customizable by the Client.
-* `profile_button_uri` - _URL or `null`_ - (REQUIRED) In the profile entry for a Client, Servers MUST offer the ability for the Client to link users to a Client-provided URL.
+* `profile_slug` - _[string](#string)_ - (OPTIONAL) For Servers that have the ability to partially customize the `profile_uri` string to be a more human-readable URL, this is the part of the URL that is customizable by the Client.
+* `profile_button_uri` - _[URL](#url) or `null`_ - (REQUIRED) In the profile entry for a Client, Servers MUST offer the ability for the Client to link users to a Client-provided URL.
   Servers MUST implement this as an anchor link styled as one of the specified [Button Styles](#button-styles) that opens a new tab via the `target="_blank"` anchor attribute for the user.
   If a Client sets this value to `null`, then the Server MUST NOT render the button link in the Client's directory profile entry.
 * `profile_button_style` - _[ButtonStyle](#button-styles)_ - (REQUIRED) This is the style of button the Server has set for the `profile_button_uri`.
 * `profile_button_style_options` - _Array[[ButtonStyle](#button-styles)]_ - (REQUIRED) This is a list of [Button Styles](#button-styles) available for the Client to set as their button style in their directory entry.
-* `profile_contact_name` - _string_ - (REQUIRED) This the contact name to be listed in the public directory entry for the Client.
+* `profile_contact_name` - _[string](#string)_ - (REQUIRED) This the contact name to be listed in the public directory entry for the Client.
 * `profile_contact_email` - _[E.123](https://en.wikipedia.org/wiki/E.123) email address_ - (REQUIRED) This the contact email to be listed in the public directory entry for the Client.
 * `profile_contact_phone` - _[E.123](https://en.wikipedia.org/wiki/E.123) international phone number or `null`_ - (REQUIRED) This the contact phone number to be listed in the public directory entry for the Client.
   If the Client sets this to `null`, the phone number field MUST be hidden on the Client's public directory profile entry by the Server.
-* `profile_contact_website` - _URL or `null`_ - (REQUIRED) This is a link to a website the Client wishes the user to visit for more information on how to contact them.
+* `profile_contact_website` - _[URL](#url) or `null`_ - (REQUIRED) This is a link to a website the Client wishes the user to visit for more information on how to contact them.
   If the Client sets this to `null`, the website field MUST be hidden on the Client's public directory profile entry by the Server.
 
 ### 6.2. Profile Visibility <a id="profile-visibility" href="#profile-visibility" class="permalink">🔗</a>
@@ -490,29 +507,29 @@ The Client Updates API endpoints are authenticated using a Bearer `access_token`
 
 Client Update objects are formatted as JSON objects and contain the following named values:
 
-* `uri` - _URL_ - (REQUIRED) Where to retrieve or modify this specific Client Update object.
-* `previous_uri` - _URL or `null`_ - (REQUIRED) Where to find the previous Client Update to which this Client Update has been created as a reply.
+* `uri` - _[URL](#url)_ - (REQUIRED) Where to retrieve or modify this specific Client Update object.
+* `previous_uri` - _[URL](#url) or `null`_ - (REQUIRED) Where to find the previous Client Update to which this Client Update has been created as a reply.
 * `type` - _[ClientUpdateType](#client-update-types)_ - (REQUIRED) The type of Client Update.
 * `read` - _boolean_ - (REQUIRED) Whether the object has been marked as read by a Client.
   When the Server creates a Client Update, this value MUST be `false` by default, so that the Client Update appears in the [unread](#clients-updates-list) list.
-* `creator` - _string or `null`_ - (REQUIRED) If the Server created the Client Update, this value is `null`.
+* `creator` - _[string](#string) or `null`_ - (REQUIRED) If the Server created the Client Update, this value is `null`.
   If the Client created the Client Update, this value is the Client's `client_id`.
-* `created` - _ISO8601 datetime_ - (REQUIRED) When the Client Update was created.
-* `modified` - _ISO8601 datetime_ - (REQUIRED) When the Client Update was last modified.
+* `created` - _[datetime](#datetime)_ - (REQUIRED) When the Client Update was created.
+* `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Client Update was last modified.
 * `status` - _[ClientUpdateStatus](#client-update-statuses)_ - (REQUIRED) The current status of the Client Update.
-* `name` - _string_ - (REQUIRED) A human-readable name of the Client Update.
+* `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the Client Update.
   If the Client Update `type` is `notification`, `private_message`, or `support_request`, this is the message subject.
-* `description` - _string_ - (REQUIRED) A human-readable description of the Client Update.
+* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of the Client Update.
   If the Client Update `type` is `notification`, `private_message`, or `support_request`, this is the message body.
 * `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - (OPTIONAL) The list of values that a Client has requested to be updated.
   This field is required for Client Updates with a `type` value of `field_changes` or `server_request`.
-* `related_uri` - _URL or `null`_ - (OPTIONAL) If the Client Update `type` is `notification` or `private_message`, this value is where the Client can find more information, if available.
+* `related_uri` - _[URL](#url) or `null`_ - (OPTIONAL) If the Client Update `type` is `notification` or `private_message`, this value is where the Client can find more information, if available.
   If the Client Update `type` is `support_request`, this value is a relevant URL for which the Client is requesting technical support.
   If the Client Update `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
   If the Client Update `type` is `payment_request`, this is where the Client can submit their payment to the Server or if paid, a link to the payment receipt.
   If the Client Update `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
-* `amount` - _decimal_ - (OPTIONAL) If the Client Update `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
-* `currency` - _string_ - (OPTIONAL) If the Client Update `type` is `payment_request`, this is the monetary currency for the `amount` in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code.
+* `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Client Update `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
+* `currency` - _[string](#string)_ - (OPTIONAL) If the Client Update `type` is `payment_request`, this is the monetary currency for the `amount` in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code.
 
 ### 7.2. Client Update Types <a id="client-update-types" href="#client-update-types" class="permalink">🔗</a>
 
@@ -546,12 +563,12 @@ Client Update object `status` values MUST be one of the following:
 
 Client Update Request objects are formatted as JSON objects and contain the following named values:
 
-* `field` - _string_ - (REQUIRED) The field name of the field that is being requested to be updated.
+* `field` - _[string](#string)_ - (REQUIRED) The field name of the field that is being requested to be updated.
   For Client Updates with `type` values of `field_changes`, this is the name of the object's field on the API.
   For Client Updates with `type` values of `server_request`, this is the Server's identifier for the submission being requested from the client.
-* `name` - _string_ - (OPTIONAL) For Client Updates with `type` values of `server_request`, this MUST be a human-readable name of the submission type being requested as the client.
-* `description` - _string_ - (OPTIONAL) For Client Updates with `type` values of `server_request`, this MUST be a human-readable description providing the Client with more information about what this submission request item is.
-* `submitted_uri` - _URL_ - (OPTIONAL) For Client Updates with `type` values of `client_submission`, this MAY be a URL that the Client is submitting as their response to the Server's `server_request`, when the Server's requested field is for a remote resource, such as an logo or binary file.
+* `name` - _[string](#string)_ - (OPTIONAL) For Client Updates with `type` values of `server_request`, this MUST be a human-readable name of the submission type being requested as the client.
+* `description` - _[string](#string)_ - (OPTIONAL) For Client Updates with `type` values of `server_request`, this MUST be a human-readable description providing the Client with more information about what this submission request item is.
+* `submitted_uri` - _[URL](#url)_ - (OPTIONAL) For Client Updates with `type` values of `client_submission`, this MAY be a URL that the Client is submitting as their response to the Server's `server_request`, when the Server's requested field is for a remote resource, such as an logo or binary file.
 * `previous_value` - _various_ - (OPTIONAL) For Client Updates with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed from.
 * `new_value` - _various_ - (OPTIONAL) For Client Updates with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed to.
 
@@ -560,19 +577,19 @@ Client Update Request objects are formatted as JSON objects and contain the foll
 Clients may request to list Client Update objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_client_updates_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format). The Client Update listing request responses are formatted as JSON objects and contain the following named values.
 
 * `outstanding` - _Array[[ClientUpdate](#client-update-format)]_ - (REQUIRED) A list of Client Updates where the `status` is `open` or `pending`.
-* `outstanding_next` - _URL_ or `null` - Where to request the next segment of the list of outstanding Client Updates.
+* `outstanding_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of outstanding Client Updates.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `outstanding_previous` - _URL_ or `null` - Where to request the previous segment of the list of outstanding Client Updates.
+* `outstanding_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of outstanding Client Updates.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 * `unread` - _Array[[ClientUpdate](#client-update-format)]_ - (REQUIRED) A list of Client Updates where the `read` is `false`.
-* `unread_next` - _URL_ or `null` - Where to request the next segment of the list of unread Client Updates.
+* `unread_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of unread Client Updates.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `unread_previous` - _URL_ or `null` - Where to request the previous segment of the list of unread Client Updates.
+* `unread_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of unread Client Updates.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 * `read` - _Array[[ClientUpdate](#client-update-format)]_ - (REQUIRED) A list of Client Updates where the `read` is `true`.
-* `read_next` - _URL_ or `null` - Where to request the next segment of the list of read Client Updates.
+* `read_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of read Client Updates.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `read_previous` - _URL_ or `null` - Where to request the previous segment of the list of read Client Updates.
+* `read_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of read Client Updates.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
 Responses to `outstanding_next`, `outstanding_previous`, `unread_next`, `unread_previous`, `read_next`, or `read_previous` MUST be formatted the same as the initial Client Update listing, and MUST only include listings for the relevant next segment.
@@ -585,27 +602,27 @@ Listings of Client Update objects MUST be ordered in reverse chronological order
 Clients create new Client Updates by sending an authenticated HTTPS `POST` request to the `cds_client_updates_api` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object MUST include the following:
 
-* `previous_uri` - _URL or `null`_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be the Client Update `uri` that this Client Update is being submitted in response to (i.e. must have a `type` value of `server_request`).
+* `previous_uri` - _[URL](#url) or `null`_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be the Client Update `uri` that this Client Update is being submitted in response to (i.e. must have a `type` value of `server_request`).
   If submitting a Client Update with a `type` value of `support_request` or `private_message`, if the Client is responding to a previous Client Update, this value MUST be the Client Update `uri` of that Client Update.
   If submitting a Client Update with a `type` value of `support_request` or `private_message` that is not responding to another specific Client Update, this value MUST be `null`.
 * `type` - _[ClientUpdateType](#client-update-types)_ - This value MUST be one of `private_message`, `support_request`, or `client_submission`.
-* `name` - _string_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
+* `name` - _[string](#string)_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
   If submitting a Client Update with a `type` value of `support_request` or `private_message`, this value MUST be the subject line of the message.
-* `description` - _string_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
+* `description` - _[string](#string)_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
   If submitting a Client Update with a `type` value of `support_request` or `private_message`, this value MUST be the body of the message.
 * `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be a list of [Client Update Request](#client-update-request-format) objects with `field` values matching the `field` values in the corresponding `server_request` Client Update Request objects, and `description` or `submitted_uri` values being the Client's submission response to the Server's request for that `field`.
-* `related_uri` - _URL or `null`_ - If submitting a Client Update with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
+* `related_uri` - _[URL](#url) or `null`_ - If submitting a Client Update with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
   If there is no relevant API endpoint, the Client MUST set this value as `null`.
 
 Servers MUST reject requests with a `400 Bad Request` response when a Client submits an incomplete request or the submitted values are invalid.
 For valid `POST` requests from Clients, Servers MUST respond with a `201 Created` response with an updated JSON object of the complete current Client Update object.
 When committing Client Updates created by Clients, Servers MUST populate the following fields in addition to the Client's submitted fields:
 
-* `uri` - _URL_ - The endpoint where the Client can retrieve the newly created Client Update object.
+* `uri` - _[URL](#url)_ - The endpoint where the Client can retrieve the newly created Client Update object.
 * `read` - _boolean_ - Always set to `true`.
-* `creator` - _string_ - Always set to the Client's `client_id`.
-* `created` - _ISO8601 datetime_ - Always set to the Server's timestamp for when the Client Update was created.
-* `modified` - _ISO8601 datetime_ - Always the same as `created`.
+* `creator` - _[string](#string)_ - Always set to the Client's `client_id`.
+* `created` - _[datetime](#datetime)_ - Always set to the Server's timestamp for when the Client Update was created.
+* `modified` - _[datetime](#datetime)_ - Always the same as `created`.
 * `status` - _[ClientUpdateStatus](#client-update-statuses)_ - For `type` values of `private_message` or `client_submission`, this value MUST be `complete`.
   For `type` values of `support_request`, this value MUST be `pending`.
 
@@ -638,18 +655,18 @@ The Scope Credentials API endpoints are authenticated using a Bearer `access_tok
 
 Scope Credentials objects are formatted as JSON objects and contain the following named values:
 
-* `credential_id` - _string_ - (REQUIRED) The unique identifier for the Scope Credential on the Server's system.
-* `uri` - _URL_ - (REQUIRED) Where to retrieve, modify, or delete this specific Scope Credential object.
-* `client_id` - _string_ - (REQUIRED) Which Client this Scope Credential belongs to.
-* `created` - _ISO8601 datetime_ - (REQUIRED) When the Scope Credential was created.
-* `modified` - _ISO8601 datetime_ - (REQUIRED) When the Scope Credential was last modified.
-* `scope` - _string_ - (REQUIRED) The scopes for which this Scope Credential may obtain access.
+* `credential_id` - _[string](#string)_ - (REQUIRED) The unique identifier for the Scope Credential on the Server's system.
+* `uri` - _[URL](#url)_ - (REQUIRED) Where to retrieve, modify, or delete this specific Scope Credential object.
+* `client_id` - _[string](#string)_ - (REQUIRED) Which Client this Scope Credential belongs to.
+* `created` - _[datetime](#datetime)_ - (REQUIRED) When the Scope Credential was created.
+* `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Scope Credential was last modified.
+* `scope` - _[string](#string)_ - (REQUIRED) The scopes for which this Scope Credential may obtain access.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](https://www.rfc-editor.org/rfc/rfc9396#section-7.1)]_ - (REQUIRED) Any authorization details scopes that this Scope Credential may obtain access, in addition to this object's `scope` value.
   If no authorization details scopes are configured in addition to the `scope` string, this value is an empty array (`[]`).
   If the `type` field of an authorization detail object in this array is the same as a value in the `scope` string, the authorization detail object replaces the scope with additional more refined access details for the scope.
-* `client_secret` - _string or `null`_ - (REQUIRED) A sufficiently random value generated by the Server that can be used by the Client to authenticate themselves when obtaining an `access_token` from the Server's OAuth [token endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-3.2).
+* `client_secret` - _[string](#string) or `null`_ - (REQUIRED) A sufficiently random value generated by the Server that can be used by the Client to authenticate themselves when obtaining an `access_token` from the Server's OAuth [token endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-3.2).
   For Scope Credentials that have a `token_endpoint_auth_method` value of `none`, this value MUST be `null`.
-* `client_secret_expires_at` - _ISO8601 datetime or `null`_ - (REQUIRED) When the `client_secret` will expire.
+* `client_secret_expires_at` - _[datetime](#datetime) or `null`_ - (REQUIRED) When the `client_secret` will expire.
   If the `client_secret` is not currently set to expire, this value is `null`.
 * `status` - _[ScopeCredentialStatus](#scope-creds-statuses)_ - (REQUIRED) The current status of accessibility for this Scope Credential.
 * `status_options` - _Array[[ScopeCredentialStatus](#scope-creds-statuses)]_ - (REQUIRED) What `status` values to which the Client MAY change the Scope Credential when [modifying](#scope-creds-modify) it.
@@ -660,14 +677,14 @@ Scope Credentials objects are formatted as JSON objects and contain the followin
 * `token_endpoint_auth_method` - _[OAuth TokenEndpointAuthMethod](https://www.rfc-editor.org/rfc/rfc7591#section-2)_ - (REQUIRED) What type of OAuth [`token_endpoint_auth_method`](https://www.rfc-editor.org/rfc/rfc7591#section-2) MUST be used when requesting an `access_token` from the Server's OAuth [token endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-3.2).
   This value MUST be `client_secret_basic` for which scopes the Server requires a non-public Client.
   This value MAY be `none` when the Server allows the scope to be used by public Clients.
-* `redirect_uris` - _Array[URL]_ - (REQUIRED) A list of URLs that the Client MAY use as `redirect_uri` parameter values in the Server's OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1).
+* `redirect_uris` - _Array[[URL](#url)]_ - (REQUIRED) A list of URLs that the Client MAY use as `redirect_uri` parameter values in the Server's OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1).
   Servers MUST support public domain name URLs (e.g. "https://example.com/redirect"), as well as internal development URLs (e.g. "http://localhost:4000/redirect") and IP addresses in the host of the URL (e.g. "http://127.0.0.1:9999/redirect").
   Servers MUST support both `http` and `https` schemas in URLs.
   Servers MUST also support the addition of parameters in the URL, and when redirected to, append the Server's parameters (e.g. `code=...&state=...`) properly to the Client's `redirect_uri` even in cases where the Client's `redirect_uri` already has additional parameters.
   For example, if the Client's `redirect_uri` is "https://example.com/redirect?pageid=123", the Server's redirect would be "https://example.com/redirect?pageid=123&code=aaaaaaa&state=bbbbbbb" and not "https://example.com/redirect?pageid=123?code=aaaaaaa&state=bbbbbbb".
-* `authorization_endpoint` - _URL_ - (OPTIONAL) A specific OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) that overrides the default Client `authorization_endpoint` for this specific Scope Credential.
+* `authorization_endpoint` - _[URL](#url)_ - (OPTIONAL) A specific OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) that overrides the default Client `authorization_endpoint` for this specific Scope Credential.
   This MAY be added by Servers who have different authorization interfaces for different sets of scopes.
-* `token_endpoint` - _URL_ - (OPTIONAL) A specific OAuth [token endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-3.2) that overrides the default Client `token_endpoint` for this specific Scope Credential.
+* `token_endpoint` - _[URL](#url)_ - (OPTIONAL) A specific OAuth [token endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-3.2) that overrides the default Client `token_endpoint` for this specific Scope Credential.
   This MAY be added by Servers who have different token interfaces for different sets of scopes.
 
 ### 8.2. Scope Credentials Statuses <a id="scope-creds-statuses" href="#scope-creds-statuses" class="permalink">🔗</a>
@@ -699,9 +716,9 @@ The Scope Credential listing request responses are formatted as JSON objects and
 * `scope_credentials` - _Array[[ScopeCredential](#scope-creds-format)]_ - (REQUIRED) A list of Scope Credentials to which the requesting `access_token` is scoped to have access.
   If no Scope Credentials are accessible, this value is an empty list (`[]`).
   If more than 100 Scope Credentials are available to be listed, Servers MAY truncate the list and use the `next` value to link to the next segment of the list of Scope Credentials.
-* `next` - _URL_ or `null` - Where to request the next segment of the list of Scope Credentials.
+* `next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of Scope Credentials.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `previous` - _URL_ or `null` - Where to request the previous segment of the list of Scope Credentials.
+* `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Scope Credentials.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
 Servers MUST support Clients adding any of the following URL parameters to the `GET` request, which will filter the list of Scope Credentials to be the intersection of results for each of the URL parameters filters:
@@ -710,8 +727,8 @@ Servers MUST support Clients adding any of the following URL parameters to the `
 * `client_ids` - A space-separated list of `client_id` values for which the Servers MUST filter the Scope Credentials.
 * `cds_client_uris` - A space-separated list of `cds_client_uris` values for which the Servers MUST filter the Scope Credentials.
 * `scopes` - A space-separated list of `scope` values for which the Server MUST filter the Scope Credentials, where the included `scope` values are values within the Scope Credential `scope` (space separated) or as a `type` value in the `authorization_details` list.
-* `after` - An ISO8601 datetime for which the Server MUST filter Scope Credentials that were created after or on the datetime.
-* `before` - An ISO8601 datetime for which the Server MUST filter Scope Credentials that were created before or on the datetime.
+* `after` - A [datetime](#datetime) for which the Server MUST filter Scope Credentials that were created after or on the datetime.
+* `before` - A [datetime](#datetime) for which the Server MUST filter Scope Credentials that were created before or on the datetime.
 
 Listings of Scope Credential objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently updated relevant Scope Credential MUST be first in each listing.
 
@@ -724,10 +741,10 @@ The URL to be used to send `GET` requests for retrieving individual Scope Creden
 Clients create new Scope Credentials by sending an authenticated HTTPS `POST` request to the `cds_scope_credentials_api` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object MUST include the following:
 
-* `scope` - _string_ - This value is a space-separated list of scopes for which the new Scope Credentials is requesting to be provisioned.
+* `scope` - _[string](#string)_ - This value is a space-separated list of scopes for which the new Scope Credentials is requesting to be provisioned.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](https://www.rfc-editor.org/rfc/rfc9396#section-7.1)]_ - This value is a list of additional authorization detail objects that specify more granular access than simple scope strings.
   If the `type` field of an authorization detail object in this list is the same as a value in the `scope` string, the authorization detail object replaces the scope with additional more refined access details for the scope.
-* `redirect_uris` - _Array[URL]_ - A list of URLs that the Client MAY use as `redirect_uri` parameter values in the Server's OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) when requesting user authorization for the scopes (`scope` or `authorization_details`). If the scopes do not require user authorization (e.g. a `grant_type` value of`client_credentials`), this list may be an empty list (`[]`).
+* `redirect_uris` - _Array[[URL](#url)]_ - A list of URLs that the Client MAY use as `redirect_uri` parameter values in the Server's OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) when requesting user authorization for the scopes (`scope` or `authorization_details`). If the scopes do not require user authorization (e.g. a `grant_type` value of`client_credentials`), this list may be an empty list (`[]`).
   For scopes that require user authorization (e.g. a `response_type` value of `code`), this list may also be empty (`[]`) and updated by the Client later using the [Scope Credentials modification API](#scope-creds-modify).
 * `token_endpoint_auth_method` - _[OAuth TokenEndpointAuthMethod](https://www.rfc-editor.org/rfc/rfc7591#section-2)_ - Either `none` or `client_secret_basic`, depending on if the Client is adding a Scope Credential for a public or non-public use case, respectively.
   Server MUST only allow `none` to be valid in cases where the requested scopes require user authorization and authorization requests are permitted by public Clients.
@@ -737,10 +754,10 @@ Scopes for which user authorization is required (i.e. `response_type` value of `
 For valid `POST` requests from Clients, Servers MUST respond with a `201 Created` response with an updated JSON object of the complete current Scope Credential object.
 When committing Scope Credentials created by Clients, Servers MUST populate the following fields in addition to the Client's submitted fields:
 
-* `credential_id` - _string_ - The unique identifier for the Scope Credential on the Server's system.
-* `uri` - _URL_ - The endpoint where the Client can retrieve the newly created Scope Credential object.
-* `created` - _ISO8601 datetime_ - Always set to the Server's timestamp for when the Scope Credential was created.
-* `modified` - _ISO8601 datetime_ - Always the same as `created`.
+* `credential_id` - _[string](#string)_ - The unique identifier for the Scope Credential on the Server's system.
+* `uri` - _[URL](#url)_ - The endpoint where the Client can retrieve the newly created Scope Credential object.
+* `created` - _[datetime](#datetime)_ - Always set to the Server's timestamp for when the Scope Credential was created.
+* `modified` - _[datetime](#datetime)_ - Always the same as `created`.
 * `status` - _[ScopeCredentialStatus](#scope-creds-statuses)_ - Always set to `sandbox_only`.
 * `status_options` - _Array[[ScopeCredentialStatus](#scope-creds-statuses)]_ - Always a list containing at least two values: `sandbox_only` and `disabled`.
   If the Client has already previously been approved for production for the same scopes, the Server MUST include any of `production_only` or `production_and_sandbox` in the list.
@@ -750,8 +767,8 @@ When committing Scope Credentials created by Clients, Servers MUST populate the 
   For scopes for which user authorization is not required, this is always an empty list (`[]`).
 * `grant_types` - _Array[[OAuth GrantType](https://www.rfc-editor.org/rfc/rfc7591#section-2)]_ - For scopes for which user authorization is required, this is always a two-entry list with the values `authorization_code` and `refresh_token`.
   For scopes for which user authorization is not required, this is always a single-entry list with the value `client_credentials` in the list.
-* `authorization_endpoint` - _URL_ - (OPTIONAL) If different from the Client object's `authorization_endpoint` value.
-* `token_endpoint` - _URL_ - (OPTIONAL) If different from the Client object's `token_endpoint` value.
+* `authorization_endpoint` - _[URL](#url)_ - (OPTIONAL) If different from the Client object's `authorization_endpoint` value.
+* `token_endpoint` - _[URL](#url)_ - (OPTIONAL) If different from the Client object's `token_endpoint` value.
 
 ### 8.7. Modifying Scope Credentials <a id="scope-creds-modify" href="#scope-creds-modify" class="permalink">🔗</a>
 
@@ -764,10 +781,10 @@ The following are fields that MAY be included in the `PATCH` request, and modifi
 * `status` - Servers MUST only accept a value list in the object's `status_options` from the Client.
 * `status_options` - This value is a list of [Scope Credential Status](#scope-creds-statuses) values for which the Client is requesting approval.
   This list MUST always contain `disabled` and `sandbox_only`, and if these values are not submitted by the Client, the Server MUST automatically add them to the Client-submitted list.
-* `scope` - _string_ - This value is a space-separated list of scopes for which the new Scope Credentials is requesting to be provisioned.
+* `scope` - _[string](#string)_ - This value is a space-separated list of scopes for which the new Scope Credentials is requesting to be provisioned.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](https://www.rfc-editor.org/rfc/rfc9396#section-7.1)]_ - This value is a list of additional authorization detail objects that specify more granular access than simple scope strings.
   If the `type` field of an authorization detail object in this list is the same as a value in the `scope` string, the authorization detail object replaces the scope with additional more refined access details for the scope.
-* `redirect_uris` - _Array[URL]_ - A list of URLs that the Client MAY use as `redirect_uri` parameter values in the Server's OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) when requesting user authorization for the scopes (`scope` or `authorization_details`).
+* `redirect_uris` - _Array[[URL](#url)]_ - A list of URLs that the Client MAY use as `redirect_uri` parameter values in the Server's OAuth [authorization endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) when requesting user authorization for the scopes (`scope` or `authorization_details`).
   If the scopes do not require user authorization (e.g. a `grant_type` value of`client_credentials`), this list may be an empty list (`[]`).
   For scopes that require user authorization (e.g. a `response_type` value of `code`), this list may also be empty (`[]`) and updated by the Client later using the [Scope Credentials modification API](#scope-creds-modify).
 
@@ -788,43 +805,43 @@ These APIs are authenticated using a Bearer `access_token` granted to Clients us
 
 Grant objects are formatted as JSON objects and contain the following named values:
 
-* `grant_id` - _string_ - (REQUIRED) The unique identifier for the Grant on the Server's system.
-* `uri` - _URL - (REQUIRED) A link to this specific Grant that can be used to [retrieve](#grants-get) or [modify](#grants-modify) the individual Grant.
-* `replacing` - _Array[URL]_ - (REQUIRED) If this Grant is superseding another Grant, this is the list of Grant `uri` values of the superseded Grants.
+* `grant_id` - _[string](#string)_ - (REQUIRED) The unique identifier for the Grant on the Server's system.
+* `uri` - _[URL](#url)_ - (REQUIRED) A link to this specific Grant that can be used to [retrieve](#grants-get) or [modify](#grants-modify) the individual Grant.
+* `replacing` - _Array[[URL](#url)]_ - (REQUIRED) If this Grant is superseding another Grant, this is the list of Grant `uri` values of the superseded Grants.
   If this grant is not superseding any other Grants, this value is an empty list (`[]`).
-* `replaced_by` - _Array[URL]_ - (REQUIRED) If this Grant has been superseded by other Grants, this is the list of Grant `uri` values of the superseding Grants.
+* `replaced_by` - _Array[[URL](#url)]_ - (REQUIRED) If this Grant has been superseded by other Grants, this is the list of Grant `uri` values of the superseding Grants.
   If no other Grants have superseded this Grant, this value is an empty list (`[]`).
-* `parent` - _URL or `null`_ - (REQUIRED) If this Grant represents an individual sub-authorization that is part of another Grant that required multiple authorizations, this is where to find the parent Grant.
+* `parent` - _[URL](#url) or `null`_ - (REQUIRED) If this Grant represents an individual sub-authorization that is part of another Grant that required multiple authorizations, this is where to find the parent Grant.
   If this Grant is not a sub-authorization, this value is `null`.
-* `children` - _Array[URL]_ - (REQUIRED) If this Grant represents a parent Grant that has multiple sub-authorizations underneath it, this is a list of Grant `uri` values for where to find the sub-authorizations.
+* `children` - _Array[[URL](#url)]_ - (REQUIRED) If this Grant represents a parent Grant that has multiple sub-authorizations underneath it, this is a list of Grant `uri` values for where to find the sub-authorizations.
   If this Grant does not have any sub-authorizations, this value is an empty list (`[]`).
-* `created` - _ISO8601 datetime_ - (REQUIRED) When the Grant was created.
-* `modified` - _ISO8601 datetime_ - (REQUIRED) When the Grant was most recently modified.
+* `created` - _[datetime](#datetime)_ - (REQUIRED) When the Grant was created.
+* `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Grant was most recently modified.
   If the Grant has not been modified since creation, this is the same value as `created`.
-* `not_before` - _ISO8601 datetime or `null`_ - (REQUIRED) When a Grant that is for future access, Grant's `status` will be switched from `future` to another value.
+* `not_before` - _[datetime](#datetime) or `null`_ - (REQUIRED) When a Grant that is for future access, Grant's `status` will be switched from `future` to another value.
   If the Grant is not for future access and access is available immediately upon creation, this value is `null`.
-* `not_after` - _ISO8601 datetime or `null`_ - (REQUIRED) When a Grant has access that will expire in the future, this value indicates when the Grant's `status` will be switched to `expired`.
+* `not_after` - _[datetime](#datetime) or `null`_ - (REQUIRED) When a Grant has access that will expire in the future, this value indicates when the Grant's `status` will be switched to `expired`.
   If the Grant does not expire, this value is `null`.
-* `eta` - _ISO8601 datetime or `null`_ - (REQUIRED) When a Grant has a `status` with the value `pending`, this value indicates an estimated time for when the status is expected to be switched to another value.
+* `eta` - _[datetime](#datetime) or `null`_ - (REQUIRED) When a Grant has a `status` with the value `pending`, this value indicates an estimated time for when the status is expected to be switched to another value.
   If the Grant's `status` is not `pending` this value is `null`.
-* `expires` - _ISO8601 datetime or `null`_ - (REQUIRED) When the Grant will expire and access will be removed by the Server.
+* `expires` - _[datetime](#datetime) or `null`_ - (REQUIRED) When the Grant will expire and access will be removed by the Server.
   If the Grant is to continue indefinitely, this value is `null`.
 * `status` - _[GrantStatus](#grant-status)_ - (REQUIRED) The current [Grant Status](#grant-status) of the Grant.
-* `client_id` - _string_ - (REQUIRED) Which Client for which this Grant is issued.
-* `cds_client_uri` - _URL_ - (REQUIRED) Where to retrieve using the [Clients API](#clients-get) the Client for which the Grant is issued.
-* `scope` - _string_ - (REQUIRED) The scopes for which this Grant has issued access.
+* `client_id` - _[string](#string)_ - (REQUIRED) Which Client for which this Grant is issued.
+* `cds_client_uri` - _[URL](#url)_ - (REQUIRED) Where to retrieve using the [Clients API](#clients-get) the Client for which the Grant is issued.
+* `scope` - _[string](#string)_ - (REQUIRED) The scopes for which this Grant has issued access.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](https://www.rfc-editor.org/rfc/rfc9396#section-7.1)]_ - (REQUIRED) Any authorization details scopes that are granted in addition to this object's `scope` value.
   If no authorization details scopes are configured in addition to the `scope` string, this value is an empty array (`[]`).
   If the `type` field of an authorization detail object in this array is the same as a value in the `scope` string, the authorization detail object replaces the scope with additional more refined access details for the scope.
-* `receipt_confirmations` - _Array[string]_ - (REQUIRED) For Grants with scopes that can be obtained via user authorization (`grant_types` contains `authorization_code`), this is a list of receipt confirmation codes that were provided to the end users who authorized the access.
+* `receipt_confirmations` - _Array[[string](#string)]_ - (REQUIRED) For Grants with scopes that can be obtained via user authorization (`grant_types` contains `authorization_code`), this is a list of receipt confirmation codes that were provided to the end users who authorized the access.
   If no receipt was provided or the Grant did not get issued via `authorization_code` then this value is an empty list (`[]`).
-* `enabled_scope` - _string_ - For Grants where access has been partially granted, but some access is still disabled, this value is the `scope` that has been enabled by the server.
+* `enabled_scope` - _[string](#string)_ - For Grants where access has been partially granted, but some access is still disabled, this value is the `scope` that has been enabled by the server.
   For Grants where access has been fully granted, this value is the same as the `scope` value.
   For Grants that have had their access removed (e.g. `disabled`), this value is an empty string (`""`).
 * `enabled_authorization_details` - _Array[[OAuth AuthorizationDetail](https://www.rfc-editor.org/rfc/rfc9396#section-7.1)]_ - For Grants where access has been partially granted, but some access is still disabled, this value is the `authorization_details` that has been enabled by the server.
   For Grants where access has been fully granted, this value is the same as the `authorization_details` value.
   For Grants that have had their access removed (e.g. `disabled`), this value is an empty list (`[]`).
-* `sub_authorization_scopes` - _Array[string]_ - (REQUIRED) For Grants that require sub-authorizations where users must provide additional authorization to enable access, this is the outstanding list of `scope` values that have yet to be authorized individually by users.
+* `sub_authorization_scopes` - _Array[[string](#string)]_ - (REQUIRED) For Grants that require sub-authorizations where users must provide additional authorization to enable access, this is the outstanding list of `scope` values that have yet to be authorized individually by users.
 
 ### 9.2. Grant Statuses <a id="grant-statuses" href="#grant-statuses" class="permalink">🔗</a>
 
@@ -860,9 +877,9 @@ The Grant listing request responses are formatted as JSON objects and contain th
 * `grants` - _Array[[Grant](#grant-format)]_ - (REQUIRED) A list of Grants to which the requesting `access_token` is scoped to have access.
   If no Grants are accessible, this value is an empty list (`[]`).
   If more than 100 Grants are available to be listed, Servers MAY truncate the list and use the `next` value to link to the next segment of the list of Grants.
-* `next` - _URL_ or `null` - Where to request the next segment of the list of Grants.
+* `next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of Grants.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `previous` - _URL_ or `null` - Where to request the previous segment of the list of Grants.
+* `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Grants.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
 Servers MUST support Clients adding any of the following URL parameters to the `GET` request, which will filter the list of Grants to be the intersection of results for each of the URL parameters filters:
@@ -872,8 +889,8 @@ Servers MUST support Clients adding any of the following URL parameters to the `
 * `cds_client_uris` - A space-separated list of `cds_client_uri` values for which the Servers MUST filter the Grants.
 * `scopes` - A space-separated list of `scope` values for which the Server MUST filter the Grants, where the included `scope` values are values within the Grant `scope` (space separated) or as a `type` value in the `authorization_details` list.
 * `receipt_confirmations` - A space-separated list of receipt confirmation codes for which the Server MUST filter the Grants.
-* `after` - An ISO8601 datetime for which the Server MUST filter Grants that were created after or on the datetime.
-* `before` - An ISO8601 datetime for which the Server MUST filter Grants that were created before or on the datetime.
+* `after` - A [datetime](#datetime) for which the Server MUST filter Grants that were created after or on the datetime.
+* `before` - A [datetime](#datetime) for which the Server MUST filter Grants that were created before or on the datetime.
 
 Listings of Grant objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently updated relevant Grant MUST be first in each listing.
 
@@ -939,9 +956,9 @@ The Client listing request responses are formatted as JSON objects and contain t
 * `entries` - _Array[[DirectoryEntry](#directory-entry-format)]_ - (REQUIRED) A list of Directory Entry objects for Clients who have set their `profile_visibility` to `listed`.
   If no Clients are listed, this value is an empty list (`[]`).
   If more than 100 Directory Entry objects are available to be listed, Servers MAY truncate the list and use the `next` value to link to the next segment of the list of Directory Entry objects.
-* `next` - _URL_ or `null` - Where to request the next segment of the list of Directory Entry objects.
+* `next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of Directory Entry objects.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `previous` - _URL_ or `null` - Where to request the previous segment of the list of Directory Entry objects.
+* `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Directory Entry objects.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
 ### 10.3. Publicly Accessible Web Directory <a id="public-directory" href="#public-directory" class="permalink">🔗</a>
