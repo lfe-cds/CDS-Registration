@@ -21,13 +21,15 @@ The defined base metadata endpoint is intended to act as a starting point for or
     * [3.1. Metadata Well-Known URI](#metadata-well-known-uri)  
     * [3.2. Metadata Object Format](#metadata-object-format)  
     * [3.3. Metadata Endpoint Organization](#metadata-endpoint-organization)  
-    * [3.4. Infrastructure Types](#infrastructure-types)
-    * [3.5. Commodity Types](#commodity-types)
-    * [3.6. Server Capabilities](#server-capabilities)
+    * [3.4. Server Capabilities](#server-capabilities)
 * [4. Coverage Endpoint](#coverage-endpoint)  
-    * [4.1. Coverage Object Format](#coverage-object-format)  
-    * [4.2. Coverage Entry Format](#coverage-entry-format)  
-    * [4.3. Coverage Entry Types](#coverage-entry-types)
+    * [4.1. Coverage Listing Format](#coverage-listing-format)  
+    * [4.2. Coverage Listing Filters](#coverage-listing-filters)  
+    * [4.3. Coverage Entry Format](#coverage-entry-format)  
+    * [4.4. Coverage Entry Types](#coverage-entry-types)
+    * [4.5. Capability Roles](#capability-roles)
+    * [4.6. Infrastructure Types](#infrastructure-types)
+    * [4.7. Commodity Types](#commodity-types)
 * [5. Server Migration](#server-migration)  
 * [6. Extensions](#extensions)  
 * [7. Examples](#examples)  
@@ -101,23 +103,18 @@ Servers MAY additionally support other public and restricted URLs for special ca
 Metadata objects are formatted as JSON objects and contain named values, some of which are required and some of which are optional.
 The following values are included in the default list available in metadata objects.
 
-* `cds_metadata_version` - _[string](#string)_ - (REQUIRED) The version of metadata object format this Server follows, which for this version of the specification is `v1`
-* `cds_metadata_url` - _[string](#string)_ - (REQUIRED) A URL link to this metadata object's canonical network location
-* `created` - _[datetime](#datetime)_ - (REQUIRED) When the metadata url was first made available
-* `updated` - _[datetime](#datetime)_ - (REQUIRED) When this metadata object was last modified
-* `name` - _[string](#string)_ - (REQUIRED) The name of the utility or entity (e.g. "Demo Gas & Electric")
-* `description` - _[string](#string)_ - (REQUIRED) A brief description about the utility or entity (e.g. "An electric and gas utility serving customers in Northern California")
-* `website` - _[URL](#url)_ - (REQUIRED) Where users can learn more about the utility or entity and its capabilities
-* `documentation` - _[URL](#url)_ - (REQUIRED) Where Clients can find the utility or entity's technical reference documentation
-* `support` - _[URL](#url)_ - (REQUIRED) Where Clients can find contact information for technical support on the Server's capabilities
-* `infrastructure_types` - _Array[[InfrastructureType](#infrastructure-types)]_ - (REQUIRED) A list of infrastructure categories that are applicable to this utility or entity, which may be an empty array if the Server is not any of the possible infrastructure types
-* `commodity_types` - _Array[[CommodityType](#commodity-types)]_ - (REQUIRED) A list of services or commodities that are applicable to this utility or entity, which may be an empty array if the Server does not have an applicable commodity
-* `capabilities` - _Array[[ServerCapability](#server-capabilities)]_ - (REQUIRED) What capabilities and functionality this Server supports, which may be an empty array if the Server is not offering any additional capabilities beyond just this metadata object
-* `coverage` - _[URL](#url)_ - (OPTIONAL) Where to find the [Coverage Endpoint](#coverage-endpoint)
-* `related_metadata` - _Array[[URL](#url)]_ - (OPTIONAL) Where to find other related [Metadata Endpoints](#metadata-endpoint)
-
-Values and arrays of values in the metadata object is assumed to only related to the array of capabilities the Server is offering.
-For example, if a utility that offers both electricity and natural gas, but is only offering data access capabilities to electric service accounts, the Server only needs to include `electricity` in its `commodity_types` array and not `natural_gas`.
+* `cds_metadata_version` - _[string](#string)_ - (REQUIRED) The version of metadata object format this Server follows, which for this version of the specification is `v1`.
+* `cds_metadata_url` - _[string](#string)_ - (REQUIRED) A URL link to this metadata object's canonical network location.
+* `created` - _[datetime](#datetime)_ - (REQUIRED) When the metadata url was first made available.
+* `updated` - _[datetime](#datetime)_ - (REQUIRED) When this metadata object was last modified.
+* `name` - _[string](#string)_ - (REQUIRED) The name of the utility or entity (e.g. "Demo Gas & Electric").
+* `description` - _[string](#string)_ - (REQUIRED) A brief description about the utility or entity (e.g. "An electric and gas utility serving customers in Northern California").
+* `website` - _[URL](#url)_ - (REQUIRED) Where users can learn more about the utility or entity and its capabilities.
+* `documentation` - _[URL](#url)_ - (REQUIRED) Where Clients can find the utility or entity's technical reference documentation.
+* `support` - _[URL](#url)_ - (REQUIRED) Where Clients can find contact information for technical support on the Server's capabilities.
+* `capabilities` - _Array[[ServerCapability](#server-capabilities)]_ - (REQUIRED) What capabilities and functionality this Server supports, which may be an empty array if the Server is not offering any additional capabilities beyond just this metadata object. If the list of capabilities includes `coverage`, this array MUST also include a union of the capabilities listed in the [Coverage Endpoint](#coverage-endpoint) list of [Coverage Entry](#coverage-entry-format) objects' `capabilities` values.
+* `coverage` - _[URL](#url)_ - (OPTIONAL) Where to find the [Coverage Endpoint](#coverage-endpoint). This field is REQUIRED if `coverage` is listed in the `capabilities` array.
+* `related_metadata` - _Array[[URL](#url)]_ - (OPTIONAL) Where to find other related [Metadata Endpoints](#metadata-endpoint).
 
 ### 3.3. Metadata Endpoint Organization <a id="metadata-endpoint-organization" href="#metadata-endpoint-organization" class="permalink">🔗</a>
 
@@ -126,29 +123,11 @@ These organizational complexities and legal structures can make it difficult to 
 
 When utilities and other similar entities wish to publicly provide multiple metadata objects that more cleanly define the metadata and capabilities for their entity, their Server MUST publish a single metadata endpoint at the [well-known URI](metadata-well-known-uri) and within that metadata object include an array of `related_metadata` URLs that link the Client to the various subdivided or related metadata endpoints.
 
+If capabilities are available by a parent organization across a group of subsidiary utilities or entities (e.g. a holding company offers universal customer data access across many of their utility operating company territories), the parent organization MAY publish a single metatdata object with coverage entries that list the individual subsidiary utility or entity coverage entries.
+
 It is acceptable for the initial well-known metadata endpoint object to include a minimal or empty array of `capabilities`, as it represents the entire entity, and leave enumerating the `capabilities` to the related metadata endpoints.
 
-### 3.4. Infrastructure Types <a id="infrastructure-types" href="#infrastructure-types" class="permalink">🔗</a>
-
-Infrastructure types are general categories of utility and energy grid entities that are likely to need to provide access to metadata and capabilities under this specification.
-The following list of strings are an enumerated set of infrastructure types that MAY be included in the `infrastructure_types` array of values in the metadata object.
-
-* `distribution_utility` - A electric, natural gas, and/or water utility that distributes the utility service to the end customer (e.g. "who maintains the wires to your house")
-* `metering_provider` - An entity that maintains the utility metering infrastructure and/or reads end customer meters (e.g. "who reads your meter")
-* `supplier` - An energy supplier for the end customer (e.g. "who you buy power from")
-* `central_repository` - A government mandated entity that collects customer usage information into a centralized repository for re-distribution (e.g. a state-level meter data warehouse for deregulated jurisdictions)
-
-### 3.5. Commodity Types <a id="commodity-types" href="#commodity-types" class="permalink">🔗</a>
-
-Commodity types are what general categories of services a utility or entity provides to end customers.
-The following list of strings are an enumerated set of commodity types that MAY be included in the `infrastructure_types` array of values in the metadata object.
-
-* `electricity` - Has metadata or capabilities around utility electric services
-* `natural_gas` - Has metadata or capabilities around utility natural gas services
-* `fuel_oil` - Has metadata or capabilities around utility fuel oil services
-* `water` - Has metadata or capabilities around utility water services
-
-### 3.6. Server Capabilities <a id="server-capabilities" href="#server-capabilities" class="permalink">🔗</a>
+### 3.4. Server Capabilities <a id="server-capabilities" href="#server-capabilities" class="permalink">🔗</a>
 
 Server capabilities are what specific interoperability or informational capabilities a Server is providing.
 The following list of strings are an enumerated set of capabilities that are defined by default in this specification.
@@ -159,17 +138,16 @@ If included, a `coverage` value is REQUIRED in the metadata object.
 Other specifications that define interoperability or informational capabilities for utilities and other entities are encouraged to define an extension that adds their capability as a string to the above list.
 See the [Extensions](#Extensions) section for details on how to extend this list of Server capabilities.
 
-
 ## 4. Coverage Endpoint <a id="coverage-endpoint" href="#coverage-endpoint" class="permalink">🔗</a>
 
 If Servers include the `coverage` [Server capability](#server-capabilities), a URL to the utility or entity's coverage MUST be included in the metadata object.
 
-When the URL is requested and the request is valid, the Server MUST respond with a "200 OK" Status Code and body containing JSON object formatted according to the [Coverage Object Format](#coverage-object-format).
+When the URL is requested using the HTTP `GET` method and the request is valid, the Server MUST respond with a "200 OK" Status Code and body containing JSON object formatted according to the [Coverage Listing Format](#coverage-listing-format).
 Cache-optimized responses, such as "304 Not Modified", to Client requests with cached value headers, such as `If-None-Match`, is also acceptable.
 
 For invalid requests and error responses, Servers MUST respond with the appropriate Response Code for the type of issue or error (e.g. "503 Service Unavailable" if the Server is temporarily down for maintenance).
 
-### 4.1. Coverage Object Format <a id="coverage-object-format" href="#coverage-object-format" class="permalink">🔗</a>
+### 4.1. Coverage Listing Format <a id="coverage-listing-format" href="#coverage-listing-format" class="permalink">🔗</a>
 
 Coverage objects are formatted as JSON objects and contain the following named values. This object serves mostly as an object wrapper around a list of [coverage entries](#coverage-entry-format), so that the list of coverage entries can be paginated by the Server if too long for one response.
 
@@ -177,34 +155,84 @@ Coverage objects are formatted as JSON objects and contain the following named v
 * `next` - _`null` or [URL](#url)_ - (REQUIRED) Link to the next page of coverage entries (`null` if no more subsequent pages)
 * `previous` - _`null` or [URL](#url)_ - (REQUIRED) Link to the previous page of coverage entries (`null` if no more prior pages)
 
-### 4.2. Coverage Entry Format <a id="coverage-entry-format" href="#coverage-entry-format" class="permalink">🔗</a>
+Listings of Coverage Entry objects MUST be ordered in reverse chronological order by `updated` datetime, where the most recently updated relevant Coverage Entry MUST be first in each listing.
+
+### 4.2. Coverage Listing Filters <a id="coverage-listing-filters" href="#coverage-listing-filters" class="permalink">🔗</a>
+
+Servers MUST support Clients adding any of the following URL parameters to the [Coverage Endpoint](#coverage-endpoint) GET request, which will filter the list of Coverage Entry objects to be the intersection of results for each of the URL parameters filters:
+
+* `ids` - A space-separated list of `id` values for which the Servers MUST filter the Coverage Entries.
+
+### 4.3. Coverage Entry Format <a id="coverage-entry-format" href="#coverage-entry-format" class="permalink">🔗</a>
 
 Coverage entries are formatted as JSON objects and contain named values, some of which are required and some of which are optional.
 The following values are included in the default list available in coverage entries.
 
-* `id` - _[string](#string)_ - (REQUIRED) A unique identifier for the coverage entry
-* `type` - _[CoverageEntryType](#coverage-entry-types)_ - (REQUIRED) Which Coverage Entry Type this coverage entry is
-* `updated` - _[datetime](#datetime)_ - (REQUIRED) When this coverage entry was last modified
-* `name` - _[string](#string)_ - (REQUIRED) A human readable name for the coverage area or category (e.g. "Upstate New York")
-* `description` - _[string](#string)_ - (OPTIONAL) A brief description the coverage area or category (e.g. "Most of the northern half of New York state")
-* `map_resource` - _[URL](#url)_ - (OPTIONAL) Link to a map of the coverage territory
-* `map_content_type` - _[MIME type](#mime-type)_ - (OPTIONAL) Content-Type format of the `map_resource`
-* `geojson_resource` - _[URL](#url)_ - (OPTIONAL) Link to a GeoJSON object mapping the coverage territory
+* `id` - _[string](#string)_ - (REQUIRED) A unique identifier for the coverage entry.
+* `created` - _[datetime](#datetime)_ - (REQUIRED) When this coverage entry was first made available.
+* `updated` - _[datetime](#datetime)_ - (REQUIRED) When this coverage entry was last modified.
+* `entity_name` - _[string](#string)_ - (REQUIRED) A human readable name for the entity being covered (e.g. "Demo Gas & Electric"). The entity name in a coverage entry MAY be different than the Server metadata `name` value in situations where the Server is operated by a parent or other entity.
+* `entity_abbreviation` - _`null` or [string](#string)_ - (REQUIRED) The abbreviation for the entity being covered by the coverage entry (e.g. "DG&E"). This field is to assist Clients in parsing coverage for entities that are commonly known by their abbreviated names (e.g. "DG&E" rather than "Demo Gas & Electric"). If no abbreviation is available for the entity being covered, this value is `null`.
+* `name` - _[string](#string)_ - (REQUIRED) A human readable name for the coverage area or category (e.g. "Upstate New York electric territory").
+* `description` - _[string](#string)_ - (OPTIONAL) A brief description the coverage area or category (e.g. "Example Electric's coverage for the northern half of New York state").
+* `type` - _[CoverageType](#coverage-entry-types)_ - (REQUIRED) The type of coverage entry.
+* `role` - _[CapabilityRole](#capability-roles)_ - (REQUIRED) The role of the Server in offering capabilities for the coverage entry.
+* `infrastructure_types` - _Array[[InfrastructureType](#infrastructure-types)]_ - (REQUIRED) A list of infrastructure categories that are applicable to the coverage entry, which may be an empty array if the entry is not any of the possible infrastructure types.
+* `commodity_types` - _Array[[CommodityType](#commodity-types)]_ - (REQUIRED) A list of services or commodities that are applicable to the coverage entry, which may be an empty array if the entry does not have an applicable commodity.
+* `capabilities` - _Array[[ServerCapability](#server-capabilities)]_ - (REQUIRED) What capabilities and functionality this Server supports for the coverage entry, which may be an empty array if the Server is not offering any capabilities for the coverage entry and is just publishing the coverage entry itself for informational purposes. This list MUST NOT include the `coverage` capability.
+* `map_resource` - _[URL](#url)_ - (OPTIONAL) Link to a map of the coverage territory.
+* `map_content_type` - _[MIME type](#mime-type)_ - (OPTIONAL) Content-Type format of the `map_resource`.
+* `geojson_resource` - _[URL](#url)_ - (OPTIONAL) Link to a GeoJSON object mapping the coverage territory.
 
-When `type` is a geographic entry type, one or both of `map_resource` and `geojson_resource` MUST be provided.
+When `type` is `geographic`, one or both of `map_resource` and `geojson_resource` MUST be provided.
 If `map_resource` is provided, then `map_content_type` MUST also be provided.
 
-### 4.3. Coverage Entry Types <a id="coverage-entry-types" href="#coverage-entry-types" class="permalink">🔗</a>
+### 4.4. Coverage Entry Types <a id="coverage-entry-types" href="#coverage-entry-types" class="permalink">🔗</a>
 
-Coverage entry types describe what geographic territory is being detailed in the coverage entry.
-Many utilities have different geographic coverage for their different service types (e.g. their electric service territory is different from their natural gas service territory), so Servers may include multiple coverage entries for different types of service without having to publish multiple metadata endpoints.
+Coverage entry types describe what group is being detailed in the coverage entry.
+Coverage entries MAY represent physical geographic territories (e.g. where a utility provides electric service) or logical groupings (e.g. a certain segment of customers).
+Many utilities have different geographic or logical coverage for their different territories and capabilities (e.g. their electric service territory is different from their natural gas service territory), so Servers MAY include multiple coverage entries for different types of service without having to publish multiple metadata endpoints.
 
 The following list of strings are an enumerated set of coverage entry types that are valid `type` values in the coverage entry object.
 
-* `electric_service_territory` - Geographic area where metadata or capabilities for utility electric services is supported
-* `natural_gas_service_territory` - Geographic area where metadata or capabilities for utility natural gas services is supported
-* `fuel_oil_service_territory` - Geographic area where metadata or capabilities for utility fuel oil services is supported
-* `water_service_territory` - Geographic area where metadata or capabilities for utility water services is supported
+* `geographic` - The coverage entry represents a geographic area (e.g. electric service territory).
+* `logical` - The coverage entry represents a non-geographic logical grouping (e.g. a set of commerical customers).
+
+### 4.5. Capability Roles <a id="capability-roles" href="#capability-roles" class="permalink">🔗</a>
+
+Capability Roles disclose the Server's role in the provision of capabilities covered by the coverage entry.
+The following list of strings are an enumerated set of role types that MAY be set as the `role` value in the coverage entry object.
+
+* `authoritative` - The Server represents the authoritative entity for the capabilities covered by the coverage entry (e.g. the utility itselfis providing the capability). Only one Server SHOULD mark itself as `authoritative` for the same coverage and capability, to prevent any abiguity for Clients as to a "source of truth".
+* `official` - The Server represents a contractually obligated or government mandated entity that has an official connection to the `authoritative` entity and is offering funcational capabilities for the `direct` entity in an official capacity (e.g. a state-wide data hub offering customer data access). Multiple Servers could mark themselves as `official` for the same coverage and capability if the `authoritative` entity has multiple implementations of capabilities with officially designated service providers or data hubs.
+* `aggregator` - The Server represents an external entity that offers capabilities by proxy and does not have an official agreement with the `direct` entity (e.g. a service provider that aggregates many utility territory capabilities).
+
+### 4.6. Infrastructure Types <a id="infrastructure-types" href="#infrastructure-types" class="permalink">🔗</a>
+
+Infrastructure types are general categories of utility and energy grid entities that are likely to need to provide access to metadata and capabilities under this specification.
+The following list of strings are an enumerated set of infrastructure types that MAY be included in the `infrastructure_types` array of values in the coverage entry object.
+
+* `distribution_utility` - A electric, natural gas, and/or water utility that distributes the utility service to the end customer (e.g. "who maintains the wires to your house").
+* `metering_provider` - An entity that maintains the utility metering infrastructure and/or reads end customer meters (e.g. "who reads your meter").
+* `supplier` - An energy supplier for the end customer (e.g. "who you buy power from").
+* `generator` - An entity that operates energy generation assets (e.g. a power plant owner and/or operator).
+* `market_operator` - An entity that operates an energy or grid market (e.g. a wholesale energy trading system).
+* `distribution_service_operator` - Commonly called a "DSO", this is a control entity manages one or more distribution grids.
+* `transmission_service_operator` - Commonly called a "TSO" or Interstate Service Operator ("ISO"), this is a control entity manages one or more distribution grids.
+* `service_provider` - An entity that provides customer, utilty, grid, or other services (e.g. a virtual power plant operator).
+
+### 4.7. Commodity Types <a id="commodity-types" href="#commodity-types" class="permalink">🔗</a>
+
+Commodity types are what general categories of services a utility or entity provides to end customers.
+The following list of strings are an enumerated set of commodity types that MAY be included in the `commodity_types` array of values in the coverage entry object.
+
+* `electricity` - Has metadata or capabilities around utility electric services
+* `natural_gas` - Has metadata or capabilities around utility natural gas services
+* `fuel_oil` - Has metadata or capabilities around utility fuel oil services
+* `water` - Has metadata or capabilities around utility water services
+* `wastewater` - Has metadata or capabilities around utility wastewater services
+* `trash` - Has metadata or capabilities around utility trash services
+* `distributed_energy` - Has metadata or capabilities around distributed energy resource (DER) services
 
 ## 5. Server Migration  <a id="server-migration" href="#server-migration" class="permalink">🔗</a>
 
@@ -221,13 +249,13 @@ The Server MUST maintain the redirect response for as long as the Server retains
 
 ## 6. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a>
 
-Other specifications MAY extend this specification to allow for seamless expansion in Server metadata and capabilities.
+Other specifications MAY extend this specification to allow for seamless expansion in Server metadata, capabilities, and coverage.
 
-[Metadata Object](#metadata-object-format), [Coverage Object](#coverage-object-format), and [Coverage Entry](#coverage-entry-format) MAY be extended by other specifications to allow for additional values to be possible in their object formats.
+[Metadata Object](#metadata-object-format), [Coverage Listing](#coverage-listing-format), and [Coverage Entry](#coverage-listing-format) MAY be extended by other specifications to allow for additional values to be possible in their object formats.
 When extending the object format, other specifications MUST reference the relevant section in this specification and denote that they are extending the object to add a new named value.
 The additional named value MUST be specified with a general description, the value's format, and whether the value is REQUIRED or OPTIONAL.
 
-The enumerated lists for valid [Infrastructure Types](#infrastructure-types), [Commodity Types](#commodity-types), [Server Capabilities](#server-capabilities), and [Coverage Entry Types](#coverage-entry-types) MAY be extended by other specifications to allow for additional strings to be valid.
+The enumerated lists for valid [Server Capabilities](#server-capabilities), [Coverage Listing Filters](#coverage-listing-filters), [Coverage Entry Types](#coverage-entry-types), [Capability Roles](#capability-roles), [Infrastructure Types](#infrastructure-types), [Commodity Types](#commodity-types), and  MAY be extended by other specifications to allow for additional strings to be valid.
 When extending enumerated list, other specifications MUST reference the relevant section in this specification and denote that they are extending the list to add a new string.
 The additional string MUST be specified with a description of what that string means when it is included in the relevant array.
 
@@ -251,23 +279,14 @@ Content-Type: application/json;charset=UTF-8
     "cds_metadata_version": "v1",
     "cds_metadata_url": "https://example.com/.well-known/carbon-data-spec.json",
 
-    "created": "2022-01-01T00:00:00.000000Z",
-    "updated": "2022-06-01T00:00:00.000000Z",
+    "created": "2022-01-01T00:00:00Z",
+    "updated": "2022-06-01T00:00:00Z",
 
-    "name": "Demo Gas & Electric",
-    "description": "A fictional utility that can be used for testing and demonstration purposes.",
+    "name": "Example Data Hub",
+    "description": "A fictional regional data hub that offers information about the region's utilities.",
     "website": "https://example.com/data-access",
     "documentation": "https://example.com/data-access/docs",
     "support": "https://example.com/developers/contact",
-    "infrastructure_types": [
-        "distribution_utility",
-        "metering_provider,
-        "supplier"
-    ],
-    "commodity_types": [
-        "electricity",
-        "natural_gas"
-    ],
     "capabilities": [
         "coverage",
     ],
@@ -290,11 +309,27 @@ Content-Type: application/json;charset=UTF-8
 {
     "coverage_entries": [
         {
-            "id": "norcal",
-            "type": "electric_service_territory",
+            "id": "dge_elec_west",
+
+            "created": "2022-06-01T00:00:00.000000Z",
             "updated": "2022-06-01T00:00:00.000000Z",
-            "name": "DG&E Electric Service Territory",
-            "description": "Covers most of northern California from Fresno to Redding",
+
+            "entity_name": "Demo Gas & Electric",
+            "entity_abbreviation": "DG&E",
+
+            "name": "Western electric service territory",
+            "description": "This is the electric service coverage for the western half of the region.",
+
+            "type": "geographic",
+            "role": "official",
+            "infrastructure_types": [
+                "distribution_utility",
+            ],
+            "commodity_types": [
+                "electricity",
+            ],
+            "capabilities": [],
+
             "map_resource": "https://static.example.com/cds-coverage-map.png",
             "map_content_type": "image/png",
             "geojson_resource": "https://static.example.com/cds-coverage-map-geo.json"
@@ -319,6 +354,8 @@ This specification does not describe specifically how Servers will authenticate 
 For example, if a Server is providing the metadata endpoint as part of an existing logged in portal, then they can use that logged in portal's session cookie to authenticate Client requests to the metadata endpoint.
 
 [Well-known metadata endpoints](#metadata-well-known-uri) MUST NOT require Client authentication to access, since these metadata endpoints are intended to be published publicly.
+
+Resources provided as URLs in metadata and coverage objects MUST be accessible under at least the same level of authentication requirements as accessing the metadata or coverage objects themselves. For example, if a coverage entry object requires cookie-based authentication to access, then and linked the GeoJSON object must also be accessible using the same cookie-based authentication. Servers MAY also choose to also make those resources available publicly, where any included authentication in the request is ignored. If the metadata or coverage object is made available publicly, then the linked resource must also be accessible publicly.
 
 ### 8.2. Rate Limiting <a id="rate-limiting" href="#rate-limiting" class="permalink">🔗</a>
 
