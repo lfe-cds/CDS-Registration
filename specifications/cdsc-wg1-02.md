@@ -38,14 +38,14 @@ This specification defines how utilities and other central entities ("Servers") 
     * [6.2. Profile Visibility](#profile-visibility)  
     * [6.3. Button Styles](#button-styles)  
     * [6.4. Modifying Client Settings](#clients-settings-modify)  
-* [7. Client Updates API](#client-updates-api)  
-    * [7.1. Client Update Object Format](#client-update-format)  
-    * [7.2. Client Update Types](#client-update-types)  
-    * [7.3. Client Update Statuses](#client-update-statuses)  
+* [7. Client Messages API](#client-messages-api)  
+    * [7.1. Client Message Object Format](#client-message-format)  
+    * [7.2. Client Message Types](#client-message-types)  
+    * [7.3. Client Message Statuses](#client-message-statuses)  
     * [7.4. Client Update Request Object Format](#client-update-request-format)  
-    * [7.5. Listing Client Updates](#clients-updates-list)  
-    * [7.6. Creating Client Updates](#clients-updates-create)  
-    * [7.7. Modifying Client Updates](#clients-updates-modify)  
+    * [7.5. Listing Client Messages](#clients-messages-list)  
+    * [7.6. Creating Client Messages](#clients-messages-create)  
+    * [7.7. Modifying Client Messages](#clients-messages-modify)  
 * [8. Scope Credentials API](#scope-creds-api)  
     * [8.1. Scope Credentials Object Format](#scope-creds-format)  
     * [8.2. Scope Credentials Statuses](#scope-creds-statuses)  
@@ -170,7 +170,7 @@ In addition to OAuth capabilities included in the metadata object, this specific
 * `cds_test_accounts` - _[URL](#url)_ - (REQUIRED) Where Clients can find developer documentation on what test account credentials may be used for testing OAuth `response_type=code` authorization requests
 * `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api)
 * `cds_client_settings_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Settings API](#client-settings-api)
-* `cds_client_updates_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Updates API](#client-updates-api)
+* `cds_client_messages_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Messages API](#client-messages-api)
 * `cds_scope_credentials_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Scope Credentials API](#scope-creds-api)
 * `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Grants API](#grants-api)
 * `cds_directory_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Directory API](#directory-api)
@@ -237,11 +237,11 @@ The following list of strings are an enumerated set of registration field types 
   This type of registration field MUST also have `field_name` and `format` values.
   If this field is optional as part of registration, `default` must also be defined in the registration field object.
 * `manual_review` - This field indicates that the Server will manually review the registration before approving it for production use.
-  Notifications and communication about the status of this manual review will be conveyed using the [Client Updates API](#client-updates-api).
+  Notifications and communication about the status of this manual review will be conveyed using the [Client Messages API](#client-messages-api).
 * `payment_required` - This field indicates that a setup payment will be required before the Server will approve the Client for production use.
-  Notifications and communication about how to pay and confirmation of payment will be conveyed using the [Client Updates API](#client-updates-api).
+  Notifications and communication about how to pay and confirmation of payment will be conveyed using the [Client Messages API](#client-messages-api).
 * `email_verification` - This field indicates that the Client must verify their email before the Server will approve the Client for production use.
-  Notifications and communication about how to verify the Client's contact email will be conveyed using the [Client Updates API](#client-updates-api).
+  Notifications and communication about how to verify the Client's contact email will be conveyed using the [Client Messages API](#client-messages-api).
 
 ### 3.6. Registration Field Formats <a id="registration-field-formats" href="#registration-field-formats" class="permalink">🔗</a>
 
@@ -325,7 +325,7 @@ Additionally, the following named values MUST be included in the response.
   Clients know that they must use a Bearer token when Servers return a `401` response code for this endpoint when the Client makes an unauthenticated request to the endpoint.
 * `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api).
 * `cds_client_settings_api` - _[URL](#url)_ - (REQUIRED) The url to a Client's Settings object for the [Client Settings API](#client-settings-api).
-* `cds_client_updates_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Updates API](#client-updates-api).
+* `cds_client_messages_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Messages API](#client-messages-api).
 * `cds_scope_credentials_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Scope Credentials API](#scope-creds-api).
 * `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Grants API](#grants-api).
 
@@ -380,7 +380,7 @@ If a Server has optionally implemented OAuth's [Dynamic Client Registration Mana
 This specification requires that the procedure to modify Clients MUST follow OAuth's [Client Update Request](https://www.rfc-editor.org/rfc/rfc7592) section in [Dynamic Client Registration Management Protocol](https://www.rfc-editor.org/rfc/rfc7592).
 
 The URL to be used to send `PUT` requests for updating clients MUST be the `cds_client_uri` provided in the [Client object](#client-format).
-If a Server has optionally implemented OAuth's [Dynamic Client Registration Management Protocol](https://www.rfc-editor.org/rfc/rfc7592), the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the client update endpoint.
+If a Server has optionally implemented OAuth's [Dynamic Client Registration Management Protocol](https://www.rfc-editor.org/rfc/rfc7592), the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the client endpoint.
 
 Servers MUST ignore updated values to the following fields and keep the Server-defined values set:
 
@@ -397,7 +397,7 @@ Servers MUST ignore updated values to the following fields and keep the Server-d
 * `cds_server_metadata` - This is a URL set by the Server.
 * `cds_clients_api` - This is a URL set by the Server.
 * `cds_client_settings_api` - This is a URL set by the Server.
-* `cds_client_updates_api` - This is a URL set by the Server.
+* `cds_client_messages_api` - This is a URL set by the Server.
 * `cds_scope_credentials_api` - This is a URL set by the Server.
 * `cds_grants_api` - This is a URL set by the Server.
 
@@ -407,8 +407,8 @@ However, the Server MUST determine the validity of the submitted Client fields a
 If a Client does not include a field that is included in the Client object, this indicates that the Client wishes to reset the value of that field to the Server default.
 
 If a Server needs to asynchronously review and approve changes to any submitted Client object fields that have been submitted by the Client and are different from the current values, for valid update requests the Server MUST respond with a `202 Accepted` response, which indicates that the submission was accepted but not fully saved as completed yet.
-Any fields that have not been synchronously updated as part of the request and response MUST remain in the response as their previous values, and the Server MUST add one or more entries to the [listed Client Updates](#clients-updates-list) for the modified fields that need to be asynchronously reviewed and approved.
-Clients MAY then use the [Client Updates API](#client-updates-api) to track the asynchronous review of the modification request.
+Any fields that have not been synchronously updated as part of the request and response MUST remain in the response as their previous values, and the Server MUST add one or more entries to the [listed Client Messages](#clients-messages-list) for the modified fields that need to be asynchronously reviewed and approved.
+Clients MAY then use the [Client Messages API](#client-messages-api) to track the asynchronous review of the modification request.
 If all submitted fields have been synchronously updated as part of the response, Servers MUST respond with a `200 OK` response.
 
 ## 6. Client Settings API <a id="client-settings-api" href="#client-settings-api" class="permalink">🔗</a>
@@ -490,157 +490,157 @@ Servers MUST reject requests with a `400 Bad Request` response when fields are s
 For valid `PATCH` requests from Clients, Servers MUST respond with a `200 OK` or `202 Accepted` response with an updated JSON object of the complete current Client Settings object.
 
 If a Server needs to asynchronously review and approve changes to any submitted Client Settings object fields that have been submitted by the Client and are different from the current values, for valid modification requests the Server MUST respond with a `202 Accepted` response, which indicates that the submission was accepted but not fully saved as completed yet.
-Any fields that have not been synchronously updated as part of the request and response MUST remain in the response as their previous values, and the Server MUST add one or more entries to the [listed Client Updates](#clients-updates-list) for the modified fields that need to be asynchronously reviewed and approved.
-Clients MAY then use the [Client Updates API](#client-updates-api) to track the asynchronous review of the modification request.
+Any fields that have not been synchronously updated as part of the request and response MUST remain in the response as their previous values, and the Server MUST add one or more entries to the [listed Client Messages](#clients-messages-list) for the modified fields that need to be asynchronously reviewed and approved.
+Clients MAY then use the [Client Messages API](#client-messages-api) to track the asynchronous review of the modification request.
 If all submitted fields have been synchronously updated as part of the response, Servers MUST respond with a `200 OK` response.
 
-## 7. Client Updates API <a id="client-updates-api" href="#client-updates-api" class="permalink">🔗</a>
+## 7. Client Messages API <a id="client-messages-api" href="#client-messages-api" class="permalink">🔗</a>
 
-To facilitate automated communication and notificatiosn between Servers and Clients, this specification requires that official communication between Servers and Clients be performed using the Client Updates APIs.
-Servers MAY implement other means of communications for exchanging messages and notifications, such as email support, but they MUST also mirror any official communications that impact Client or Grant statuses, settings, or access using the Client Updates API.
+To facilitate automated communication and notificatiosn between Servers and Clients, this specification requires that official communication between Servers and Clients be performed using the Client Messages APIs.
+Servers MAY implement other means of communications for exchanging messages and notifications, such as email support, but they MUST also mirror any official communications that impact Client or Grant statuses, settings, or access using the Client Messages API.
 
-The Client Updates API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the `client_id` used is for a Client that includes the `client_admin` scope.
+The Client Messages API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the `client_id` used is for a Client that includes the `client_admin` scope.
 
-### 7.1. Client Update Object Format <a id="client-update-format" href="#client-update-format" class="permalink">🔗</a>
+### 7.1. Client Message Object Format <a id="client-message-format" href="#client-message-format" class="permalink">🔗</a>
 
-Client Update objects are formatted as JSON objects and contain the following named values:
+Client Message objects are formatted as JSON objects and contain the following named values:
 
-* `uri` - _[URL](#url)_ - (REQUIRED) Where to retrieve or modify this specific Client Update object.
-* `previous_uri` - _[URL](#url) or `null`_ - (REQUIRED) Where to find the previous Client Update to which this Client Update has been created as a reply.
-* `type` - _[ClientUpdateType](#client-update-types)_ - (REQUIRED) The type of Client Update.
+* `uri` - _[URL](#url)_ - (REQUIRED) Where to retrieve or modify this specific Client Message object.
+* `previous_uri` - _[URL](#url) or `null`_ - (REQUIRED) Where to find the previous Client Message to which this Client Message has been created as a reply.
+* `type` - _[ClientMessageType](#client-message-types)_ - (REQUIRED) The type of Client Message.
 * `read` - _boolean_ - (REQUIRED) Whether the object has been marked as read by a Client.
-  When the Server creates a Client Update, this value MUST be `false` by default, so that the Client Update appears in the [unread](#clients-updates-list) list.
-* `creator` - _[string](#string) or `null`_ - (REQUIRED) If the Server created the Client Update, this value is `null`.
-  If the Client created the Client Update, this value is the Client's `client_id`.
-* `created` - _[datetime](#datetime)_ - (REQUIRED) When the Client Update was created.
-* `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Client Update was last modified.
-* `status` - _[ClientUpdateStatus](#client-update-statuses)_ - (REQUIRED) The current status of the Client Update.
-* `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the Client Update.
-  If the Client Update `type` is `notification`, `private_message`, or `support_request`, this is the message subject.
-* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of the Client Update.
-  If the Client Update `type` is `notification`, `private_message`, or `support_request`, this is the message body.
+  When the Server creates a Client Message, this value MUST be `false` by default, so that the Client Message appears in the [unread](#clients-messages-list) list.
+* `creator` - _[string](#string) or `null`_ - (REQUIRED) If the Server created the Client Message, this value is `null`.
+  If the Client created the Client Message, this value is the Client's `client_id`.
+* `created` - _[datetime](#datetime)_ - (REQUIRED) When the Client Message was created.
+* `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Client Message was last modified.
+* `status` - _[ClientMessageStatus](#client-message-statuses)_ - (REQUIRED) The current status of the Client Message.
+* `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the Client Message.
+  If the Client Message `type` is `notification`, `private_message`, or `support_request`, this is the message subject.
+* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of the Client Message.
+  If the Client Message `type` is `notification`, `private_message`, or `support_request`, this is the message body.
 * `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - (OPTIONAL) The list of values that a Client has requested to be updated.
-  This field is required for Client Updates with a `type` value of `field_changes` or `server_request`.
-* `related_uri` - _[URL](#url) or `null`_ - (OPTIONAL) If the Client Update `type` is `notification` or `private_message`, this value is where the Client can find more information, if available.
-  If the Client Update `type` is `support_request`, this value is a relevant URL for which the Client is requesting technical support.
-  If the Client Update `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
-  If the Client Update `type` is `payment_request`, this is where the Client can submit their payment to the Server or if paid, a link to the payment receipt.
-  If the Client Update `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
-* `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Client Update `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
-* `currency` - _[string](#string)_ - (OPTIONAL) If the Client Update `type` is `payment_request`, this is the monetary currency for the `amount` in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code.
+  This field is required for Client Messages with a `type` value of `field_changes` or `server_request`.
+* `related_uri` - _[URL](#url) or `null`_ - (OPTIONAL) If the Client Message `type` is `notification` or `private_message`, this value is where the Client can find more information, if available.
+  If the Client Message `type` is `support_request`, this value is a relevant URL for which the Client is requesting technical support.
+  If the Client Message `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
+  If the Client Message `type` is `payment_request`, this is where the Client can submit their payment to the Server or if paid, a link to the payment receipt.
+  If the Client Message `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
+* `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Client Message `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
+* `currency` - _[string](#string)_ - (OPTIONAL) If the Client Message `type` is `payment_request`, this is the monetary currency for the `amount` in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code.
 
-### 7.2. Client Update Types <a id="client-update-types" href="#client-update-types" class="permalink">🔗</a>
+### 7.2. Client Message Types <a id="client-message-types" href="#client-message-types" class="permalink">🔗</a>
 
-Client Update object `type` values MUST be one of the following:
+Client Message object `type` values MUST be one of the following:
 
 * `notification` - The Server is sending the Client at notification message that is relevant to the Client.
   This message is considered to be not individually tailored to the Client specifically, but instead directed to all relevant Clients.
 * `private_message` - The Server or Client is sending a private message to the opposite party.
   This message is considered to be individually tailored and relevant only to that Client or Server.
 * `support_request` - The Client is submitting a technical support request to the Server.
-* `field_changes` - This Client Update represents that the Client has submitted changes to field values in other API objects, listed in the `updates_requested` list, but these changes were not synchronously approved by the Server and need to be reviewed asynchronously by the Server.
-  While the Client originally triggered this Client Update to be created by submitting field changes that need to be asynchronously reviewed, the Server is responsible for creating this Client Update, so the `creator` value is `null`.
-* `server_request` - The Server is requesting the Client submit a new Client Update of type `client_submission` with the fields listed in `updates_requested`.
+* `field_changes` - This Client Message represents that the Client has submitted changes to field values in other API objects, listed in the `updates_requested` list, but these changes were not synchronously approved by the Server and need to be reviewed asynchronously by the Server.
+  While the Client originally triggered this Client Message to be created by submitting field changes that need to be asynchronously reviewed, the Server is responsible for creating this Client Message, so the `creator` value is `null`.
+* `server_request` - The Server is requesting the Client submit a new Client Message of type `client_submission` with the fields listed in `updates_requested`.
 * `client_submission` - The Client is submitting a response to a `server_request` to update one or more fields of a specific object.
-  Both Clients and Servers may create update requests.
+  Both Clients and Servers MAY create these types of Client Message requests.
 * `payment_request` - The Server is requesting payment by the Client to complete a financial payment before the Client may proceed with either registration approval or completing actions listed in the `updates_requested` list.
 
-### 7.3. Client Update Statuses <a id="client-update-statuses" href="#client-update-statuses" class="permalink">🔗</a>
+### 7.3. Client Message Statuses <a id="client-message-statuses" href="#client-message-statuses" class="permalink">🔗</a>
 
-Client Update object `status` values MUST be one of the following:
+Client Message object `status` values MUST be one of the following:
 
-* `complete` - For Client Updates with `type` values of `notification`, `private_message`, or `client_submission`, the `status` MUST be set as `complete`.
-  For Client Updates with `type` values of `support_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
-* `open` - For Client Updates with `type` values of `server_request` or `payment_request`, this represents that the Client has not yet submitted a response to the Server's submission or payment request.
-* `pending` - For Client Updates with `type` values of `support_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's technical support request, field changes, submission, or payment.
-* `rejected` - For Client Updates with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested field changes, submission, or payment.
-* `errored` - For Client Updates with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
-  The Client is RECOMMENDED to submit a `support_request` Client Update with the `related_uri` as this Client Update's `uri`.
+* `complete` - For Client Messages with `type` values of `notification`, `private_message`, or `client_submission`, the `status` MUST be set as `complete`.
+  For Client Messages with `type` values of `support_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
+* `open` - For Client Messages with `type` values of `server_request` or `payment_request`, this represents that the Client has not yet submitted a response to the Server's submission or payment request.
+* `pending` - For Client Messages with `type` values of `support_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's technical support request, field changes, submission, or payment.
+* `rejected` - For Client Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested field changes, submission, or payment.
+* `errored` - For Client Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
+  The Client is RECOMMENDED to submit a `support_request` Client Messages with the `related_uri` as the relevant errored Client Message's `uri`.
 
 ### 7.4. Client Update Request Object Format <a id="client-update-request-format" href="#client-update-request-format" class="permalink">🔗</a>
 
 Client Update Request objects are formatted as JSON objects and contain the following named values:
 
 * `field` - _[string](#string)_ - (REQUIRED) The field name of the field that is being requested to be updated.
-  For Client Updates with `type` values of `field_changes`, this is the name of the object's field on the API.
-  For Client Updates with `type` values of `server_request`, this is the Server's identifier for the submission being requested from the client.
-* `name` - _[string](#string)_ - (OPTIONAL) For Client Updates with `type` values of `server_request`, this MUST be a human-readable name of the submission type being requested as the client.
-* `description` - _[string](#string)_ - (OPTIONAL) For Client Updates with `type` values of `server_request`, this MUST be a human-readable description providing the Client with more information about what this submission request item is.
-* `submitted_uri` - _[URL](#url)_ - (OPTIONAL) For Client Updates with `type` values of `client_submission`, this MAY be a URL that the Client is submitting as their response to the Server's `server_request`, when the Server's requested field is for a remote resource, such as an logo or binary file.
-* `previous_value` - _various_ - (OPTIONAL) For Client Updates with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed from.
-* `new_value` - _various_ - (OPTIONAL) For Client Updates with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed to.
+  For Client Messages with `type` values of `field_changes`, this is the name of the object's field on the API.
+  For Client Messages with `type` values of `server_request`, this is the Server's identifier for the submission being requested from the client.
+* `name` - _[string](#string)_ - (OPTIONAL) For Client Messages with `type` values of `server_request`, this MUST be a human-readable name of the submission type being requested as the client.
+* `description` - _[string](#string)_ - (OPTIONAL) For Client Messages with `type` values of `server_request`, this MUST be a human-readable description providing the Client with more information about what this submission request item is.
+* `submitted_uri` - _[URL](#url)_ - (OPTIONAL) For Client Messages with `type` values of `client_submission`, this MAY be a URL that the Client is submitting as their response to the Server's `server_request`, when the Server's requested field is for a remote resource, such as an logo or binary file.
+* `previous_value` - _various_ - (OPTIONAL) For Client Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed from.
+* `new_value` - _various_ - (OPTIONAL) For Client Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed to.
 
-### 7.5. Listing Client Updates <a id="clients-updates-list" href="#clients-updates-list" class="permalink">🔗</a>
+### 7.5. Listing Client Messages <a id="clients-messages-list" href="#clients-messages-list" class="permalink">🔗</a>
 
-Clients may request to list Client Update objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_client_updates_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format). The Client Update listing request responses are formatted as JSON objects and contain the following named values.
+Clients may request to list Client Message objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_client_messages_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format). The Client Message listing request responses are formatted as JSON objects and contain the following named values.
 
-* `outstanding` - _Array[[ClientUpdate](#client-update-format)]_ - (REQUIRED) A list of Client Updates where the `status` is `open` or `pending`.
-* `outstanding_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of outstanding Client Updates.
+* `outstanding` - _Array[[ClientMessage](#client-message-format)]_ - (REQUIRED) A list of Client Messages where the `status` is `open` or `pending`.
+* `outstanding_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of outstanding Client Messages.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `outstanding_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of outstanding Client Updates.
+* `outstanding_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of outstanding Client Messages.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
-* `unread` - _Array[[ClientUpdate](#client-update-format)]_ - (REQUIRED) A list of Client Updates where the `read` is `false`.
-* `unread_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of unread Client Updates.
+* `unread` - _Array[[ClientMessage](#client-message-format)]_ - (REQUIRED) A list of Client Messages where the `read` is `false`.
+* `unread_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of unread Client Messages.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `unread_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of unread Client Updates.
+* `unread_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of unread Client Messages.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
-* `read` - _Array[[ClientUpdate](#client-update-format)]_ - (REQUIRED) A list of Client Updates where the `read` is `true`.
-* `read_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of read Client Updates.
+* `read` - _Array[[ClientMessage](#client-message-format)]_ - (REQUIRED) A list of Client Messages where the `read` is `true`.
+* `read_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of read Client Messages.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `read_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of read Client Updates.
+* `read_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of read Client Messages.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
-Responses to `outstanding_next`, `outstanding_previous`, `unread_next`, `unread_previous`, `read_next`, or `read_previous` MUST be formatted the same as the initial Client Update listing, and MUST only include listings for the relevant next segment.
+Responses to `outstanding_next`, `outstanding_previous`, `unread_next`, `unread_previous`, `read_next`, or `read_previous` MUST be formatted the same as the initial Client Message listing, and MUST only include listings for the relevant next segment.
 For example, if the Client requests a `unread_next`, the Server's response MUST have `outstanding` and `read` lists be empty lists (`[]`).
 
-Listings of Client Update objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently updated relevant Client Update MUST be first in each listing.
+Listings of Client Message objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently modified relevant Client Message MUST be first in each listing.
 
-### 7.6. Creating Client Updates <a id="clients-updates-create" href="#clients-updates-create" class="permalink">🔗</a>
+### 7.6. Creating Client Messages <a id="clients-messages-create" href="#clients-messages-create" class="permalink">🔗</a>
 
-Clients create new Client Updates by sending an authenticated HTTPS `POST` request to the `cds_client_updates_api` endpoint with the body of the request formatted a JSON object.
+Clients create new Client Messages by sending an authenticated HTTPS `POST` request to the `cds_client_messages_api` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object MUST include the following:
 
-* `previous_uri` - _[URL](#url) or `null`_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be the Client Update `uri` that this Client Update is being submitted in response to (i.e. must have a `type` value of `server_request`).
-  If submitting a Client Update with a `type` value of `support_request` or `private_message`, if the Client is responding to a previous Client Update, this value MUST be the Client Update `uri` of that Client Update.
-  If submitting a Client Update with a `type` value of `support_request` or `private_message` that is not responding to another specific Client Update, this value MUST be `null`.
-* `type` - _[ClientUpdateType](#client-update-types)_ - This value MUST be one of `private_message`, `support_request`, or `client_submission`.
-* `name` - _[string](#string)_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
-  If submitting a Client Update with a `type` value of `support_request` or `private_message`, this value MUST be the subject line of the message.
-* `description` - _[string](#string)_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
-  If submitting a Client Update with a `type` value of `support_request` or `private_message`, this value MUST be the body of the message.
+* `previous_uri` - _[URL](#url) or `null`_ - If submitting a Client Message with a `type` value of `client_submission`, this value MUST be the Client Message `uri` that this Client Message is being submitted in response to (i.e. must have a `type` value of `server_request`).
+  If submitting a Client Message with a `type` value of `support_request` or `private_message`, if the Client is responding to a previous Client Message, this value MUST be the Client Message `uri` of that Client Message.
+  If submitting a Client Message with a `type` value of `support_request` or `private_message` that is not responding to another specific Client Message, this value MUST be `null`.
+* `type` - _[ClientMessageType](#client-message-types)_ - This value MUST be one of `private_message`, `support_request`, or `client_submission`.
+* `name` - _[string](#string)_ - If submitting a Client Message with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
+  If submitting a Client Message with a `type` value of `support_request` or `private_message`, this value MUST be the subject line of the message.
+* `description` - _[string](#string)_ - If submitting a Client Message with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
+  If submitting a Client Message with a `type` value of `support_request` or `private_message`, this value MUST be the body of the message.
 * `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be a list of [Client Update Request](#client-update-request-format) objects with `field` values matching the `field` values in the corresponding `server_request` Client Update Request objects, and `description` or `submitted_uri` values being the Client's submission response to the Server's request for that `field`.
-* `related_uri` - _[URL](#url) or `null`_ - If submitting a Client Update with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
+* `related_uri` - _[URL](#url) or `null`_ - If submitting a Client Message with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
   If there is no relevant API endpoint, the Client MUST set this value as `null`.
 
 Servers MUST reject requests with a `400 Bad Request` response when a Client submits an incomplete request or the submitted values are invalid.
-For valid `POST` requests from Clients, Servers MUST respond with a `201 Created` response with an updated JSON object of the complete current Client Update object.
-When committing Client Updates created by Clients, Servers MUST populate the following fields in addition to the Client's submitted fields:
+For valid `POST` requests from Clients, Servers MUST respond with a `201 Created` response with a JSON object of the complete newly created Client Message object.
+When committing Client Messages created by Clients, Servers MUST populate the following fields in addition to the Client's submitted fields:
 
-* `uri` - _[URL](#url)_ - The endpoint where the Client can retrieve the newly created Client Update object.
+* `uri` - _[URL](#url)_ - The endpoint where the Client can retrieve the newly created Client Message object.
 * `read` - _boolean_ - Always set to `true`.
 * `creator` - _[string](#string)_ - Always set to the Client's `client_id`.
-* `created` - _[datetime](#datetime)_ - Always set to the Server's timestamp for when the Client Update was created.
+* `created` - _[datetime](#datetime)_ - Always set to the Server's timestamp for when the Client Message was created.
 * `modified` - _[datetime](#datetime)_ - Always the same as `created`.
-* `status` - _[ClientUpdateStatus](#client-update-statuses)_ - For `type` values of `private_message` or `client_submission`, this value MUST be `complete`.
+* `status` - _[ClientMessageStatus](#client-message-statuses)_ - For `type` values of `private_message` or `client_submission`, this value MUST be `complete`.
   For `type` values of `support_request`, this value MUST be `pending`.
 
-When Clients submit Client Updates with `type` value of `client_submission`, if the Client Update referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Client Update to `pending`, which indicates that the Client has submitted a response for Server review.
+When Clients submit Client Messages with `type` value of `client_submission`, if the Client Message referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Client Message to `pending`, which indicates that the Client has submitted a response for Server review.
 
-### 7.7. Modifying Client Updates <a id="clients-updates-modify" href="#clients-updates-modify" class="permalink">🔗</a>
+### 7.7. Modifying Client Messages <a id="clients-messages-modify" href="#clients-messages-modify" class="permalink">🔗</a>
 
-Clients may modify fields in a Client Updates object by sending an authenticated HTTPS `PATCH` request to the Client Update `uri` endpoint with the body of the request formatted a JSON object.
-The fields included in JSON object are the fields the Client intends to update with the submitted fields' values.
+Clients may modify fields in a Client Messages object by sending an authenticated HTTPS `PATCH` request to the Client Message `uri` endpoint with the body of the request formatted a JSON object.
+The fields included in JSON object are the fields the Client intends to modify with the submitted fields' values.
 If a field is not included in the `PATCH` request, the Server MUST leave the field unmodified from its current value.
 
 The following are fields that MAY be included in the `PATCH` request, and modification MUST be supported by Servers:
 
 * `read` - Servers MUST accept values of `true` and `false` from the Client.
 
-If a Client wishes to modify a previously submitted Client Update of type `client_submission` they created, the Client MUST [create a new Client Update](#clients-updates-create) with the same `previous_uri` value as the Client Update the Client is wishing to supersede.
-Severs MUST process newer Client Updates created by the Client as overriding the Client's previous submission.
+If a Client wishes to modify a previously submitted Client Message of type `client_submission` they created, the Client MUST [create a new Client Message](#clients-messages-create) with the same `previous_uri` value as the Client Message the Client is wishing to supersede.
+Severs MUST process newer Client Messages created by the Client as overriding the Client's previous submission.
 
-If a Client wishes to amend a previously created Client Update of type `private_message` or `support_request` they created, the Client MUST [create a new Client Update](#clients-updates-create) with the `previous_uri` value set as the Client Update `uri` for which they are wanting to amend.
-Severs MUST consider newer Client Updates created by the Client as amending the Client's previous support request or message.
+If a Client wishes to amend a previously created Client Message of type `private_message` or `support_request` they created, the Client MUST [create a new Client Message](#clients-messages-create) with the `previous_uri` value set as the Client Message `uri` for which they are wanting to amend.
+Severs MUST consider newer Client Messages created by the Client as amending the Client's previous support request or message.
 
 ## 8. Scope Credentials API <a id="scope-creds-api" href="#scope-creds-api" class="permalink">🔗</a>
 
@@ -728,7 +728,7 @@ Servers MUST support Clients adding any of the following URL parameters to the `
 * `after` - A [datetime](#datetime) for which the Server MUST filter Scope Credentials that were created after or on the datetime.
 * `before` - A [datetime](#datetime) for which the Server MUST filter Scope Credentials that were created before or on the datetime.
 
-Listings of Scope Credential objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently updated relevant Scope Credential MUST be first in each listing.
+Listings of Scope Credential objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently modified relevant Scope Credential MUST be first in each listing.
 
 ### 8.5. Retrieving Individual Scope Credentials <a id="scope-creds-get" href="#scope-creds-get" class="permalink">🔗</a>
 
@@ -760,7 +760,7 @@ When committing Scope Credentials created by Clients, Servers MUST populate the 
 * `status_options` - _Array[[ScopeCredentialStatus](#scope-creds-statuses)]_ - Always a list containing at least two values: `sandbox_only` and `disabled`.
   If the Client has already previously been approved for production for the same scopes, the Server MUST include any of `production_only` or `production_and_sandbox` in the list.
   If the Server can synchronously approve the Scope Credential for production mode, the Server MAY also include any of `production_only` or `production_and_sandbox` values in the list.
-  If the Server will be reviewing the Scope Credential creation for production approval, Servers MUST also create a [Client Update entry](#client-updates-api) of type `field_changes` with a [Client Update Request](#client-update-request-format) entry with a `field` value of `status_options`, indicating that the Client has requested the Server to review production access approval for the new Scope Credential.
+  If the Server will be reviewing the Scope Credential creation for production approval, Servers MUST also create a [Client Message entry](#client-messages-api) of type `field_changes` with a [Client Update Request](#client-update-request-format) entry with a `field` value of `status_options`, indicating that the Client has requested the Server to review production access approval for the new Scope Credential.
 * `response_types` - _Array[[OAuth ResponseType](https://www.rfc-editor.org/rfc/rfc7591#section-2)]_ - For scopes for which user authorization is required, this is always a single-entry list with the value `code` in the list.
   For scopes for which user authorization is not required, this is always an empty list (`[]`).
 * `grant_types` - _Array[[OAuth GrantType](https://www.rfc-editor.org/rfc/rfc7591#section-2)]_ - For scopes for which user authorization is required, this is always a two-entry list with the values `authorization_code` and `refresh_token`.
@@ -788,8 +788,8 @@ The following are fields that MAY be included in the `PATCH` request, and modifi
 
 Servers MUST reject requests with a `400 Bad Request` response when fields are submitted that are not able to be modified by the Client or the submitted values are invalid.
 If a Server needs to asynchronously review and approve changes to any submitted Scope Credential object fields that have been submitted by the Client and are different from the current values, for valid update requests the Server MUST respond with a `202 Accepted` response, which indicates that the submission was accepted but not fully saved as completed yet.
-Any fields that have not been synchronously updated as part of the request and response MUST remain in the response as their previous values, and the Server MUST add one or more entries to the [listed Client Updates](#clients-updates-list) for the modified fields that need to be asynchronously reviewed and approved.
-Clients MAY then use the [Client Updates API](#client-updates-api) to track the asynchronous review of the modification request.
+Any fields that have not been synchronously updated as part of the request and response MUST remain in the response as their previous values, and the Server MUST add one or more entries to the [listed Client Messages](#clients-messages-list) for the modified fields that need to be asynchronously reviewed and approved.
+Clients MAY then use the [Client Messages API](#client-messages-api) to track the asynchronous review of the modification request.
 If all submitted fields have been synchronously updated as part of the response, Servers MUST respond with a `200 OK` response.
 
 If a Client updates the `status` of a Scope Credential to `disabled`, the Server MUST assume the Scope Credential is compromised and synchronously disable the Scope Credential's `client_secret` from being used on the token endpoint and revoke any `access_token` or `refresh_token` values issued by the token endpoint as a result of using the now-disabled Scope Credential.
@@ -1020,13 +1020,13 @@ Servers that wish to restrict access of by-default unauthenticated endpoints to 
 This specification does not describe specifically how Servers will authenticate Clients for by-default unauthenticated endpoints, as these restricted access protocols are context dependent.
 For example, if a Server providing a private Client Registration endpoint as part of an existing logged in portal, then they can use that logged in portal's session cookie to authenticate Client requests to the registration endpoint.
 
-For authenticated endpoints ([Clients API](#clients-api), [Client Settings API](#client-settings-api), [Client Updates API](#client-updates-api), [Scope Credentials API](#scope-creds-api), [Grants API](#grants-api)), Servers MUST authenticate requests using OAuth's [Authorization Request Header Field](https://www.rfc-editor.org/rfc/rfc6750#section-2.1) with access tokens obtained using the OAuth's [Issuing an Access Token](https://www.rfc-editor.org/rfc/rfc6749#section-5) process.
+For authenticated endpoints ([Clients API](#clients-api), [Client Settings API](#client-settings-api), [Client Messages API](#client-messages-api), [Scope Credentials API](#scope-creds-api), [Grants API](#grants-api)), Servers MUST authenticate requests using OAuth's [Authorization Request Header Field](https://www.rfc-editor.org/rfc/rfc6750#section-2.1) with access tokens obtained using the OAuth's [Issuing an Access Token](https://www.rfc-editor.org/rfc/rfc6749#section-5) process.
 
 ### 13.2. Rate Limiting <a id="rate-limiting" href="#rate-limiting" class="permalink">🔗</a>
 
 For unauthenticated endpoints ([Authorization Server Metadata](#auth-server-metadata), [Client Registration Process](#client-registration-process)), Servers SHOULD configure rate limiting restrictions so that bots and misconfigured scripts will not flood and overwhelm the endpoints with requests, while still allowing legitimate and low-volume automated requests have access to the endpoints.
 
-For authenticated endpoints ([Clients API](#clients-api), [Client Settings API](#client-settings-api), [Client Updates API](#client-updates-api), [Scope Credentials API](#scope-creds-api), [Grants API](#grants-api)), Servers SHOULD configure rate limiting by Client and Scope Credential to ensure that individual Clients do not overwhelm Servers with authenticated API requests.
+For authenticated endpoints ([Clients API](#clients-api), [Client Settings API](#client-settings-api), [Client Messages API](#client-messages-api), [Scope Credentials API](#scope-creds-api), [Grants API](#grants-api)), Servers SHOULD configure rate limiting by Client and Scope Credential to ensure that individual Clients do not overwhelm Servers with authenticated API requests.
 Additionally, Servers SHOULD configure rate limiting for unauthenticated or failed authentication requests to authenticated API endpoints to prevent brute force attempts to gain access to authenticated APIs.
 
 ## 14. References <a id="references" href="#references" class="permalink">🔗</a>
