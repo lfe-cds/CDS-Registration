@@ -33,45 +33,36 @@ This specification defines how utilities and other central entities ("Servers") 
     * [5.2. Listing Clients](#clients-list)  
     * [5.3. Retrieving Individual Clients](#clients-get)  
     * [5.4. Modifying Clients](#clients-modify)  
-* [6. Client Settings API](#client-settings-api)  
-    * [6.1. Client Settings Object Format](#client-settings-format)
-    * [6.2. Profile Visibility](#profile-visibility)  
-    * [6.3. Button Styles](#button-styles)  
-    * [6.4. Modifying Client Settings](#clients-settings-modify)  
-* [7. Client Messages API](#client-messages-api)  
-    * [7.1. Client Message Object Format](#client-message-format)  
-    * [7.2. Client Message Types](#client-message-types)  
-    * [7.3. Client Message Statuses](#client-message-statuses)  
-    * [7.4. Client Update Request Object Format](#client-update-request-format)  
-    * [7.5. Listing Client Messages](#clients-messages-list)  
-    * [7.6. Creating Client Messages](#clients-messages-create)  
-    * [7.7. Modifying Client Messages](#clients-messages-modify)  
-* [8. Scope Credentials API](#scope-creds-api)  
-    * [8.1. Scope Credentials Object Format](#scope-creds-format)  
-    * [8.2. Scope Credentials Statuses](#scope-creds-statuses)  
-    * [8.3. Evaluating Authorization Requests](#auth-request-scope-evaluation)  
-    * [8.4. Listing Scope Credentials](#scope-creds-list)  
-    * [8.5. Retrieving Individual Scope Credentials](#scope-creds-get)  
-    * [8.6. Creating Scope Credentials](#scope-creds-create)  
-    * [8.7. Modifying Scope Credentials](#scope-creds-modify)  
-* [9. Grants API](#grants-api)  
-    * [9.1. Grant Object Format](#grant-format)  
-    * [9.2. Grant Statuses](#grant-statuses)  
-    * [9.3. Listing Grants](#grants-list)  
-    * [9.4. Retrieving Individual Grants](#grants-get)  
-    * [9.5. Modifying Grants](#grants-modify)  
-* [10. Directory API](#directory-api)  
-    * [10.1. Directory Entry Object Format](#directory-entry-format)  
-    * [10.2. Listing Directory Entries](#directory-list)  
-    * [10.3. Publicly Accessible Web Directory](#public-directory)  
-* [11. Extensions](#extensions)  
-* [12. Examples](#examples)  
-* [13. Security Considerations](#security)  
-    * [13.1. Restricted Access](#restricted-access)  
-    * [13.2. Rate Limiting](#rate-limiting)  
-* [14. References](#references)  
-* [15. Acknowledgments](#acknowledgments)  
-* [16. Authors' Addresses](#authors-addresses)  
+* [6. Client Messages API](#client-messages-api)  
+    * [6.1. Client Message Object Format](#client-message-format)  
+    * [6.2. Client Message Types](#client-message-types)  
+    * [6.3. Client Message Statuses](#client-message-statuses)  
+    * [6.4. Client Update Request Object Format](#client-update-request-format)  
+    * [6.5. Listing Client Messages](#clients-messages-list)  
+    * [6.6. Creating Client Messages](#clients-messages-create)  
+    * [6.7. Modifying Client Messages](#clients-messages-modify)  
+* [7. Scope Credentials API](#scope-creds-api)  
+    * [7.1. Scope Credentials Object Format](#scope-creds-format)  
+    * [7.2. Scope Credentials Statuses](#scope-creds-statuses)  
+    * [7.3. Evaluating Authorization Requests](#auth-request-scope-evaluation)  
+    * [7.4. Listing Scope Credentials](#scope-creds-list)  
+    * [7.5. Retrieving Individual Scope Credentials](#scope-creds-get)  
+    * [7.6. Creating Scope Credentials](#scope-creds-create)  
+    * [7.7. Modifying Scope Credentials](#scope-creds-modify)  
+* [8. Grants API](#grants-api)  
+    * [8.1. Grant Object Format](#grant-format)  
+    * [8.2. Grant Statuses](#grant-statuses)  
+    * [8.3. Listing Grants](#grants-list)  
+    * [8.4. Retrieving Individual Grants](#grants-get)  
+    * [8.5. Modifying Grants](#grants-modify)  
+* [9. Extensions](#extensions)  
+* [10. Examples](#examples)  
+* [11. Security Considerations](#security)  
+    * [11.1. Restricted Access](#restricted-access)  
+    * [11.2. Rate Limiting](#rate-limiting)  
+* [12. References](#references)  
+* [13. Acknowledgments](#acknowledgments)  
+* [14. Authors' Addresses](#authors-addresses)  
 
 ## 1. Introduction <a id="introduction" href="#introduction" class="permalink">🔗</a>
 
@@ -166,14 +157,11 @@ In addition to OAuth capabilities included in the metadata object, this specific
 
 * `cds_oauth_version` - _[string](#string)_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`
 * `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a user device
-* `cds_human_directory` - _[URL](#url)_ - (REQUIRED) A public web interface where users may browse the list of Clients who have registered and set their Client Settings `profile_visibility` to `listed`
 * `cds_test_accounts` - _[URL](#url)_ - (REQUIRED) Where Clients can find developer documentation on what test account credentials may be used for testing OAuth `response_type=code` authorization requests
 * `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api)
-* `cds_client_settings_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Settings API](#client-settings-api)
 * `cds_client_messages_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Messages API](#client-messages-api)
 * `cds_scope_credentials_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Scope Credentials API](#scope-creds-api)
 * `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Grants API](#grants-api)
-* `cds_directory_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Directory API](#directory-api)
 * `cds_scope_descriptions` - _Map[[ScopeDescription](#scope-descriptions-format)]_ - (REQUIRED) An object providing additional information about what Scope values listed in `scopes_supported` mean.
   This object MUST include a key for each Scope listed in `scopes_supported` with a [Scope Description](#scope-descriptions-format) as that key's value.
 * `cds_registration_fields` - _Map[[RegistrationField](#registration-field-format)]_ - (REQUIRED) An object providing additional information about Registration Field that are referenced in [Scope Description's](#scope-descriptions-format) `registration_requirements` list.
@@ -324,7 +312,6 @@ Additionally, the following named values MUST be included in the response.
   If this metadata endpoint requires authentication, Servers MUST authenticate Client requests to this endpoint via Bearer access token obtained using OAuth's `client_credentials` grant with a scope of `client_admin`, and reject unauthenticated requests with a `401 Unauthorized` response code.
   Clients know that they must use a Bearer token when Servers return a `401` response code for this endpoint when the Client makes an unauthenticated request to the endpoint.
 * `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api).
-* `cds_client_settings_api` - _[URL](#url)_ - (REQUIRED) The url to a Client's Settings object for the [Client Settings API](#client-settings-api).
 * `cds_client_messages_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Client Messages API](#client-messages-api).
 * `cds_scope_credentials_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Scope Credentials API](#scope-creds-api).
 * `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Grants API](#grants-api).
@@ -396,7 +383,6 @@ Servers MUST ignore updated values to the following fields and keep the Server-d
 * `token_endpoint_auth_method` - Always `client_secret_basic`.
 * `cds_server_metadata` - This is a URL set by the Server.
 * `cds_clients_api` - This is a URL set by the Server.
-* `cds_client_settings_api` - This is a URL set by the Server.
 * `cds_client_messages_api` - This is a URL set by the Server.
 * `cds_scope_credentials_api` - This is a URL set by the Server.
 * `cds_grants_api` - This is a URL set by the Server.
@@ -411,97 +397,14 @@ Any fields that have not been synchronously updated as part of the request and r
 Clients MAY then use the [Client Messages API](#client-messages-api) to track the asynchronous review of the modification request.
 If all submitted fields have been synchronously updated as part of the response, Servers MUST respond with a `200 OK` response.
 
-## 6. Client Settings API <a id="client-settings-api" href="#client-settings-api" class="permalink">🔗</a>
-
-This specification requires Servers provide an API allowing Clients to view and manage their Client settings.
-While the settings fields are directly related to a specific registered Client, they are not included in the Client object itself in order to allow Clients to make partial updates to their settings values using an HTTPS `PATCH` request instead of a PUT request, which is required for the Client object updates to remain compatible with OAuth's [Dynamic Client Registration Management Protocol](https://www.rfc-editor.org/rfc/rfc7592).
-
-The Client Settings API are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the `client_id` used is for a Client that includes the `client_admin` scope.
-
-Clients request their current [Client Settings object](#client-settings-format) my making an authenticated HTTPS `GET` request to the `cds_client_settings_api` endpoint provided in the [Client object](#client-format).
-
-### 6.1. Client Settings Object Format <a id="client-settings-format" href="#client-settings-format" class="permalink">🔗</a>
-
-Client Settings objects are formatted as JSON objects and contain the following named values:
-
-* `default_scope` - _[string](#string)_ - (REQUIRED) A space-separated list of scopes the Server will use for OAuth's [Authorization Requests](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1) if the Client does not supply a `scope` or `authorization_details` parameter in the request.
-* `profile_visibility` - _[ProfileVisibility](#profile-visibility)_ - (REQUIRED) This is visibility configuration of a Client in the [Directory API](#directory-api).
-* `profile_visibility_options` - _Array[[ProfileVisibility](#profile-visibility)]_ - (REQUIRED) This is the list of available Profile Visibility values that the Client may choose to set as their `profile_visibility`.
-* `profile_description` - _[string](#string)_ - (REQUIRED) This is the description that the Client wishes to be displayed in their public directory entry, if `profile_visibility` is set to `autolist`, `unlisted`, or `listed`.
-* `profile_uri` - _[URL](#url)_ - (REQUIRED) This is the URL that links directly to the Client's entry in the Server's publicly accessible directory web interface, if `profile_visibility` is set to `autolist`, `unlisted`, or `listed`.
-  If a Client has set their `profile_visibility` to `disabled`, the Server MUST respond to requests to this URL with a 404 Not Found response code.
-* `profile_slug` - _[string](#string)_ - (OPTIONAL) For Servers that have the ability to partially customize the `profile_uri` string to be a more human-readable URL, this is the part of the URL that is customizable by the Client.
-* `profile_button_uri` - _[URL](#url) or `null`_ - (REQUIRED) In the profile entry for a Client, Servers MUST offer the ability for the Client to link users to a Client-provided URL.
-  Servers MUST implement this as an anchor link styled as one of the specified [Button Styles](#button-styles) that opens a new tab via the `target="_blank"` anchor attribute for the user.
-  If a Client sets this value to `null`, then the Server MUST NOT render the button link in the Client's directory profile entry.
-* `profile_button_style` - _[ButtonStyle](#button-styles)_ - (REQUIRED) This is the style of button the Server has set for the `profile_button_uri`.
-* `profile_button_style_options` - _Array[[ButtonStyle](#button-styles)]_ - (REQUIRED) This is a list of [Button Styles](#button-styles) available for the Client to set as their button style in their directory entry.
-* `profile_contact_name` - _[string](#string)_ - (REQUIRED) This the contact name to be listed in the public directory entry for the Client.
-* `profile_contact_email` - _[E.123](https://en.wikipedia.org/wiki/E.123) email address_ - (REQUIRED) This the contact email to be listed in the public directory entry for the Client.
-* `profile_contact_phone` - _[E.123](https://en.wikipedia.org/wiki/E.123) international phone number or `null`_ - (REQUIRED) This the contact phone number to be listed in the public directory entry for the Client.
-  If the Client sets this to `null`, the phone number field MUST be hidden on the Client's public directory profile entry by the Server.
-* `profile_contact_website` - _[URL](#url) or `null`_ - (REQUIRED) This is a link to a website the Client wishes the user to visit for more information on how to contact them.
-  If the Client sets this to `null`, the website field MUST be hidden on the Client's public directory profile entry by the Server.
-
-### 6.2. Profile Visibility <a id="profile-visibility" href="#profile-visibility" class="permalink">🔗</a>
-
-Servers MUST make available the following Profile Visibility options in the `profile_visibility_options` list:
-
-* `listed` - Servers MUST include the Client profile entry in both the [Directory API list](#directory-list) and [Publicly Accessible Web Directory](#public-directory).
-  If Servers are asynchronously reviewing Clients before approving production access to scopes, Servers MUST NOT include this option in the list of `profile_visibility_options` until the Server has completed and approve the Client for production access to at least one of the non-`client_admin` scopes, and instead include `autolist` in the list of `profile_visibility_options`.
-  For Client profile entries, Servers MUST NOT render the profile entry with `X-robots-tag` or `<meta name="robots" ...>` HTML head tags with a value of `noindex`, so that Client profile entries may be indexed by web search engines.
-* `autolist` - If Servers are asynchronously reviewing Clients before approving production access to scopes, Servers MUST include this option in the list of `profile_visibility_options` until the Server has completed and approve the Client for production access to at least one of the non-`client_admin` scopes and NOT include `listed` in the list of `profile_visibility_options`.
-  If the Client has set their `profile_visibility` to `autolist`, when the Server approves at least one non-`client_admin` scope for production use, the Server MUST automatically switch the Client's `profile_visibility` setting from `autolist` to `listed` and remove `autolist` from the list of `profile_visibility_options`.
-  The behavior of this option is the same as the `unlisted` Profile Visibility option, with the exception that the Server MUST prominently display a banner message in the rendered profile entry to users that the Client has not yet been approved for production use.
-* `unlisted` - Servers MUST NOT include the Client profile entry in the [Directory API list](#directory-list) or [Publicly Accessible Web Directory](#public-directory).
-  However, the `profile_uri` will be publicly visible when requested directly by a user directly and the response to the `profile_uri` MUST include a `X-robots-tag` response header with `noindex` in the header values or a `<meta name="robots" ...>` HTML head tag with `noindex` included in the `content` attribute, so that web search engines do not index the profile entry.
-* `disabled` - Servers MUST NOT include the Client profile entry in the [Directory API list](#directory-list) or [Publicly Accessible Web Directory](#public-directory).
-  The Server MUST also return a 404 Not Found response code for requests made to the Client's `profile_uri`.
-
-### 6.3. Button Styles <a id="button-styles" href="#button-styles" class="permalink">🔗</a>
-
-Clients may have registered to a server for different purposes, so their Client profile entry button links may need to be styled as different actions based on the Client's use case.
-Servers MUST offer the following button styles for Clients to set as their `profile_button_style`:
-
-* `authorize` - Rendered as a button indicating to the user that the button will allow the user to authorize the Client in some fashion, such as a button saying "Authorize {client_name}".
-* `link` - Rendered as a button indicating to the user that the button will allow the user to link or connect the user's account to the Client, such as a button saying "Link your account with {client_name}".
-* `goto` - Rendered as a button indicating to the user that the button will allow the user to go to the Client's website, such as a button saying "Visit the {client_name} website".
-
-### 6.4. Modifying Client Settings <a id="clients-settings-modify" href="#clients-settings-modify" class="permalink">🔗</a>
-
-Clients may modify fields in the Client Settings API by sending an authenticated HTTPS `PATCH` request to the `cds_client_settings_api` endpoint with the body of the request formatted a JSON object.
-The fields included in JSON object are the fields the Client intends to update with the submitted fields' values.
-If a field is not included in the `PATCH` request, the Server MUST leave the field unmodified from its current value.
-
-The following are fields that MAY be included in the `PATCH` request, and modification MUST be supported by Servers:
-
-* `default_scope`
-* `profile_visibility`
-* `profile_description`
-* `profile_slug`
-* `profile_button_uri`
-* `profile_button_style`
-* `profile_contact_name`
-* `profile_contact_email`
-* `profile_contact_phone`
-* `profile_contact_website`
-
-Servers MUST reject requests with a `400 Bad Request` response when fields are submitted that are not able to be modified by the Client or the submitted values are invalid.
-For valid `PATCH` requests from Clients, Servers MUST respond with a `200 OK` or `202 Accepted` response with an updated JSON object of the complete current Client Settings object.
-
-If a Server needs to asynchronously review and approve changes to any submitted Client Settings object fields that have been submitted by the Client and are different from the current values, for valid modification requests the Server MUST respond with a `202 Accepted` response, which indicates that the submission was accepted but not fully saved as completed yet.
-Any fields that have not been synchronously updated as part of the request and response MUST remain in the response as their previous values, and the Server MUST add one or more entries to the [listed Client Messages](#clients-messages-list) for the modified fields that need to be asynchronously reviewed and approved.
-Clients MAY then use the [Client Messages API](#client-messages-api) to track the asynchronous review of the modification request.
-If all submitted fields have been synchronously updated as part of the response, Servers MUST respond with a `200 OK` response.
-
-## 7. Client Messages API <a id="client-messages-api" href="#client-messages-api" class="permalink">🔗</a>
+## 6. Client Messages API <a id="client-messages-api" href="#client-messages-api" class="permalink">🔗</a>
 
 To facilitate automated communication and notificatiosn between Servers and Clients, this specification requires that official communication between Servers and Clients be performed using the Client Messages APIs.
 Servers MAY implement other means of communications for exchanging messages and notifications, such as email support, but they MUST also mirror any official communications that impact Client or Grant statuses, settings, or access using the Client Messages API.
 
 The Client Messages API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the `client_id` used is for a Client that includes the `client_admin` scope.
 
-### 7.1. Client Message Object Format <a id="client-message-format" href="#client-message-format" class="permalink">🔗</a>
+### 6.1. Client Message Object Format <a id="client-message-format" href="#client-message-format" class="permalink">🔗</a>
 
 Client Message objects are formatted as JSON objects and contain the following named values:
 
@@ -529,7 +432,7 @@ Client Message objects are formatted as JSON objects and contain the following n
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Client Message `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
 * `currency` - _[string](#string)_ - (OPTIONAL) If the Client Message `type` is `payment_request`, this is the monetary currency for the `amount` in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code.
 
-### 7.2. Client Message Types <a id="client-message-types" href="#client-message-types" class="permalink">🔗</a>
+### 6.2. Client Message Types <a id="client-message-types" href="#client-message-types" class="permalink">🔗</a>
 
 Client Message object `type` values MUST be one of the following:
 
@@ -545,7 +448,7 @@ Client Message object `type` values MUST be one of the following:
   Both Clients and Servers MAY create these types of Client Message requests.
 * `payment_request` - The Server is requesting payment by the Client to complete a financial payment before the Client may proceed with either registration approval or completing actions listed in the `updates_requested` list.
 
-### 7.3. Client Message Statuses <a id="client-message-statuses" href="#client-message-statuses" class="permalink">🔗</a>
+### 6.3. Client Message Statuses <a id="client-message-statuses" href="#client-message-statuses" class="permalink">🔗</a>
 
 Client Message object `status` values MUST be one of the following:
 
@@ -557,7 +460,7 @@ Client Message object `status` values MUST be one of the following:
 * `errored` - For Client Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
   The Client is RECOMMENDED to submit a `support_request` Client Messages with the `related_uri` as the relevant errored Client Message's `uri`.
 
-### 7.4. Client Update Request Object Format <a id="client-update-request-format" href="#client-update-request-format" class="permalink">🔗</a>
+### 6.4. Client Update Request Object Format <a id="client-update-request-format" href="#client-update-request-format" class="permalink">🔗</a>
 
 Client Update Request objects are formatted as JSON objects and contain the following named values:
 
@@ -570,7 +473,7 @@ Client Update Request objects are formatted as JSON objects and contain the foll
 * `previous_value` - _various_ - (OPTIONAL) For Client Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed from.
 * `new_value` - _various_ - (OPTIONAL) For Client Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed to.
 
-### 7.5. Listing Client Messages <a id="clients-messages-list" href="#clients-messages-list" class="permalink">🔗</a>
+### 6.5. Listing Client Messages <a id="clients-messages-list" href="#clients-messages-list" class="permalink">🔗</a>
 
 Clients may request to list Client Message objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_client_messages_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format). The Client Message listing request responses are formatted as JSON objects and contain the following named values.
 
@@ -595,7 +498,7 @@ For example, if the Client requests a `unread_next`, the Server's response MUST 
 
 Listings of Client Message objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently modified relevant Client Message MUST be first in each listing.
 
-### 7.6. Creating Client Messages <a id="clients-messages-create" href="#clients-messages-create" class="permalink">🔗</a>
+### 6.6. Creating Client Messages <a id="clients-messages-create" href="#clients-messages-create" class="permalink">🔗</a>
 
 Clients create new Client Messages by sending an authenticated HTTPS `POST` request to the `cds_client_messages_api` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object MUST include the following:
@@ -626,7 +529,7 @@ When committing Client Messages created by Clients, Servers MUST populate the fo
 
 When Clients submit Client Messages with `type` value of `client_submission`, if the Client Message referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Client Message to `pending`, which indicates that the Client has submitted a response for Server review.
 
-### 7.7. Modifying Client Messages <a id="clients-messages-modify" href="#clients-messages-modify" class="permalink">🔗</a>
+### 6.7. Modifying Client Messages <a id="clients-messages-modify" href="#clients-messages-modify" class="permalink">🔗</a>
 
 Clients may modify fields in a Client Messages object by sending an authenticated HTTPS `PATCH` request to the Client Message `uri` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to modify with the submitted fields' values.
@@ -642,14 +545,14 @@ Severs MUST process newer Client Messages created by the Client as overriding th
 If a Client wishes to amend a previously created Client Message of type `private_message` or `support_request` they created, the Client MUST [create a new Client Message](#clients-messages-create) with the `previous_uri` value set as the Client Message `uri` for which they are wanting to amend.
 Severs MUST consider newer Client Messages created by the Client as amending the Client's previous support request or message.
 
-## 8. Scope Credentials API <a id="scope-creds-api" href="#scope-creds-api" class="permalink">🔗</a>
+## 7. Scope Credentials API <a id="scope-creds-api" href="#scope-creds-api" class="permalink">🔗</a>
 
 To allow Clients to manage `client_secret` values used for authentication to APIs, this specification requires that Server implement a Scope Credentials API.
 Servers MAY implement other means of managing Scope Credentials, such as a web interface, but they MUST also mirror any Scope Credentials managed by other means on this required Scope Credentials API.
 
 The Scope Credentials API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the `client_id` used is for a Client that includes the `client_admin` scope.
 
-### 8.1. Scope Credentials Object Format <a id="scope-creds-format" href="#scope-creds-format" class="permalink">🔗</a>
+### 7.1. Scope Credentials Object Format <a id="scope-creds-format" href="#scope-creds-format" class="permalink">🔗</a>
 
 Scope Credentials objects are formatted as JSON objects and contain the following named values:
 
@@ -685,7 +588,7 @@ Scope Credentials objects are formatted as JSON objects and contain the followin
 * `token_endpoint` - _[URL](#url)_ - (OPTIONAL) A specific OAuth [token endpoint](https://www.rfc-editor.org/rfc/rfc6749#section-3.2) that overrides the default Client `token_endpoint` for this specific Scope Credential.
   This MAY be added by Servers who have different token interfaces for different sets of scopes.
 
-### 8.2. Scope Credentials Statuses <a id="scope-creds-statuses" href="#scope-creds-statuses" class="permalink">🔗</a>
+### 7.2. Scope Credentials Statuses <a id="scope-creds-statuses" href="#scope-creds-statuses" class="permalink">🔗</a>
 
 Scope Credential object `status` values MUST be one of the following:
 
@@ -697,7 +600,7 @@ Scope Credential object `status` values MUST be one of the following:
   For scopes that require user authorization (i.e. `response_type` values of `code`), this `status` indicates that the Client may request authorization from fictional test users, as provided in the Server's `cds_test_accounts` documentation.
 * `disabled` - The Scope Credential is disabled.
 
-### 8.3. Evaluating Authorization Request Scopes <a id="auth-request-scope-evaluation" href="#auth-request-scope-evaluation" class="permalink">🔗</a>
+### 7.3. Evaluating Authorization Request Scopes <a id="auth-request-scope-evaluation" href="#auth-request-scope-evaluation" class="permalink">🔗</a>
 
 When responding to an OAuth [authorization request](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1), Servers MUST evaluate the requested `scope` or `authorization_details` against the `scope` and `authorization_details` listed in all of the Client's Scope Credentials objects.
 If the authorization request's `scope` or `authorization_details` is compatible with all or a subset of an individual Scope Credential's `scope` or `authorization_details`, and the `status` of the Scope Credential is compatible with the type of authenticated user (`production_and_sandbox` for any test or real users, `sandbox_only` for test users, `production_only` for real users), and the `redirect_uri` parameter in the authorization request is listed in the Scope Credential.
@@ -706,7 +609,7 @@ If a Server finds that an authorization request is compatible with multiple Scop
 When the user authorizes, the `code` parameter created by the Server and sent to the Client via the `redirect_uri` parameter MUST be able to be used to obtain an `access_token` via the token endpoint using any of the matching Scope Credentials' `client_secret` values.
 If one of the compatible Scope Credentials <span style="background-color:yellow">TODO</span>
 
-### 8.4. Listing Scope Credentials <a id="scope-creds-list" href="#scope-creds-list" class="permalink">🔗</a>
+### 7.4. Listing Scope Credentials <a id="scope-creds-list" href="#scope-creds-list" class="permalink">🔗</a>
 
 Clients may request to list Scope Credential objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_scope_credentials_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format).
 The Scope Credential listing request responses are formatted as JSON objects and contain the following named values.
@@ -730,11 +633,11 @@ Servers MUST support Clients adding any of the following URL parameters to the `
 
 Listings of Scope Credential objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently modified relevant Scope Credential MUST be first in each listing.
 
-### 8.5. Retrieving Individual Scope Credentials <a id="scope-creds-get" href="#scope-creds-get" class="permalink">🔗</a>
+### 7.5. Retrieving Individual Scope Credentials <a id="scope-creds-get" href="#scope-creds-get" class="permalink">🔗</a>
 
 The URL to be used to send `GET` requests for retrieving individual Scope Credential objects MUST be the Scope Credential `uri` provided in the [Scope Credential object](#scope-creds-format).
 
-### 8.6. Creating Scope Credentials <a id="scope-creds-create" href="#scope-creds-create" class="permalink">🔗</a>
+### 7.6. Creating Scope Credentials <a id="scope-creds-create" href="#scope-creds-create" class="permalink">🔗</a>
 
 Clients create new Scope Credentials by sending an authenticated HTTPS `POST` request to the `cds_scope_credentials_api` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object MUST include the following:
@@ -768,7 +671,7 @@ When committing Scope Credentials created by Clients, Servers MUST populate the 
 * `authorization_endpoint` - _[URL](#url)_ - (OPTIONAL) If different from the Client object's `authorization_endpoint` value.
 * `token_endpoint` - _[URL](#url)_ - (OPTIONAL) If different from the Client object's `token_endpoint` value.
 
-### 8.7. Modifying Scope Credentials <a id="scope-creds-modify" href="#scope-creds-modify" class="permalink">🔗</a>
+### 7.7. Modifying Scope Credentials <a id="scope-creds-modify" href="#scope-creds-modify" class="permalink">🔗</a>
 
 Clients may modify fields in the Scope Credentials API by sending an authenticated HTTPS `PATCH` request to the Scope Credential `uri` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to update with the submitted fields' values.
@@ -794,12 +697,12 @@ If all submitted fields have been synchronously updated as part of the response,
 
 If a Client updates the `status` of a Scope Credential to `disabled`, the Server MUST assume the Scope Credential is compromised and synchronously disable the Scope Credential's `client_secret` from being used on the token endpoint and revoke any `access_token` or `refresh_token` values issued by the token endpoint as a result of using the now-disabled Scope Credential.
 
-## 9. Grants API <a id="grants-api" href="#grants-api" class="permalink">🔗</a>
+## 8. Grants API <a id="grants-api" href="#grants-api" class="permalink">🔗</a>
 
 This specification requires Servers provide an API allowing Clients to view and edit OAuth user authorizations and client credentials grants ("Grants") related to their registration.
 These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the `client_id` used is for a Client that includes the `client_admin` scope.
 
-### 9.1. Grant Object Format <a id="grant-format" href="#grant-format" class="permalink">🔗</a>
+### 8.1. Grant Object Format <a id="grant-format" href="#grant-format" class="permalink">🔗</a>
 
 Grant objects are formatted as JSON objects and contain the following named values:
 
@@ -841,7 +744,7 @@ Grant objects are formatted as JSON objects and contain the following named valu
   For Grants that have had their access removed (e.g. `disabled`), this value is an empty list (`[]`).
 * `sub_authorization_scopes` - _Array[[string](#string)]_ - (REQUIRED) For Grants that require sub-authorizations where users must provide additional authorization to enable access, this is the outstanding list of `scope` values that have yet to be authorized individually by users.
 
-### 9.2. Grant Statuses <a id="grant-statuses" href="#grant-statuses" class="permalink">🔗</a>
+### 8.2. Grant Statuses <a id="grant-statuses" href="#grant-statuses" class="permalink">🔗</a>
 
 Grants object `status` values MUST be one of the following:
 
@@ -867,7 +770,7 @@ Grants object `status` values MUST be one of the following:
 
 Grant `status` values of `future`, `disabled`, `suspended`, `revoked`, `closed`, and `expired` indicate that access to all features and data that were accessible via this Grant are no longer accessible.
 
-### 9.3. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a>
+### 8.3. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a>
 
 Clients may request to list Grant objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_grants_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format).
 The Grant listing request responses are formatted as JSON objects and contain the following named values.
@@ -892,11 +795,11 @@ Servers MUST support Clients adding any of the following URL parameters to the `
 
 Listings of Grant objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently updated relevant Grant MUST be first in each listing.
 
-### 9.4. Retrieving Individual Grants <a id="grants-get" href="#grants-get" class="permalink">🔗</a>
+### 8.4. Retrieving Individual Grants <a id="grants-get" href="#grants-get" class="permalink">🔗</a>
 
 The URL to be used to send `GET` requests for retrieving individual Grant objects MUST be the Grant `uri` provided in the [Grant object](#grant-format).
 
-### 9.5. Modifying Grants <a id="grants-modify" href="#grants-modify" class="permalink">🔗</a>
+### 8.5. Modifying Grants <a id="grants-modify" href="#grants-modify" class="permalink">🔗</a>
 
 Clients may modify fields in the Grants API by sending an authenticated HTTPS `PATCH` request to the Grant `uri` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to update with the submitted fields' values.
@@ -918,81 +821,6 @@ For valid `PATCH` requests from Clients, Servers MUST respond with a `200 OK` re
 If a Server needs to asynchronously review and approve changes to any submitted Grant object fields that have been submitted by the Client and are different from the current values, for valid modification requests the Server MUST update the Grant's `status` to `pending` in the response.
 Additionally, if the `scope` or `authorization_details` has been updated, the Server MUST update the `enabled_scope` and `enabled_authorization_details` to reflect for what the Client currently has access while the Grant is pending.
 
-## 10. Directory API <a id="directory-api" href="#directory-api" class="permalink">🔗</a>
-
-Servers MUST provide both an authenticated API-based directory [list of Clients](#directory-list), as well as [publicly accessible web directory](#public-directory) interface of Clients who have been configured to be listed.
-
-The Directory APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the `client_id` used is for a Client that includes the `client_admin` scope.
-However, the [Publicly Accessible Web Directory](#public-directory) not authenticated, as it is intended to be publicly accessible to browser users.
-
-### 10.1. Directory Entry Object Format <a id="directory-entry-format" href="#directory-entry-format" class="permalink">🔗</a>
-
-Directory Entry objects are formatted as JSON objects and contain the following named values:
-
-* `client_id` - From the [Client object](#client-format)
-* `client_name` - From the [Client object](#client-format)
-* `client_uri` - From the [Client object](#client-format)
-* `tos_uri` - From the [Client object](#client-format)
-* `policy_uri` - From the [Client object](#client-format)
-* `logo_uri` - From the [Client object](#client-format)
-* `scope` - From the [Client object](#client-format), containing the list of scopes approved for production use, and NOT containing the `client_admin` scope.
-* `profile_visibility` - From the [Client Settings object](#client-settings-format)
-* `profile_uri` - From the [Client Settings object](#client-settings-format)
-* `profile_description` - From the [Client Settings object](#client-settings-format)
-* `profile_button_uri` - From the [Client Settings object](#client-settings-format)
-* `profile_button_style` - From the [Client Settings object](#client-settings-format)
-* `profile_contact_name` - From the [Client Settings object](#client-settings-format)
-* `profile_contact_email` - From the [Client Settings object](#client-settings-format)
-* `profile_contact_phone` - From the [Client Settings object](#client-settings-format)
-* `profile_contact_website` - From the [Client Settings object](#client-settings-format)
-
-### 10.2. Listing Directory Entries <a id="directory-list" href="#directory-list" class="permalink">🔗</a>
-
-Clients may request to list Directory Entry objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_directory_api` URL included in the [Client Registration Response](#registration-response) or [Client object](#client-format).
-The Client listing request responses are formatted as JSON objects and contain the following named values.
-
-* `entries` - _Array[[DirectoryEntry](#directory-entry-format)]_ - (REQUIRED) A list of Directory Entry objects for Clients who have set their `profile_visibility` to `listed`.
-  If no Clients are listed, this value is an empty list (`[]`).
-  If more than 100 Directory Entry objects are available to be listed, Servers MAY truncate the list and use the `next` value to link to the next segment of the list of Directory Entry objects.
-* `next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of Directory Entry objects.
-  If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Directory Entry objects.
-  If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
-
-### 10.3. Publicly Accessible Web Directory <a id="public-directory" href="#public-directory" class="permalink">🔗</a>
-
-Additionally, Servers MUST provide a publicly accessible directory web interface that allows users to browse and view the Client profile entries that are listed in the Directory API.
-Servers MUST NOT require authentication for users to browse the directory.
-Server MUST include searching capabilities in the web interface that allows users to search for Clients by name, description, and website.
-Servers MUST also include filtering capabilities in the web interface that allows users to filter the list of Clients by scope.
-Servers MUST also enable linking directly to a Client profile entry as defined by the [Client Settings `profile_uri`](#client-settings-format).
-Servers MUST design the publicly accessible directory to be compatible for desktop, mobile, and accessibility-focused browsers and tools, such as vision impaired screen readers.
-Servers MAY include other features and functionality in addition to these requirements for the publicly accessible directory.
-
-For Client profile entries, Servers MUST render the Client profile entry with at least the following contents:
-
-* `client_name` - From the [Client object](#client-format), as the name of the Client.
-* `client_uri` - From the [Client object](#client-format), as a link to the Client's website.
-* `tos_uri` - From the [Client object](#client-format), as a link to the Client's terms of service.
-* `policy_uri` - From the [Client object](#client-format), as a link to the Client's privacy policy.
-* `logo_uri` - From the [Client object](#client-format), as an image and embedded in the rendered Client profile.
-  Servers MAY fetch and cache logos set by Clients when they are configured as part of the [Client Registration request](#registration-request) or when a Client modifies their registration on the [Clients API](#clients-modify).
-  If a Client sets this value to `null`, then the Server MUST render the logo as a placeholder image, such as an image with the words "No Logo Provided".
-* `scope` - From the [Client object](#client-format), as a list of scopes for which the Client is approved for production use, except for the `client_admin` scope.
-* `profile_description` - From the [Client Settings object](#client-settings-format), as a block of text as a description of the Client.
-  Servers MUST NOT render URLs, phone numbers, emails, and other text that may be auto-detected as a link as links, and instead MUST render the description text as text.
-  Servers MUST render line breaks in the profile entry as submitted by the Client.
-* `profile_button_uri` - From the [Client Settings object](#client-settings-format), as an anchor link styled as the specified `profile_button_style` [Button Styles](#button-styles) and when clicked opens a new tab via the `target="_blank"` and `rel="noopener noreferrer nofollow"` anchor attributes.
-  If a Client sets this value to `null`, then the Server MUST NOT render this button link.
-* `profile_contact_name` - From the [Client Settings object](#client-settings-format), as text of the Client's contact name.
-* `profile_contact_email` - From the [Client Settings object](#client-settings-format), as a `mailto:` link to the Client's contact email.
-* `profile_contact_phone` - From the [Client Settings object](#client-settings-format), as a `tel:` link to the Client's contact phone number, where the link `href` is formatted as an [E.123](https://en.wikipedia.org/wiki/E.123) international phone number and the link text is displayed as the Server's locale format.
-  If a Client sets this value to `null`, then the Server MUST NOT render this contact phone number link.
-* `profile_contact_website` - From the [Client Settings object](#client-settings-format), as an anchor link when clicked opens a new tab via the `target="_blank"` and `rel="noopener noreferrer nofollow"` anchor attributes.
-  If a Client sets this value to `null`, then the Server MUST NOT render this contact website link.
-
-Additionally, for Clients registered and approved for scopes that have `authorization_code` in the scope's `grant_types` (thus allowing the Client to obtain user authorizations), Server MUST render a link on the Client profile entry for where users may go to view their current and previous authorization grants with the Client.
-
 ## 11. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a>
 
 <span style="background-color:yellow">TODO</span>
@@ -1007,7 +835,7 @@ This specification describes a protocol by which a utility or other entity (a Se
 Because the functionality described in this specification enables access to private Server functionality and data, Servers MUST follow industry cybersecurity best practices when securing their implementations of this specification to prevent unintended or inadvertent access to privileged functionality or data to Clients who are not authorized.
 These best practices include requiring HTTPS for API endpoints using the latest widely adopted encryption standards, undergoing regular security audits and penetration tests, and internally requiring security-focused process controls and data handling procedures.
 
-<span style="background-color:yellow">TODO: Security considerations on public directory descriptions, buttons, etc.</span>
+<span style="background-color:yellow">TODO: Other security considerations</span>
 
 ### 13.1. Restricted Access <a id="restricted-access" href="#restricted-access" class="permalink">🔗</a>
 
@@ -1020,13 +848,13 @@ Servers that wish to restrict access of by-default unauthenticated endpoints to 
 This specification does not describe specifically how Servers will authenticate Clients for by-default unauthenticated endpoints, as these restricted access protocols are context dependent.
 For example, if a Server providing a private Client Registration endpoint as part of an existing logged in portal, then they can use that logged in portal's session cookie to authenticate Client requests to the registration endpoint.
 
-For authenticated endpoints ([Clients API](#clients-api), [Client Settings API](#client-settings-api), [Client Messages API](#client-messages-api), [Scope Credentials API](#scope-creds-api), [Grants API](#grants-api)), Servers MUST authenticate requests using OAuth's [Authorization Request Header Field](https://www.rfc-editor.org/rfc/rfc6750#section-2.1) with access tokens obtained using the OAuth's [Issuing an Access Token](https://www.rfc-editor.org/rfc/rfc6749#section-5) process.
+For authenticated endpoints ([Clients API](#clients-api), [Client Messages API](#client-messages-api), [Scope Credentials API](#scope-creds-api), [Grants API](#grants-api)), Servers MUST authenticate requests using OAuth's [Authorization Request Header Field](https://www.rfc-editor.org/rfc/rfc6750#section-2.1) with access tokens obtained using the OAuth's [Issuing an Access Token](https://www.rfc-editor.org/rfc/rfc6749#section-5) process.
 
 ### 13.2. Rate Limiting <a id="rate-limiting" href="#rate-limiting" class="permalink">🔗</a>
 
 For unauthenticated endpoints ([Authorization Server Metadata](#auth-server-metadata), [Client Registration Process](#client-registration-process)), Servers SHOULD configure rate limiting restrictions so that bots and misconfigured scripts will not flood and overwhelm the endpoints with requests, while still allowing legitimate and low-volume automated requests have access to the endpoints.
 
-For authenticated endpoints ([Clients API](#clients-api), [Client Settings API](#client-settings-api), [Client Messages API](#client-messages-api), [Scope Credentials API](#scope-creds-api), [Grants API](#grants-api)), Servers SHOULD configure rate limiting by Client and Scope Credential to ensure that individual Clients do not overwhelm Servers with authenticated API requests.
+For authenticated endpoints ([Clients API](#clients-api), [Client Messages API](#client-messages-api), [Scope Credentials API](#scope-creds-api), [Grants API](#grants-api)), Servers SHOULD configure rate limiting by Client and Scope Credential to ensure that individual Clients do not overwhelm Servers with authenticated API requests.
 Additionally, Servers SHOULD configure rate limiting for unauthenticated or failed authentication requests to authenticated API endpoints to prevent brute force attempts to gain access to authenticated APIs.
 
 ## 14. References <a id="references" href="#references" class="permalink">🔗</a>
