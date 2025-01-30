@@ -101,6 +101,10 @@ These entities can include, but are not limited to, carbon tracking applications
 
 <a id="decimal" href="#decimal" class="permalink">🔗</a> "decimal" - A decimal value as defined by `number` in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259#section-6).
 
+<a id="array" href="#array" class="permalink">🔗</a> "Array" - A list of objects or values as defined by `Arrays` in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259#section-5).
+
+<a id="map" href="#map" class="permalink">🔗</a> "Map" - A JSON object as defined by `Objects` in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259#section-4).
+
 <a id="date" href="#date" class="permalink">🔗</a> "date" - A string representing date in the format of `full-date` as defined by [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) (e.g. "2024-01-01").
 
 <a id="datetime" href="#datetime" class="permalink">🔗</a> "datetime" - A string representing date and time in the format of `date-time` as defined by [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) (e.g. "2024-01-01T00:00:00Z").
