@@ -25,6 +25,7 @@ This specification defines how utilities and other central entities ("Servers") 
     * [3.6. Registration Field Formats](#registration-field-formats)  
     * [3.7. Authorization Details Field Object Format](#auth-details-fields-format)  
     * [3.8. Authorization Details Field Formats](#auth-details-field-formats)  
+    * [3.9. Authorization Details Field Choice Object Format](#auth-details-field-choice-format)  
 * [4. Client Registration Process](#client-registration-process)  
     * [4.1. Client Registration Request](#registration-request)  
     * [4.2. Client Registration Response](#registration-response)  
@@ -111,6 +112,8 @@ These entities can include, but are not limited to, carbon tracking applications
 
 <a id="url" href="#url" class="permalink">🔗</a> "URL" - A string representing resource as defined in [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3) (e.g. "https://example.com/page1").
 
+<a id="jwk-enc" href="#jwk-enc" class="permalink">🔗</a> "JWK Public Encryption Key" - A JSON object representing a public key as defined in [RFC 7517](https://www.rfc-editor.org/rfc/rfc7517.html#section-4) where the [use](https://www.rfc-editor.org/rfc/rfc7517.html#section-4.2) field MUST contain the value `enc`.
+
 <a id="key-words" href="#key-words" class="permalink">🔗</a> Key Words: "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" are defined in accordance with [BCP 14](https://www.rfc-editor.org/info/bcp14).
 
 ## 3. Authorization Server Metadata <a id="auth-server-metadata" href="#auth-server-metadata" class="permalink">🔗</a>
@@ -172,6 +175,10 @@ In addition to OAuth capabilities included in the metadata object, this specific
   This object MUST include a key for each Registration Field `id` included in the `registration_requirements` lists in the metadata object with a [Registration Field](#registration-field-format) as that key's value.
   If all `registration_requirements` lists are empty, this reference object is an empty object (`{}`).
 
+Scope functionality described by [Scope Description](#scope-descriptions-format) objects included in the `cds_scope_descriptions` object MUST be available for all of the scope's coverage, as described by the Scope Description's `coverages` list, up to any limits specified in the scopes authorization details, as described by the Scope Description's `authorization_details_fields` [Authorization Details](#auth-details-fields-format) object's `limit` values.
+For situations where the same scope is available for multiple groups of coverages and limits, multiple Scope Description entries with different `id` values MUST be included.
+For example, if a Server offers a scope that grants access to historical customer usage data, offering 24 months of usage history for electricity service contracts and and 12 months of history for natural gas service contracts, the Server MUST include two Scope Descriptions with different `id` values that include only the coverage and limits of that scope's functionality.
+
 Other values not mentioned here but listed in specifications for the Authorization Server Metadata specification or other extensions MAY be included as described in their respective specifications.
 
 ### 3.3. Scope Descriptions Object Format <a id="scope-descriptions-format" href="#scope-descriptions-format" class="permalink">🔗</a>
@@ -195,9 +202,10 @@ Scope Description objects are formatted as JSON objects and contain named values
   This array MUST contain at least one grant type.
 * `token_endpoint_auth_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The OAuth client authentication methods that can be used for granting tokens with this scope.
   This value follows the same behavior as OAuth's [Metadata object `token_endpoint_auth_methods_supported`](https://www.rfc-editor.org/rfc/rfc8414#section-2), except that this value represents the client authentication methods supported for this individual scope and not all scopes for the Client. A value of `"none"` this array indicates that the scope may be used for public application without using a client secret.
-* `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) For scope descriptions where `grant_types_supported` includes the value `authorization_code`, OAuth's [Proof Key for Code Exchange by OAuth Public Clients](https://www.rfc-editor.org/rfc/rfc7636) functionality is required, and Servers MUST offer `S256` and MUST NOT offer `plain` code verifier methods. For scope descriptions where  `grant_types_supported` does not include `authorization_code`, no authorization request is performed, so no code challenge is required and this field value is and empty list (`[]`).
+* `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) For scope descriptions where `grant_types_supported` includes the value `authorization_code`, OAuth's [Proof Key for Code Exchange by OAuth Public Clients](https://www.rfc-editor.org/rfc/rfc7636) functionality is required, and Servers MUST offer `S256` and MUST NOT offer `plain` code verifier methods. For scope descriptions where  `grant_types_supported` does not include `authorization_code`, no authorization request is performed, so no code challenge is required and this field value is an empty list (`[]`).
 * `authorization_details_fields` - _Array[[AuthorizationDetailsField](#auth-details-fields-format)]_ - (REQUIRED) A list of fields that MAY be included in [Rich Authorization Requests](https://www.rfc-editor.org/rfc/rfc9396) the authorization details object for this scope `type`.
   If no extra authorization details fields are available, this value is an empty list (`[]`).
+* `coverages` - _Array[[string](#string)]_ - (REQUIRED) A list of [CDSC-WG1-01 Coverage Entry Object](/specs/cdsc-wg1-01/#coverage-entry-format) `id` values for which the scope is available by the Server. If the scope provides functionality unrelated to a Server's coverage entries (e.g. the `client_admin` scope), this value is an empty list (`[]`).
 
 ### 3.4. Registration Field Object Format <a id="registration-field-format" href="#registration-field-format" class="permalink">🔗</a>
 
@@ -228,8 +236,8 @@ The following list of strings are an enumerated set of registration field types 
 * `registration_field` - This field should be submitted with the [Client Registration Request](#registration-request) as the `field_name`.
   This type of registration field MUST also have `field_name` and `format` values.
   If this field is optional as part of registration, `default` must also be defined in the registration field object.
-* `manual_review` - This field indicates that the Server will manually review the registration before approving it for production use.
-  Notifications and communication about the status of this manual review will be conveyed using the [Client Messages API](#client-messages-api).
+* `internal_review` - This field indicates that the Server will review the registration internally before approving it for production use.
+  Notifications and communication about the status of this internal review will be conveyed using the [Client Messages API](#client-messages-api).
 * `payment_required` - This field indicates that a setup payment will be required before the Server will approve the Client for production use.
   Notifications and communication about how to pay and confirmation of payment will be conveyed using the [Client Messages API](#client-messages-api).
 * `email_verification` - This field indicates that the Client must verify their email before the Server will approve the Client for production use.
@@ -267,11 +275,12 @@ The following values are included in the default list available in authorization
 * `format` - _[AuthorizationDetailsFieldFormats](#auth-details-field-formats)_ - (REQUIRED) The data format that MUST be used in the value of the field when including it as a data field in `authorization_details` objects.
 * `default` - _various_ - (REQUIRED) The default value that will be used in lieu of the Client submitting a value themselves.
   This is also the value that will be used if a basic OAuth `scope` string parameter is used instead of an `authorization_details` parameter.
-* `relative_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date`, this is the largest relative date range that may be submitted.
+* `relative_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date` and the value is limited by the Server, this is REQUIRED and MUST be the largest relative date range that may be submitted.
   Servers MUST validate both submitted absolute dates and relative dates against the relative date limit, where when comparing to a submitted absolute date, the current Server date in the Server's local timezone is used as the relative point of reference.
-* `absolute_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date`, this is the furthest away date that may be submitted.
+* `absolute_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date` the value is limited by the Server, this is REQUIRED and MUST be the furthest away date that may be submitted.
   Servers MUST validate both submitted absolute dates and relative dates against the absolute date limit, where when comparing to a submitted relative date, the current Server date in the Server's local timezone is used as the relative point of reference.
-* `limit` - _[integer](#integer)_ - (OPTIONAL) If format is one of `int` or `decimal`, this is the largest value that can be the submitted.
+* `limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is one of `int` or `decimal` and the value is limited by the Server, this is REQUIRED and MUST be the largest value that can be the submitted. If `format` is `string` and the length of the value is limited by the Server, this is REQUIRED and MUST be the maximum string length that can be the submitted.
+* `choices` - _Array[[AuthorizationDetailsFieldChoice](#auth-details-field-choice-format)]_ - (OPTIONAL) If `format` is `choice`, this is REQUIRED and MUST be a list of one or more available choice objects.
 
 ### 3.8. Authorization Details Field Formats <a id="auth-details-field-formats" href="#auth-details-field-formats" class="permalink">🔗</a>
 
@@ -279,14 +288,28 @@ Authorization Details Field formats define the data type of submitted values for
 
 The following list of strings are an enumerated set of authorization details field formats that are valid `format` values in the [Authorization Details Field objects](#auth-details-fields-format).
 
+* `int` - An [integer](#integer) value.
+* `decimal` - A [decimal](#decimal) value, which can have any number of significant units, but MUST NOT be stored or handled as a float value, in order to retain the precision of the value throughout Server and Client processing.
+* `string` - A [string](#string) value.
 * `relative_or_absolute_date` - A relative or absolute date string.
   Relative dates are formatted as defined by `duration` in [RFC 3339 Appendix A](https://datatracker.ietf.org/doc/html/rfc3339#appendix-A).
   For example, `P3Y` represents a relative date range of 3 years.
   Absolute dates are formatted as [date](#date) (`YYYY-MM-DD`).
   For example, `2024-01-02` represents the 2nd of January, 2024.
   Dates are defined as the date from the perspective of the Server's local timezone.
-* `int` - An [integer](#integer) value.
-* `decimal` - A [decimal](#decimal) value, which can have any number of significant units, but MUST NOT be stored or handled as a float value, in order to retain the precision of the value throughout Server and Client processing.
+* `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Authorization Details Field Choice](#auth-details-field-choice-format) objects.
+* `jwk_or_null` - A [JWK Public Encryption Key](#jwk-enc) object or `null`.
+
+### 3.9. Authorization Details Field Choice Object Format <a id="auth-details-field-choice-format" href="#auth-details-field-formats" class="permalink">🔗</a>
+
+Authorization Details Field Choice objects are formatted as JSON objects and contain named values.
+The following values are included in the default list available in Authorization Details Field Choice objects.
+
+* `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the authorization details field choice.
+  This is used as the value for the relvant field when that field is included in an object as part of a `authorization_details` list.
+* `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the authorization details field choice.
+* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what submitting this value for the authorizations details field means.
+* `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this authorization details field choice.
 
 ## 4. Client Registration Process <a id="client-registration-process" href="#client-registration-process" class="permalink">🔗</a>
 
