@@ -229,8 +229,6 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
 
 A scope for administratively gaining access to a specific Grant data and functionality.
 Since Servers MAY arbitrarily create Grant objects included in the [Grants API](#grants-api), this scope serves as an additional method of gaining access to previously created Grant scopes by Client administrators.
-Servers MUST only approve submissions of this scope to the token endpoint when the `grant_id` is for a Grant that has a non-empty `enabled_scope` value (i.e. the Grant is not disabled) and neither `client_admin` or `grant_admin` are part of the `scope`.
-When multiple authorization details entries are submitted to the token endpoint, the `grant_id` values MUST all have the same `client_id`.
 
 The following are how the [Scope Descriptions](#scope-descriptions-format) fields MUST be configured for this scope:
 
@@ -246,19 +244,36 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
 * `token_endpoint_auth_methods_supported` is `["client_secret_basic"]`.
 * `code_challenge_methods_supported` is `[]`.
 * `coverages_supported` is `[]`.
-* `authorization_details_fields_supported` is a JSON array with a single entry [Authorization Details Field Object](#auth-details-fields-format) with the following fields.
-    * `id` is `grant_id`.
-    * `name` is `"Grant identifier"`.
-    * `description` is `"A previous active Grant identifier for which the returned access_token will be given access. Multiple authorization details entries may be submitted with different grant_id values for the same client_id to gain access to multiple Grants."`.
-    * `documentation` is a _[URL](#url)_ for the Server's documentation on the `grant_id` authorization details field.
-  Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
-    * `format` is `string`.
-    * `is_required` is `true`.
-    * `default` is not included.
-    * `relative_date_limit` is not included.
-    * `absolute_date_limit` is not included.
-    * `limit` is not included.
-    * `choices` is not included.
+* `authorization_details_fields_supported` is a JSON array with the following two entries of [Authorization Details Field Objects](#auth-details-fields-format).
+    * Client ID:
+        * `id` is `client_id`.
+        * `name` is `"Client object identifier"`.
+        * `description` is `"The Client object identifier for which the Grant is issued."`.
+        * `documentation` is a _[URL](#url)_ for the Server's documentation on the `client_id` authorization details field.
+          Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
+        * `format` is `string`.
+        * `is_required` is `true`.
+        * `default` is not included.
+        * `relative_date_limit` is not included.
+        * `absolute_date_limit` is not included.
+        * `limit` is not included.
+        * `choices` is not included.
+    * Grant ID:
+        * `id` is `grant_id`.
+        * `name` is `"Grant identifier"`.
+        * `description` is `"The Grant identifier for which the returned access_token will be given access."`.
+        * `documentation` is a _[URL](#url)_ for the Server's documentation on the `grant_id` authorization details field.
+          Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
+        * `format` is `string`.
+        * `is_required` is `true`.
+        * `default` is not included.
+        * `relative_date_limit` is not included.
+        * `absolute_date_limit` is not included.
+        * `limit` is not included.
+        * `choices` is not included.
+
+Server MUST only approve submissions of this scope to the token endpoint with a single authorization details entry to the token endpoint, ensuring the access token returned is only valid for one `grant_id`.
+Servers MUST only approve submissions of this scope to the token endpoint when the `grant_id` is for a Grant that has a matching `client_id`, has a non-empty `enabled_scope` value (i.e. the Grant is not disabled) and neither `client_admin` or `grant_admin` are part of the `scope`.
 
 #### 3.3.3 Server-Provided Files Scope <a id="scopes-server-provided-files" href="#scopes-server-provided-files" class="permalink">🔗</a>
 
@@ -284,7 +299,7 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
     * `name` is `"File identifier"`.
     * `description` is `"A file provided by the Server that may be accessed by the Client as part of the Grant."`.
     * `documentation` is a _[URL](#url)_ for the Server's documentation on the `file_id` authorization details field.
-  Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
+      Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
     * `format` is `string`.
     * `is_required` is `true`.
     * `default` is not included.
@@ -293,7 +308,7 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
     * `limit` is not included.
     * `choices` is not included.
 
-Since Grants with the scope are only created by Servers, Client do not receive an authorization code or access token for that Grant with which they may access the files. Instead, to access the files, Clients MUST submit a `client_credentials` grant with the scope of `grant_admin` and an `authorization_details` containing the `grant_id` for the Grant the Client found via the [Grants API](#grants-api).
+Since Grants with the scope are only created by Servers, Client do not receive an authorization code or access token for that Grant with which they may access the files. Instead, to access the files, Clients MUST submit a `client_credentials` grant with the scope of `grant_admin` and an `authorization_details` containing the `client_id` and `grant_id` for the Grant the Client found via the [Grants API](#grants-api).
 
 ### 3.4. Scope Descriptions Object Format <a id="scope-descriptions-format" href="#scope-descriptions-format" class="permalink">🔗</a>
 
