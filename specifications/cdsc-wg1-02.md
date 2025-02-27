@@ -175,11 +175,6 @@ In addition to OAuth capabilities included in the metadata object, this specific
 
 * `cds_oauth_version` - _[string](#string)_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`
 * `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a user device
-* `cds_test_accounts` - _[URL](#url)_ - (REQUIRED) Where Clients can find developer documentation on what test account credentials may be used for testing OAuth `response_type=code` authorization requests
-* `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api)
-* `cds_messages_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Messages API](#messages-api)
-* `cds_credentials_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Credentials API](#credentials-api)
-* `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Grants API](#grants-api)
 * `cds_scope_descriptions` - _Map[[ScopeDescription](#scope-descriptions-format)]_ - (REQUIRED) An object providing additional information about what Scope values listed in `scopes_supported` mean.
   This object MUST include a key for each Scope listed in `scopes_supported` with a [Scope Description](#scope-descriptions-format) as that key's value.
 * `cds_registration_fields` - _Map[[RegistrationField](#registration-field-format)]_ - (REQUIRED) An object providing additional information about Registration Field that are referenced in [Scope Description's](#scope-descriptions-format) `registration_requirements` list.
@@ -549,11 +544,17 @@ In addition to the fields defined by OAuth's [Client Metadata](https://www.rfc-e
   If the Client's CDSC server metadata is no different from the public CDSC server metadata, Servers MAY simply link to the public URL.
   If this metadata endpoint requires authentication, Servers MUST authenticate Client requests to this endpoint via Bearer access token obtained using OAuth's `client_credentials` grant with a scope of `client_admin`, and reject unauthenticated requests with a `401 Unauthorized` response code.
   Clients know that they must use a Bearer token when Servers return a `401` response code for this endpoint when the Client makes an unauthenticated request to the endpoint.
-* `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Clients API](#clients-api).
-* `cds_messages_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Messages API](#messages-api).
-* `cds_credentials_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Credentials API](#credentials-api).
-* `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The base url for the [Grants API](#grants-api).
-* `cds_server_provided_files_api` - _[URL](#url)_ - (OPTIONAL) The base url for the [Server-Provided Files API](#server-provided-files-api).
+* `cds_test_accounts` - _[URL](#url)_ - (OPTIONAL) Where Clients can find developer documentation on what test account credentials may be used for testing functionality.
+  This MUST be included if the Client object `cds_status_options` contains `sandbox`.
+* `cds_clients_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Clients API](#clients-api).
+  This MUST be included if the Client object `scope` contains `client_admin`.
+* `cds_messages_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Messages API](#messages-api).
+  This MUST be included if the Client object `scope` contains `client_admin`.
+* `cds_credentials_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Credentials API](#credentials-api).
+  This MUST be included if the Client object `scope` contains `client_admin`.
+* `cds_grants_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Grants API](#grants-api).
+  This MUST be included if the Client object `scope` contains `client_admin`.
+* `cds_server_provided_files_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Server-Provided Files API](#server-provided-files-api).
   This MUST be included if the Client's registration response `scope` string included the `server_provided_files` scope.
 * `cds_default_scope` - _[string](#string)_ - (OPTIONAL) The default scope string used when no `scope` parameter is provided as part of an authorization request.
   This MUST be included if `response_types` is not an empty list (i.e. authorization requests are enabled).
@@ -1021,6 +1022,10 @@ Additionally, if the `scope` or `authorization_details` has been updated, the Se
 
 This specification defines an API by which Servers MAY provide an access to arbitrary files to Clients to download.
 These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth's [`client_credentials` grant](https://www.rfc-editor.org/rfc/rfc6749#section-4.4) process, where the scope of the access token is `grant_admin` with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the `server_provided_files` scope.
+
+This API is intended to provide a convenient way for Servers to provide secure ad-hoc file access to Clients, such as sharing connectivity-related files (e.g. configs, certificates, secret keys, etc.) or manually created bulk files (e.g. initial backfill raw data, analysis reports, etc.).
+This API is NOT intended to be used for automated sharing of structured data (e.g. nightly interval extracts) because the API has limited functionality to convey the appropriate metadata for automated file sharing, such as versioning or schemas.
+It is RECOMMENDED that automated sharing of structured datasets be performed using another structured API or transfer method more fit for purpose, which MAY be an extension to this specification.
 
 ### 9.1. Server-Provided Files Object Format <a id="server-provided-files-format" href="#server-provided-files-format" class="permalink">🔗</a>
 
