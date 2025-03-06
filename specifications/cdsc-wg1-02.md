@@ -175,6 +175,14 @@ In addition to OAuth capabilities included in the metadata object, this specific
 
 * `cds_oauth_version` - _[string](#string)_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`
 * `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a user device
+* `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Clients API](#clients-api).
+* `cds_messages_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Messages API](#messages-api).
+* `cds_credentials_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Credentials API](#credentials-api).
+* `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Grants API](#grants-api).
+* `cds_server_provided_files_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Server-Provided Files API](#server-provided-files-api).
+  This MUST be included if `scopes_supported` includes the `server_provided_files` scope.
+* `cds_test_accounts` - _[URL](#url)_ - (OPTIONAL) Where Clients can find developer documentation on what test account credentials may be used for testing functionality.
+  This MUST be included if `response_types_supported` is not an empty list (i.e. user authorization is supported for some scopes).
 * `cds_scope_descriptions` - _Map[[ScopeDescription](#scope-descriptions-format)]_ - (REQUIRED) An object providing additional information about what Scope values listed in `scopes_supported` mean.
   This object MUST include a key for each Scope listed in `scopes_supported` with a [Scope Description](#scope-descriptions-format) as that key's value.
 * `cds_registration_fields` - _Map[[RegistrationField](#registration-field-format)]_ - (REQUIRED) An object providing additional information about Registration Field that are referenced in [Scope Description's](#scope-descriptions-format) `registration_requirements` list.
@@ -492,7 +500,8 @@ Servers MUST NOT create Clients that have both `production` and `sandbox` values
 For situations where Servers do not initially create a Client with `production` as a `cds_status_option`, such as when the Server has a manual review step, Servers MUST create a Client object with `sandbox` as a `cds_status_option` so that Clients MAY being to test their applications immediately after registration.
 Then, later if and when the Server decides to allow the Client access to the production environment, the Server MUST create a new Client object with `production` as a `cds_status_option`.
 
-While Servers MAY support OAuth's [Dynamic Client Registration Management Protocol](https://www.rfc-editor.org/rfc/rfc7592) by including the `registration_client_uri` and `registration_access_token` values in their registration response, this specification requires that Servers MUST support the [Clients API](clients-api) by including the `cds_clients_api` value in the registration response as a way for Clients to manage their registrations. The Clients API is needed beyond the OAuth Dynamic Client Registration Management Protocol because as part of registration, Servers create multiple Clients that group the various registered scopes, and OAuth's Dynamic Client Registration Management Protocol does not support APIs for listing multiple clients or credentials that are created from a single registration request.
+While Servers MAY support OAuth's [Dynamic Client Registration Management Protocol](https://www.rfc-editor.org/rfc/rfc7592) by including the `registration_client_uri` and `registration_access_token` values in their registration response, this specification requires that Servers MUST support the [Clients API](clients-api) by including the `cds_clients_api` value in the [Authorization Server Metadata](#auth-server-metadata-format) as a way for Clients to manage their registrations.
+The Clients API is needed beyond the OAuth Dynamic Client Registration Management Protocol because as part of registration, Servers create multiple Clients that group the various registered scopes, and OAuth's Dynamic Client Registration Management Protocol does not support APIs for listing multiple clients or credentials that are created from a single registration request.
 
 ## 5. Clients API <a id="clients-api" href="#clients-api" class="permalink">🔗</a>
 
@@ -544,18 +553,6 @@ In addition to the fields defined by OAuth's [Client Metadata](https://www.rfc-e
   If the Client's CDSC server metadata is no different from the public CDSC server metadata, Servers MAY simply link to the public URL.
   If this metadata endpoint requires authentication, Servers MUST authenticate Client requests to this endpoint via Bearer access token obtained using OAuth's `client_credentials` grant with a scope of `client_admin`, and reject unauthenticated requests with a `401 Unauthorized` response code.
   Clients know that they must use a Bearer token when Servers return a `401` response code for this endpoint when the Client makes an unauthenticated request to the endpoint.
-* `cds_test_accounts` - _[URL](#url)_ - (OPTIONAL) Where Clients can find developer documentation on what test account credentials may be used for testing functionality.
-  This MUST be included if the Client object `cds_status_options` contains `sandbox`.
-* `cds_clients_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Clients API](#clients-api).
-  This MUST be included if the Client object `scope` contains `client_admin`.
-* `cds_messages_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Messages API](#messages-api).
-  This MUST be included if the Client object `scope` contains `client_admin`.
-* `cds_credentials_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Credentials API](#credentials-api).
-  This MUST be included if the Client object `scope` contains `client_admin`.
-* `cds_grants_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Grants API](#grants-api).
-  This MUST be included if the Client object `scope` contains `client_admin`.
-* `cds_server_provided_files_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Server-Provided Files API](#server-provided-files-api).
-  This MUST be included if the Client's registration response `scope` string included the `server_provided_files` scope.
 * `cds_default_scope` - _[string](#string)_ - (OPTIONAL) The default scope string used when no `scope` parameter is provided as part of an authorization request.
   This MUST be included if `response_types` is not an empty list (i.e. authorization requests are enabled).
   For the initial registration response, Servers MAY choose to configure the default scope string the same as the `scope` field or another subset of default scopes.
@@ -578,7 +575,7 @@ Client object `cds_status` values MUST be one of the following:
 
 ### 5.3. Listing Clients <a id="clients-list" href="#clients-list" class="permalink">🔗</a>
 
-Clients may request to list Client objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_clients_api` URL included in the [Client Registration Response](#registration-response).
+Clients may request to list Client objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_clients_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Client listing request responses are formatted as JSON objects and contain the following named values.
 
 * `clients` - _Array[[Client](#client-format)]_ - (REQUIRED) A list of Clients to which the requesting `access_token` is scoped to have access.
@@ -613,7 +610,6 @@ Servers MUST allow Clients to intially update the following fields:
 * `client_uri`
 * `logo_uri`
 * `scope`
-* `scope`
 * `contacts`
 * `tos_uri`
 * `policy_uri`
@@ -637,11 +633,6 @@ Servers MUST NOT allow clients to update the following fields:
 * `cds_modified` - This is a URL set by the Server.
 * `cds_client_uri` - This is a URL set by the Server.
 * `cds_server_metadata` - This is a URL set by the Server.
-* `cds_clients_api` - This is a URL set by the Server.
-* `cds_messages_api` - This is a URL set by the Server.
-* `cds_credentials_api` - This is a URL set by the Server.
-* `cds_grants_api` - This is a URL set by the Server.
-* `cds_server_provided_files_api` - This is a URL set by the Server.
 * `cds_status_options` - This is a list set by the Server.
 
 For other fields, the Server MUST determine the validity of the submitted Client fields and reject with a 400 Bad Response if not all submitted fields are either the same as previously set, or invalid values for that field.
@@ -731,7 +722,8 @@ Client Update Request objects are formatted as JSON objects and contain the foll
 
 ### 6.5. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>
 
-Clients may request to list Message objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_messages_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format). The Message listing request responses are formatted as JSON objects and contain the following named values.
+Clients may request to list Message objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_messages_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
+The Message listing request responses are formatted as JSON objects and contain the following named values.
 
 * `outstanding` - _Array[[ClientMessage](#message-format)]_ - (REQUIRED) A list of Messages where the `status` is `open` or `pending`.
 * `outstanding_next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of outstanding Messages.
@@ -836,7 +828,7 @@ Other specifications MAY extend this list to add additional Credential types.
 
 ### 7.3. Listing Credentials <a id="credentials-list" href="#credentials-list" class="permalink">🔗</a>
 
-Clients may request to list Credential objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_credentials_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format).
+Clients may request to list Credential objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_credentials_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Credential listing request responses are formatted as JSON objects and contain the following named values.
 
 * `credentials` - _Array[[ScopeCredential](#credentials-format)]_ - (REQUIRED) A list of Credentials to which the requesting `access_token` is scoped to have access.
@@ -969,7 +961,7 @@ Grant `status` values of `future`, `disabled`, `suspended`, `revoked`, `closed`,
 
 ### 8.3. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a>
 
-Clients may request to list Grant objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_grants_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format).
+Clients may request to list Grant objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_grants_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Grant listing request responses are formatted as JSON objects and contain the following named values.
 
 * `grants` - _Array[[Grant](#grant-format)]_ - (REQUIRED) A list of Grants to which the requesting `access_token` is scoped to have access.
@@ -1044,7 +1036,7 @@ Server-Provided File objects are metadata for arbitrary files made accessible by
 
 ### 9.2. Listing Server-Provided Files <a id="server-provided-files-list" href="#server-provided-files-list" class="permalink">🔗</a>
 
-Clients may request to list Server-Provided File objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_server_provided_files_api` URL included in the [Client Registration Response](#registration-response) or [Clients API](#client-format).
+Clients may request to list Server-Provided File objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_server_provided_files_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Server-Provided File listing request responses are formatted as JSON objects and contain the following named values.
 
 * `files` - _Array[[ServerProvidedFile](#server-provided-files-format)]_ - (REQUIRED) A list of Server-Provided File objects to which the requesting `access_token` is scoped to have access.

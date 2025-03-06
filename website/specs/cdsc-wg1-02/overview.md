@@ -96,6 +96,12 @@ Content-Type: application/json;charset=UTF-8
     # CDS Extension (added by this specification)
     "cds_oauth_version": "v1",
     "cds_human_registration": "https://demoutility.com/clients/register",
+    "cds_test_accounts": "https://demoutility.com/docs/testing",
+    "cds_clients_api": "https://demoutility.com/api/clients",
+    "cds_messages_api": "https://demoutility.com/api/messages",
+    "cds_credentials_api": "https://demoutility.com/api/credentials",
+    "cds_grants_api": "https://demoutility.com/api/grants",
+    "cds_server_provided_files_api": "https://demoutility.com/api/server-provided-files"
     "cds_scope_descriptions": {
 
         "client_admin": {
@@ -252,10 +258,6 @@ Content-Type: application/json;charset=UTF-8
         "production"
     ]
     "cds_server_metadata": "https://demoutility.com/oauth/clients/aaaa11111122222/carbon-data-spec.json",
-    "cds_clients_api": "https://demoutility.com/api/clients",
-    "cds_messages_api": "https://demoutility.com/api/messages",
-    "cds_credentials_api": "https://demoutility.com/api/credentials",
-    "cds_grants_api": "https://demoutility.com/api/grants",
 }
 ```
 
@@ -309,10 +311,6 @@ Content-Type: application/json;charset=UTF-8
                 "production"
             ],
             "cds_server_metadata": "https://demoutility.com/oauth/clients/aaaa11111122222/carbon-data-spec.json",
-            "cds_clients_api": "https://demoutility.com/api/clients",
-            "cds_messages_api": "https://demoutility.com/api/messages",
-            "cds_credentials_api": "https://demoutility.com/api/credentials",
-            "cds_grants_api": "https://demoutility.com/api/grants"
         },
         {
             "client_id": "aaaa333333444444",
@@ -361,7 +359,6 @@ Content-Type: application/json;charset=UTF-8
                 "production"
             ],
             "cds_server_metadata": "https://demoutility.com/oauth/clients/aaaa4444444555555/carbon-data-spec.json",
-            "cds_server_provided_files_api": "https://demoutility.com/api/server-provided-files"
         },
     ],
     "next": null,
