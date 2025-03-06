@@ -560,7 +560,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-## Examples (using CURL and jq) <a id="obtaining-access-tokens" href="#obtaining-access-tokens" class="permalink">🔗</a>
+## Examples (using CURL and jq) <a id="examples" href="#examples" class="permalink">🔗</a>
 
 #### Example: Registering a Client <a id="example-registering" href="#example-registering" class="permalink">🔗</a>
 <details>
