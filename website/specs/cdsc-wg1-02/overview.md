@@ -186,7 +186,7 @@ Content-Type: application/json;charset=UTF-8
             "max_length": 1024
         },
         ...
-    ],
+    },
 }
 ```
 
@@ -560,9 +560,383 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-## Obtaining Access Tokens <a id="obtaining-access-tokens" href="#obtaining-access-tokens" class="permalink">🔗</a>
+## Examples (using CURL and jq) <a id="obtaining-access-tokens" href="#obtaining-access-tokens" class="permalink">🔗</a>
 
-<span style="background-color:yellow">TODO</span>
+#### Example: Registering a Client <a id="example-registering" href="#example-registering" class="permalink">🔗</a>
+<details>
+<summary>Show example</summary>
+<p>
+How to register with a CDS Server for a variety of scopes.
+</p>
+<pre class="highlight">
+<code>
+# Start with your CDS Server Metadata's well-known URL
+CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
+
+# Get the OAuth Authorization Server Metadata URL from the CDS Server Metadata
+OAUTH_METADATA_URL=$(curl -v "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
+
+# See the OAuth Authorization Server Metadata
+
+curl -v "$OAUTH_METADATA_URL" | jq "."
+{
+    ...
+    "cds_registration_fields": {...},   # Reference for any required registration fields
+    ...
+    "cds_scope_descriptions": {...},    # Descriptions of scopes supported, along with any registration requirements
+    ...
+    "registration_endpoint": "...",     # Where to register via API
+    ...
+    "scopes_supported": [...],          # The list of supported scopes for this CDS Server
+    ...                                 # (e.g. "client_admin grant_admin server_provided_files customer_data")
+}
+# (determine which scopes and registration requirements you want for registration)
+SCOPES_TO_REGISTER="client_admin grant_admin server_provided_files customer_data"
+
+# Submit a OAuth Dynamic Client Registration
+# (add any additional registration fields to the submitted json)
+REGISTRATION_ENDPOINT=$(curl -v "$OAUTH_METADATA_URL" | jq -r ".registration_endpoint")
+curl -v \
+    --data-raw "{
+        \"client_name\": \"Example Energy Audit Services\",
+        \"client_uri\": \"https://example.com/\",
+        \"scope\": \"$SCOPES_TO_REGISTER\"
+    }" \
+    "$REGISTRATION_ENDPOINT" \
+    | jq "."
+{
+    ...
+    "client_id": "aaaaaaaaaa",
+    ...
+    "client_secret": "bbbbbbbbbbbbbbb",
+    ...
+    "scope": "client_admin",  # The Server creates multiple Client objects based on your registration
+    ...                       # and only returns the main client_admin Client object as a response.
+                              # Use the Clients API to manage the other Client objects that were created.
+}
+
+# You have now registered! Save the client_id and client_secret for use in other examples
+CLIENT_ID="aaaaaaaaaa"
+CLIENT_SECRET="bbbbbbbbbbbbbbb"
+</code>
+</pre>
+</details>
+
+
+#### Example: Loading the list of Client objects <a id="example-load-clients" href="#example-load-clients" class="permalink">🔗</a>
+<details>
+<summary>Show example</summary>
+<p>
+After registering, you can load the list of Client objects created from your registration request.
+</p>
+<pre class="highlight">
+<code>
+# Start with the CDS Server Metadata's well-known URL, as well as your client_id and client_secret from the initial registration
+CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
+CLIENT_ID="aaaaaaaaaa"
+CLIENT_SECRET="bbbbbbbbbbbbbbb"
+
+# Get the OAuth Token and Clients API endpoints from the OAuth Authorization Server Metadata
+OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
+OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
+TOKEN_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
+CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
+
+# Obtain a client_admin access_token
+curl -v \
+    -u "$CLIENT_ID:$CLIENT_SECRET" \
+    -d "grant_type=client_credentials" \
+    -d "scope=client_admin" \
+    "$TOKEN_ENDPOINT" \
+    | jq "."
+{
+    ...
+    "access_token": "cccccccccccccc",
+    ...
+}
+# (extract the access token for use in the Clients API)
+CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
+
+# Get your list of Client objects
+curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CLIENTS_API" \
+    | jq "."
+{
+    "clients": [
+        {
+            ...
+            "cds_client_uri": "...",
+            ...
+            "client_id": "aaaaaaaaaa",
+            ...
+            "scope": "client_admin",
+            ...
+        },
+        {
+            ...
+            "cds_client_uri": "...",
+            ...
+            "client_id": "aaaaaaaaaa-1",
+            ...
+            "scope": "grant_admin",
+            ...
+        },
+        {
+            ...
+            "cds_client_uri": "...",
+            ...
+            "client_id": "aaaaaaaaaa-2",
+            ...
+            "scope": "server_provided_files",
+            ...
+        },
+        {
+            ...
+            "cds_client_uri": "...",
+            ...
+            "client_id": "aaaaaaaaaa-3",
+            ...
+            "redirect_uris": ["https://cdsserver123.example.com/receipt"],  # default redirect_uris set by the Server
+            ...
+            "response_types": ["code"],
+            ...
+            "scope": "customer_data",
+            ...
+        }
+    ],
+    ...
+}
+</code>
+</pre>
+</details>
+
+
+#### Example: Adding a Redirect URI to a Client object <a id="example-modify-redirect-uris" href="#example-modify-redirect-uris" class="permalink">🔗</a>
+<details>
+<summary>Show example</summary>
+<p>
+For Client objects that require user authorization (e.g. <code>"response_type": ["code"]</code>), you can set your own list of <code>redirect_uris</code> by modifying the relevant Client object.
+</p>
+<pre class="highlight">
+<code>
+# Start with the CDS Server Metadata's well-known URL and a client_admin access_token
+CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
+CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
+
+# Get the Clients API endpoint from the OAuth Authorization Server Metadata
+OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
+OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
+CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
+
+# Get the Client object that needs to be updated
+CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CLIENTS_API" \
+    | jq ".clients | .[] | select(.scope==\"customer_data\")")
+
+# Add your own redirect_uri to the current redirect_uris
+CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
+DEFAULT_REDIRECT_URI=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".redirect_uris | .[0]")
+UPDATED_CUSTOMER_DATA_CLIENT_OBJECT=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" \
+    | sed "s|\"$DEFAULT_REDIRECT_URI\"|\"$DEFAULT_REDIRECT_URI\", \"$CUSTOM_REDIRECT_URI\"|g")
+
+# Modify the Client object
+CUSTOMER_DATA_CDS_CLIENT_URI=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".cds_client_uri")
+curl -v -X PUT \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    --data-raw "$UPDATED_CUSTOMER_DATA_CLIENT_OBJECT" \
+    "$CUSTOMER_DATA_CDS_CLIENT_URI" \
+    | jq "."
+{
+    ...
+    "redirect_uris": [
+        "https://example.com/my-redirect",          # Your custom redirect_uri
+        "https://cdsserver123.example.com/receipt"  # Server's default redirect_uri
+    ],
+    ...
+}
+
+# If you want to revert back to just the Server default, submit an empty list as the redirect_uris
+REVERTED_CUSTOMER_DATA_CLIENT_OBJECT="..." # (modified to "redirect_uris": [])
+curl -v -X PUT \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    --data-raw "$REVERTED_CUSTOMER_DATA_CLIENT_OBJECT" \
+    "$CUSTOMER_DATA_CDS_CLIENT_URI" \
+    | jq "."
+{
+    ...
+    "redirect_uris": [
+        "https://cdsserver123.example.com/receipt"  # Reverted back to just the Server default
+    ],
+    ...
+}
+</code>
+</pre>
+</details>
+
+
+#### Example: Obtaining a user authorization <a id="example-user-authorization" href="#example-user-authorization" class="permalink">🔗</a>
+<details>
+<summary>Show example</summary>
+<p>
+For Client objects that require user authorization (e.g. <code>"response_type": ["code"]</code>), use the <code>authorization_endpoint</code> to obtain an authorization code.
+</p>
+<p>
+This example assumes you've already added your custom <code>redirect_uri</code> to the relevant Client object's <code>redirect_uris</code>.
+</p>
+<pre class="highlight">
+<code>
+# Start with the CDS Server Metadata's well-known URL and a client_admin access_token
+CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
+CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
+CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
+
+# Get the Authorization, Token, Clients API, and Credentials API endpoints from the OAuth Authorization Server Metadata
+OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
+OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
+AUTHORIZATION_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
+TOKEN_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
+CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
+CDS_CREDENTIALS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_credentials_api")
+
+# Get the Client ID to be used for getting authorization
+CUSTOMER_DATA_CLIENT_ID=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CLIENTS_API" \
+    | jq -r ".clients | .[] | select(.scope==\"customer_data\") | .client_id")
+
+# Get the client_secret for the Client object that will be used for the authorization
+CUSTOMER_DATA_CLIENT_SECRET=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CREDENTIALS_API?client_ids=$CUSTOMER_DATA_CLIENT_ID" \
+    | jq -r ".credentials | .[0] | .client_secret")
+
+# Build the Authorization Request URL
+AUTHORIZATION_REQUEST_URL="$AUTHORIZATION_ENDPOINT\
+?response_type=code\
+&client_id=$CUSTOMER_DATA_CLIENT_ID\
+&scope=customer_data\
+&redirect_uri=$CUSTOM_REDIRECT_URI\
+&state=mystatehere"
+
+# (user open's the AUTHORIZATION_REQUEST_URL in a browser and completes the registration)
+
+# (after authorization, the user is redirected back to your custom redirect_uri with and authorization code)
+https://example.com/my-redirect?state=mystatehere&code=ddddddddddddd
+
+AUTHORIZATION_CODE="ddddddddddddd"
+
+# Obtain an access_token from the authorization code
+curl -v \
+    -u "$CUSTOMER_DATA_CLIENT_ID:$CUSTOMER_DATA_CLIENT_SECRET" \
+    -d "grant_type=authorization_code" \
+    -d "code=$AUTHORIZATION_CODE" \
+    -d "redirect_uri=$CUSTOM_REDIRECT_URI" \
+    "$TOKEN_ENDPOINT" \
+    | jq "."
+{
+    ...
+    "access_token": "eeeeeeeeeeeee",
+    ...
+}
+
+# (extract the access token for use in the Customer Data API)
+CUSTOMER_DATA_ACCESS_TOKEN="eeeeeeeeeeeee"
+</code>
+</pre>
+</details>
+
+
+#### Example: Using the Grant Admin scope to load data for another Grant <a id="example-grant-admin" href="#example-grant-admin" class="permalink">🔗</a>
+<details>
+<summary>Show example</summary>
+<p>
+You can use the <code>grant_admin</code> Client object to generate an <code>access_token</code> that can access data for another Client object's Grants.
+</p>
+<p>
+This is useful for gaining access to data and functionality when Servers create Grants on their side (e.g. the Server-Provided Files API) or when user authorization requests use the Server's default `redirect_uri</code> (thus you never get a redirect back with a <code>code</code>).
+</p>
+<pre class="highlight">
+<code>
+# Start with the CDS Server Metadata's well-known URL and a client_admin access_token
+CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
+CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
+CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
+
+# Get the Authorization, Token, Clients API, and Credentials API endpoints from the OAuth Authorization Server Metadata
+OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
+OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
+AUTHORIZATION_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
+TOKEN_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
+CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
+CDS_CREDENTIALS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_credentials_api")
+CDS_GRANTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_grants_api")
+
+# Get the Client ID and default redirect_uri to be used for getting authorization
+CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CLIENTS_API" \
+    | jq -r ".clients | .[] | select(.scope==\"customer_data\")")
+CUSTOMER_DATA_CLIENT_ID=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".client_id")
+DEFAULT_REDIRECT_URI=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".redirect_uris | .[] | select(. != \"$CUSTOM_REDIRECT_URI\")")
+
+# Build the Authorization Request URL
+AUTHORIZATION_REQUEST_URL="$AUTHORIZATION_ENDPOINT\
+?response_type=code\
+&client_id=$CUSTOMER_DATA_CLIENT_ID\
+&scope=customer_data\
+&redirect_uri=$DEFAULT_REDIRECT_URI\
+&state=mystatehere"
+
+# (user open's the AUTHORIZATION_REQUEST_URL in a browser and completes the registration)
+
+# (after authorization, the user is redirected to a Server-hosted receipt page)
+https://cdsserver123.example.com/receipts/fffffffffffffffff/
+
+# Get the Grant for the most recent authorization
+GRANT_OBJECT=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_GRANTS_API?client_ids=$CUSTOMER_DATA_CLIENT_ID" \
+    | jq ".grants | .[0]")
+GRANT_ID=$(echo "$GRANT_OBJECT" | jq -r ".grant_id")
+
+# Get the client_id grant_admin Client object
+GRANT_ADMIN_CLIENT_ID=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CLIENTS_API" \
+    | jq -r ".clients | .[] | select(.scope==\"grant_admin\") | .client_id")
+
+# Get the client_secret grant_admin Client object
+GRANT_ADMIN_CLIENT_SECRET=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CREDENTIALS_API?client_ids=$GRANT_ADMIN_CLIENT_ID" \
+    | jq -r ".credentials | .[0] | .client_secret")
+
+# Create an access_token for the grant using the grant_admin
+curl -v \
+    -u "$GRANT_ADMIN_CLIENT_ID:$GRANT_ADMIN_CLIENT_SECRET" \
+    -d "grant_type=client_credentials" \
+    -d "scope=grant_admin" \
+    -d "authorization_details=[{
+        \"type\": \"grant_admin\",
+        \"client_id\": \"$CUSTOMER_DATA_CLIENT_ID\",
+        \"grant_id\": \"$GRANT_ID\"
+    }]" \
+    "$TOKEN_ENDPOINT" \
+    | jq "."
+{
+    ...
+    "access_token": "gggggggggggggggg",
+    ...
+}
+
+# (extract the access token for use in the Customer Data API)
+GRANT_ADMIN_ACCESS_TOKEN="gggggggggggggggg"
+</code>
+</pre>
+</details>
+
 
 ---
 
