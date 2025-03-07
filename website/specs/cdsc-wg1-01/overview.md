@@ -87,6 +87,7 @@ Content-Type: application/json;charset=UTF-8
             "entity_name": "Demo Gas & Electric",
             "entity_abbreviation": "DG&E",
 
+            "country": "US",
             "name": "Western electric service territory",
             "description": "This is the electric service coverage for the western half of the region.",
 
