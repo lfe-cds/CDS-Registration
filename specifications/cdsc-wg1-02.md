@@ -43,10 +43,12 @@ This specification defines how utilities and other central entities ("Servers") 
     * [6.1. Message Object Format](#message-format)  
     * [6.2. Message Types](#message-types)  
     * [6.3. Message Statuses](#message-statuses)  
-    * [6.4. Client Update Request Object Format](#client-update-request-format)  
-    * [6.5. Listing Messages](#messages-list)  
-    * [6.6. Creating Messages](#messages-create)  
-    * [6.7. Modifying Messages](#messages-modify)  
+    * [6.4. Message Related Types](#message-related-types)  
+    * [6.5. Client Update Request Object Format](#client-update-request-format)  
+    * [6.6. Listing Messages](#messages-list)  
+    * [6.7. Creating Messages](#messages-create)  
+    * [6.8. Retrieving Individual Messages](#messages-get)
+    * [6.9. Modifying Messages](#messages-modify)  
 * [7. Credentials API](#credentials-api)  
     * [7.1. Credentials Object Format](#credentials-format)  
     * [7.2. Credentials Types](#credentials-types)  
@@ -63,6 +65,7 @@ This specification defines how utilities and other central entities ("Servers") 
 * [9. Server-Provided Files API](#server-provided-files-api)  
     * [9.1. Server-Provided Files Object Format](#server-provided-files-format)  
     * [9.2. Listing Server-Provided Files](#server-provided-files-list)  
+    * [9.3. Retrieving Individual Server-Provided Files](#server-provided-files-get)  
 * [10. Extensions](#extensions)  
 * [11. Examples](#examples)  
 * [12. Security Considerations](#security)  
@@ -151,6 +154,7 @@ In addition to requiring that the URL be included in the [CDSC-WG1-01 Metadata O
 A Server's Authorization Server Metadata Object follows OAuth's [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) object format with the following modifications from OPTIONAL or RECOMMENDED to REQUIRED:
 
 * `registration_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Dynamic Client Registration](https://www.rfc-editor.org/rfc/rfc7591) functionality is required to enable the [Client Registration Process](#client-registration-process).
+  For Metadata Objects accessed by means of the `cds_server_metadata` field in a [Client object](#client-format) and subsequently the `oauth_metadata` field, the `registration_endpoint` field for the returned Metadata Object is OPTIONAL.
 * `scopes_supported` - _Array[[string](#string)]_ - (REQUIRED) The scopes in this array MUST represent a union of all scope `id` values contained in the `cds_scope_descriptions` objects.
 * `service_documentation` - _[URL](#url)_ - (REQUIRED) Developer documentation is required by the Server to help streamline Client integration.
 * `op_policy_uri` - _[URL](#url)_ - (REQUIRED) Policies for Clients registering is required.
@@ -163,7 +167,7 @@ In addition to the standard set of OAuth [Authorization Server Metadata](https:/
 
 * `authorization_details_types_supported` - _Array[[string](#string)]_ - (REQUIRED) OAuth's [Rich Authorization Requests](https://www.rfc-editor.org/rfc/rfc9396) functionality is required.
   This array of values MUST be the same as `scopes_supported`.
-* `pushed_authorization_request_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's [Pushed Authorization Requests](https://www.rfc-editor.org/rfc/rfc9126) functionality is required.
+* `pushed_authorization_request_endpoint` - _[URL](#url)_ - (OPTIONAL) OAuth's [Pushed Authorization Requests](https://www.rfc-editor.org/rfc/rfc9126) functionality is REQUIRED when `response_types_supported` is not an empty list  (i.e. user authorization is supported for some scopes).
 
 In addition to the above additionally required set of OAuth [Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414#section-2) values, this specification clarifies use of the following OAuth standard values:
 
@@ -320,6 +324,8 @@ The following values are included in the default list available in scope descrip
 
 * `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the scope.
   This MUST be the same value as the object key the Metadata Object's `cds_scope_descriptions` object.
+* `type` - _[ScopeType](#scope-types)_ - (REQUIRED) The functionality type of the scope.
+  This allows Servers to define multiple scope `id` values for the same Scope Type, for situations where Coverages or Authorization Details fields may be different (e.g. the historical customer data available for one territory has smart meter interval data, and for another it only has monthly meter reading data).
 * `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the scope.
 * `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what access or actions the scope will enable.
 * `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find documentation for the scope.
@@ -489,7 +495,7 @@ Servers MUST also create a Client object with the scope defined as `"grant_admin
 Servers MUST also create Client objects that are configured for any other scopes for which the Client submitted registration and the submission was accepted by the Server.
 Servers MAY combine scopes into individual Client objects if the `response_types`, `grant_types`, and `token_endpoint_auth_method` for the scopes are the same.
 
-For each Client object created that has its `token_endpoint_auth_method` value as something other than `none`, at least one [Credential object](#credentials-format) MUST be created and made available on the [Credentials API](#credentials-api) for the Client to use.
+For each Client object created that has its `token_endpoint_auth_method` value as something other than `null`, at least one [Credential object](#credentials-format) MUST be created and made available on the [Credentials API](#credentials-api) for the Client to use.
 
 For created Client objects that have a non-empty `response_types` list, Servers MUST create a default `redirect_uri` value and and set it as the single value in the created Client object `redirect_uris` list.
 The created `redirect_uri` MUST provide functionality such that if specified as part of authorization request parameters, will redirect the user to a receipt of the authorization when the authorization is submitted successfully, or show an error to the user if the authorization is declined or otherwise errors.
@@ -676,6 +682,8 @@ Message objects are formatted as JSON objects and contain the following named va
   If the Message `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
   If the Message `type` is `payment_request`, this is where the Client can submit their payment to the Server or if paid, a link to the payment receipt.
   If the Message `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
+* `related_type` - _[ClientMessageRelatedType](#message-related-types)_ - (OPTIONAL) The type of object or resource linked to by the `related_uri`.
+  If `related_uri` is included, this field is REQUIRED.
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Message `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
 * `currency` - _[string](#string)_ - (OPTIONAL) If the Message `type` is `payment_request`, this is the monetary currency for the `amount` in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code.
 
@@ -707,7 +715,27 @@ Message object `status` values MUST be one of the following:
 * `errored` - For Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
   The Client is RECOMMENDED to submit a `support_request` Messages with the `related_uri` as the relevant errored Message's `uri`.
 
-### 6.4. Client Update Request Object Format <a id="client-update-request-format" href="#client-update-request-format" class="permalink">🔗</a>
+### 6.4. Message Related Types <a id="message-related-types" href="#message-related-types" class="permalink">🔗</a>
+
+When included, Message object `related_type` values MUST be one of the following:
+
+* `more_info` - The `related_uri` is to a resource (e.g. regulatory compliance details website page) with additional information for the Client to reference.
+* `documentation` - The `related_uri` is to a technical documentation resource (e.g. API documentation website page) for the Client to reference.
+* `support` - The `related_uri` is to a technical support resource (e.g. support contact form) for the Client to reference.
+* `client_list` - The `related_uri` is to a [Client list](#clients-list), which can include request parameters.
+* `client` - The `related_uri` is to a [individual Client](#clients-get).
+* `grant_list` - The `related_uri` is to a [Grant list](#grants-list), which can include request parameters.
+* `grant` - The `related_uri` is to a [individual Grant](#grants-get).
+* `message_list` - The `related_uri` is to a [Message list](#messages-list), which can include request parameters.
+* `message` - The `related_uri` is to a [individual Message](#messages-get).
+* `credential_list` - The `related_uri` is to a [Credential list](#credentials-list), which can include request parameters.
+* `credential` - The `related_uri` is to a [individual Credential](#credentials-get).
+
+For `more_info`, `documentation`, and `support` related types, authentication for requests to these resources is unspecified, where Servers MAY allow unauthenticated requests to the resource (e.g. public webpage) or MAY require user authentication (e.g. user login).
+
+For `client_list`, `client`, `grant_list`, `grant`, `message_list`, `message`, `credential_list`, and `credential` related types, Clients MUST authenticate requests to the resource with a valid Bearer `access_token` scoped to the `client_admin` scope.
+
+### 6.5. Client Update Request Object Format <a id="client-update-request-format" href="#client-update-request-format" class="permalink">🔗</a>
 
 Client Update Request objects are formatted as JSON objects and contain the following named values:
 
@@ -720,7 +748,7 @@ Client Update Request objects are formatted as JSON objects and contain the foll
 * `previous_value` - _various_ - (OPTIONAL) For Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed from.
 * `new_value` - _various_ - (OPTIONAL) For Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed to.
 
-### 6.5. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>
+### 6.6. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>
 
 Clients may request to list Message objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_messages_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Message listing request responses are formatted as JSON objects and contain the following named values.
@@ -746,7 +774,7 @@ For example, if the Client requests a `unread_next`, the Server's response MUST 
 
 Listings of Message objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently modified relevant Message MUST be first in each listing.
 
-### 6.6. Creating Messages <a id="messages-create" href="#messages-create" class="permalink">🔗</a>
+### 6.7. Creating Messages <a id="messages-create" href="#messages-create" class="permalink">🔗</a>
 
 Clients create new Messages by sending an authenticated HTTPS `POST` request to the `cds_messages_api` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object MUST include the following:
@@ -777,7 +805,11 @@ When committing Messages created by Clients, Servers MUST populate the following
 
 When Clients submit Messages with `type` value of `client_submission`, if the Message referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Message to `pending`, which indicates that the Client has submitted a response for Server review.
 
-### 6.7. Modifying Messages <a id="messages-modify" href="#messages-modify" class="permalink">🔗</a>
+### 6.8. Retrieving Individual Messages <a id="messages-get" href="#messages-get" class="permalink">🔗</a>
+
+The URL to be used to send `GET` requests for retrieving individual Message objects MUST be the Message `uri` provided in the [Message object](#message-format).
+
+### 6.9. Modifying Messages <a id="messages-modify" href="#messages-modify" class="permalink">🔗</a>
 
 Clients may modify fields in a Messages object by sending an authenticated HTTPS `PATCH` request to the Message `uri` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to modify with the submitted fields' values.
@@ -1024,6 +1056,7 @@ It is RECOMMENDED that automated sharing of structured datasets be performed usi
 Server-Provided File objects are metadata for arbitrary files made accessible by the Server and are formatted as JSON objects containing the following named values:
 
 * `file_id` - _[string](#string)_ - (REQUIRED) The unique identifier for the Server-Provided File on the Server's system.
+* `uri` - _[URL](#url)_ - (REQUIRED) A link to this specific Server-Provided File that can be used to [retrieve](#server-provided-files-get) the individual Server-Provided File.
 * `created` - _[datetime](#datetime)_ - (REQUIRED) When the Server-Provided File was created.
 * `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Server-Provided File was most recently modified.
   If the Server-Provided File has not been modified since creation, this is the same value as `created`.
@@ -1048,6 +1081,10 @@ The Server-Provided File listing request responses are formatted as JSON objects
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
 Listings of Server-Provided File objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently updated relevant Server-Provided File object MUST be first in each listing.
+
+### 9.3. Retrieving Individual Server-Provided Files <a id="server-provided-files-get" href="#server-provided-files-get" class="permalink">🔗</a>
+
+The URL to be used to send `GET` requests for retrieving individual Server-Provided File objects MUST be the Server-Provided File `uri` provided in the [Message object](#message-format).
 
 ## 11. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a>
 

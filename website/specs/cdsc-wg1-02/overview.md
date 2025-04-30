@@ -720,7 +720,8 @@ For Client objects that require user authorization (e.g. <code>"response_type": 
 </p>
 <pre class="highlight">
 <code>
-# Start with the CDS Server Metadata's well-known URL and a client_admin access_token
+# Start with the CDS Server Metadata's well-known URL
+# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client objects" example
 CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
 CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
 
@@ -787,7 +788,9 @@ This example assumes you've already added your custom <code>redirect_uri</code> 
 </p>
 <pre class="highlight">
 <code>
-# Start with the CDS Server Metadata's well-known URL and a client_admin access_token
+# Start with the CDS Server Metadata's well-known URL
+# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client objects" example
+# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client object" example
 CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
 CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
 CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
@@ -795,16 +798,28 @@ CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
 # Get the Authorization, Token, Clients API, and Credentials API endpoints from the OAuth Authorization Server Metadata
 OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
 OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
-AUTHORIZATION_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
-TOKEN_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
 CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
 CDS_CREDENTIALS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_credentials_api")
 
-# Get the Client ID to be used for getting authorization
-CUSTOMER_DATA_CLIENT_ID=$(curl -v \
+# Get the Client details to be used for getting authorization
+CUSTOMER_DATA_SCOPE="customer_data"
+CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
-    | jq -r ".clients | .[] | select(.scope==\"customer_data\") | .client_id")
+    | jq -r ".clients | .[] | select(.scope==\"$CUSTOMER_DATA_SCOPE\")")
+CUSTOMER_DATA_CLIENT_ID=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".client_id")
+CUSTOMER_DATA_CDS_METADATA_URL=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".cds_server_metadata")
+CUSTOMER_DATA_OAUTH_METADATA_URL=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_CDS_METADATA_URL" \
+    | jq -r ".oauth_metadata")
+CUSTOMER_DATA_OAUTH_METADATA_OBJECT=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_OAUTH_METADATA_URL" \
+    | jq ".")
+CUSTOMER_DATA_AUTHORIZATION_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
+CUSTOMER_DATA_TOKEN_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
+CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_customerdata_accounts_api")
 
 # Get the client_secret for the Client object that will be used for the authorization
 CUSTOMER_DATA_CLIENT_SECRET=$(curl -v \
@@ -813,10 +828,10 @@ CUSTOMER_DATA_CLIENT_SECRET=$(curl -v \
     | jq -r ".credentials | .[0] | .client_secret")
 
 # Build the Authorization Request URL
-AUTHORIZATION_REQUEST_URL="$AUTHORIZATION_ENDPOINT\
+AUTHORIZATION_REQUEST_URL="$CUSTOMER_DATA_AUTHORIZATION_ENDPOINT\
 ?response_type=code\
 &client_id=$CUSTOMER_DATA_CLIENT_ID\
-&scope=customer_data\
+&scope=$CUSTOMER_DATA_SCOPE\
 &redirect_uri=$CUSTOM_REDIRECT_URI\
 &state=mystatehere"
 
@@ -833,7 +848,7 @@ curl -v \
     -d "grant_type=authorization_code" \
     -d "code=$AUTHORIZATION_CODE" \
     -d "redirect_uri=$CUSTOM_REDIRECT_URI" \
-    "$TOKEN_ENDPOINT" \
+    "$CUSTOMER_DATA_TOKEN_ENDPOINT" \
     | jq "."
 {
     ...
@@ -843,6 +858,17 @@ curl -v \
 
 # (extract the access token for use in the Customer Data API)
 CUSTOMER_DATA_ACCESS_TOKEN="eeeeeeeeeeeee"
+
+# make a request to a Customer Data API endpoint
+curl -v \
+    -H "Authorization: Bearer $CUSTOMER_DATA_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_ACCOUNTS_ENDPOINT" \
+    | jq "."
+{
+    "accounts": [...],
+    "next": null,
+    "previous": null
+}
 </code>
 </pre>
 </details>
@@ -859,7 +885,9 @@ This is useful for gaining access to data and functionality when Servers create 
 </p>
 <pre class="highlight">
 <code>
-# Start with the CDS Server Metadata's well-known URL and a client_admin access_token
+# Start with the CDS Server Metadata's well-known URL
+# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client objects" example
+# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client object" example
 CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
 CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
 CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
@@ -867,25 +895,35 @@ CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
 # Get the Authorization, Token, Clients API, and Credentials API endpoints from the OAuth Authorization Server Metadata
 OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
 OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
-AUTHORIZATION_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
-TOKEN_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
 CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
 CDS_CREDENTIALS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_credentials_api")
 CDS_GRANTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_grants_api")
 
-# Get the Client ID and default redirect_uri to be used for getting authorization
+# Get the Client details to be used for getting authorization
+CUSTOMER_DATA_SCOPE="customer_data"
 CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
-    | jq -r ".clients | .[] | select(.scope==\"customer_data\")")
+    | jq -r ".clients | .[] | select(.scope==\"$CUSTOMER_DATA_SCOPE\")")
 CUSTOMER_DATA_CLIENT_ID=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".client_id")
 DEFAULT_REDIRECT_URI=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".redirect_uris | .[] | select(. != \"$CUSTOM_REDIRECT_URI\")")
+CUSTOMER_DATA_CDS_METADATA_URL=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".cds_server_metadata")
+CUSTOMER_DATA_OAUTH_METADATA_URL=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_CDS_METADATA_URL" \
+    | jq -r ".oauth_metadata")
+CUSTOMER_DATA_OAUTH_METADATA_OBJECT=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_OAUTH_METADATA_URL" \
+    | jq ".")
+CUSTOMER_DATA_AUTHORIZATION_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
+CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_customerdata_accounts_api")
 
 # Build the Authorization Request URL
-AUTHORIZATION_REQUEST_URL="$AUTHORIZATION_ENDPOINT\
+AUTHORIZATION_REQUEST_URL="$CUSTOMER_DATA_AUTHORIZATION_ENDPOINT\
 ?response_type=code\
 &client_id=$CUSTOMER_DATA_CLIENT_ID\
-&scope=customer_data\
+&scope=$CUSTOMER_DATA_SCOPE\
 &redirect_uri=$DEFAULT_REDIRECT_URI\
 &state=mystatehere"
 
@@ -901,11 +939,22 @@ GRANT_OBJECT=$(curl -v \
     | jq ".grants | .[0]")
 GRANT_ID=$(echo "$GRANT_OBJECT" | jq -r ".grant_id")
 
-# Get the client_id grant_admin Client object
-GRANT_ADMIN_CLIENT_ID=$(curl -v \
+# Get the grant_admin Client details
+GRANT_ADMIN_SCOPE="grant_admin"
+GRANT_ADMIN_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
-    | jq -r ".clients | .[] | select(.scope==\"grant_admin\") | .client_id")
+    | jq -r ".clients | .[] | select(.scope==\"$GRANT_ADMIN_SCOPE\")")
+GRANT_ADMIN_CLIENT_ID=$(echo "$GRANT_ADMIN_CLIENT_OBJECT" | jq -r ".client_id")
+GRANT_ADMIN_CDS_METADATA_URL=$(echo "$GRANT_ADMIN_CLIENT_OBJECT" | jq -r ".cds_server_metadata")
+GRANT_ADMIN_OAUTH_METADATA_URL=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$GRANT_ADMIN_CDS_METADATA_URL" \
+    | jq -r ".oauth_metadata")
+GRANT_ADMIN_TOKEN_ENDPOINT=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$GRANT_ADMIN_OAUTH_METADATA_URL" \
+    |jq -r ".token_endpoint")
 
 # Get the client_secret grant_admin Client object
 GRANT_ADMIN_CLIENT_SECRET=$(curl -v \
@@ -917,13 +966,12 @@ GRANT_ADMIN_CLIENT_SECRET=$(curl -v \
 curl -v \
     -u "$GRANT_ADMIN_CLIENT_ID:$GRANT_ADMIN_CLIENT_SECRET" \
     -d "grant_type=client_credentials" \
-    -d "scope=grant_admin" \
     -d "authorization_details=[{
-        \"type\": \"grant_admin\",
+        \"type\": \"$GRANT_ADMIN_SCOPE\",
         \"client_id\": \"$CUSTOMER_DATA_CLIENT_ID\",
         \"grant_id\": \"$GRANT_ID\"
     }]" \
-    "$TOKEN_ENDPOINT" \
+    "$GRANT_ADMIN_TOKEN_ENDPOINT" \
     | jq "."
 {
     ...
@@ -933,11 +981,248 @@ curl -v \
 
 # (extract the access token for use in the Customer Data API)
 GRANT_ADMIN_ACCESS_TOKEN="gggggggggggggggg"
+
+# make a request to a Customer Data API endpoint
+curl -v \
+    -H "Authorization: Bearer $GRANT_ADMIN_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_ACCOUNTS_ENDPOINT" \
+    | jq "."
+{
+    "accounts": [...],
+    "next": null,
+    "previous": null
+}
 </code>
 </pre>
 </details>
 
 
+#### Example: Providing a JWK in authorization_details for encrypted responses <a id="example-auth-details-jwk" href="#example-auth-details-jwk" class="permalink">🔗</a>
+<details>
+<summary>Show example</summary>
+<p>
+When supported, you can provide a JWK public key in the <code>authorization_details</code> of authorization requests, which triggers encrypting API responses for access granted to be encrypted with that public key.
+</p>
+<p>
+This is useful for enabling device-level encryption of authorized data, where a device can provide a public key, the user of that device can authorize access, and the data can be encrypted with that device's individual public key.
+</p>
+<pre class="highlight">
+<code>
+# Start with the CDS Server Metadata's well-known URL
+# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client objects" example
+# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client object" example
+CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/carbon-data-spec.json"
+CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
+CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
+
+# Generate elliptical curve JWK (below is an example, DO NOT USE THIS, GENERATE YOUR OWN)
+JWK_PRIVATE_KEY='{
+    "kty": "EC",
+    "crv": "P-256",
+    "x": "gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0",
+    "y": "SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps",
+    "d": "0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo"
+}'
+JWK_PUBLIC_KEY='{
+    "kty": "EC",
+    "crv": "P-256",
+    "x": "gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0",
+    "y": "SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps"
+}'
+
+# Get the Clients and Credentials API endpoints from the OAuth Authorization Server Metadata
+OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
+OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
+CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
+CDS_CREDENTIALS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_credentials_api")
+
+# Get the customer data Client details to be used for getting authorization
+CUSTOMER_DATA_SCOPE="customer_data"
+CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CLIENTS_API" \
+    | jq -r ".clients | .[] | select(.scope==\"$CUSTOMER_DATA_SCOPE\")")
+CUSTOMER_DATA_CLIENT_ID=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".client_id")
+CUSTOMER_DATA_CDS_METADATA_URL=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".cds_server_metadata")
+CUSTOMER_DATA_OAUTH_METADATA_URL=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_CDS_METADATA_URL" \
+    | jq -r ".oauth_metadata")
+CUSTOMER_DATA_OAUTH_METADATA_OBJECT=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_OAUTH_METADATA_URL" \
+    | jq ".")
+CUSTOMER_DATA_AUTHORIZATION_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
+CUSTOMER_DATA_TOKEN_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
+CUSTOMER_DATA_PAR_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".pushed_authorization_request_endpoint")
+CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_customerdata_accounts_api")
+
+# Get the client_secret for the Client object that will be used for the authorization
+CUSTOMER_DATA_CLIENT_SECRET=$(curl -v \
+    -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
+    "$CDS_CREDENTIALS_API?client_ids=$CUSTOMER_DATA_CLIENT_ID" \
+    | jq -r ".credentials | .[0] | .client_secret")
+
+# Create a Pushed-Authorization Request request_uri with the JWK in authorization_details
+PAR_REQUEST_URI=$(curl -v \
+    -u "$CUSTOMER_DATA_CLIENT_ID:$CUSTOMER_DATA_CLIENT_SECRET" \
+    -d "response_type=code" \
+    -d "authorization_details=[{\"type\": \"$CUSTOMER_DATA_SCOPE\", \"jwk\": $JWK_PUBLIC_KEY}]" \
+    -d "redirect_uri=$CUSTOM_REDIRECT_URI" \
+    -d "state=mystatehere" \
+    "$CUSTOMER_DATA_PAR_ENDPOINT" \
+    | jq -r ".request_uri")
+
+# Build the Authorization Request URL
+AUTHORIZATION_REQUEST_URL="$CUSTOMER_DATA_AUTHORIZATION_ENDPOINT\
+?client_id=$CUSTOMER_DATA_CLIENT_ID\
+&request_uri=$PAR_REQUEST_URI"
+
+# (user open's the AUTHORIZATION_REQUEST_URL in a browser and completes the registration)
+
+# (after authorization, the user is redirected back to your custom redirect_uri with and authorization code)
+https://example.com/my-redirect?state=mystatehere&code=ddddddddddddd
+
+AUTHORIZATION_CODE="ddddddddddddd"
+
+# Obtain an access_token from the authorization code
+curl -v \
+    -u "$CUSTOMER_DATA_CLIENT_ID:$CUSTOMER_DATA_CLIENT_SECRET" \
+    -d "grant_type=authorization_code" \
+    -d "code=$AUTHORIZATION_CODE" \
+    -d "redirect_uri=$CUSTOM_REDIRECT_URI" \
+    "$CUSTOMER_DATA_TOKEN_ENDPOINT" \
+    | jq "."
+{
+    ...
+    "access_token": "eeeeeeeeeeeee",
+    ...
+}
+
+# (extract the access token for use in the Customer Data API)
+CUSTOMER_DATA_ACCESS_TOKEN="eeeeeeeeeeeee"
+
+# Make a request to get the data from the APIs
+ENCRYPTED_HEADERS_AND_BODY=$(curl -v --include \
+    -H "Authorization: Bearer $CUSTOMER_DATA_ACCESS_TOKEN" \
+    "$CUSTOMER_DATA_ACCOUNTS_ENDPOINT")
+
+# Example decrypting data using python's cryptography library
+```
+    import json
+    from struct import pack
+    from base64 import urlsafe_b64decode
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.kdf import concatkdf
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from cryptography.hazmat.primitives.ciphers import aead
+
+    # the encrypted response from the server
+    RESPONSE_HEADERS = {
+        "X-CDS-Header-JWE-Protected-Header": (
+            "eyJhbGciOiAiRUNESC1FUyIsICJlbmMiOiAiQTI1NkdDTSIsICJlcGsiOiB7ImNydiI6ICJQLTI1NiIs"
+            "ICJrdHkiOiAiRUMiLCAieCI6ICJIYlB1c0xxYktPbWFyQ3F1LUZYLWFiZ0FEbG10Y0xvYWRLaU41Yi1F"
+            "U05ZIiwgInkiOiAiOHFCRE9KamMtdWZPOWl6UU1QMmw5cjhBREhfdUlUM29JMmpQaUozUXRJRSJ9fQ"
+        ),
+        "X-CDS-Header-JWE-Initialization-Vector": "7yhXitQOQAXeSUUp",
+        "X-CDS-Header-JWE-Ciphertext": "GHyB5gkubIRA1OJYdxRGMXianidlLP0aBeYUAFZqooXeOlL4ckxUMR2HZQW5NZ2A8acJi3s",
+        "X-CDS-Header-JWE-Authentication-Tag": "3fxjpNO4vgbgYsedo6srVA",
+        "X-CDS-Body-JWE-Protected-Header": (
+            "eyJhbGciOiAiRUNESC1FUyIsICJlbmMiOiAiQTI1NkdDTSIsICJlcGsiOiB7ImNydiI6ICJQLTI1NiIs"
+            "ICJrdHkiOiAiRUMiLCAieCI6ICJGWDVjTnJjMkZoUjlMa0dfeTUwR0FKbzJFalZCc3FSQ2dGVjNRcWZj"
+            "dm5vIiwgInkiOiAiTXRySWZuYnJHUnlnVWd6RVJlTnl4SENXa3ByaHUzUWo5TnRJdkpMVlFDVSJ9fQ"
+        ),
+        "X-CDS-Body-JWE-Initialization-Vector": "50q7kpETagvHqEBI",
+    }
+    RESPONSE_BODY = (
+        b"G\x9aN\xcb\x88\x1f|@\xaa\x9du\x9a\xc6\x82x\xe8\x93\xb7S\xdeq\x1b"
+        b"\x9d\xd3\xa1\x8b\xb3\xa9\x96n.'\xa8D\x86~\xfa\x00g\xd0'Y\x9b\x85"
+        b"\xf2\r_\xab\xd4\x1e\xd9[\xfc\x03\x1d\xb50z\xfb\xa4 \xfeH\xd0"
+    )
+
+    # previously generated EC private key
+    JWK_PRIVATE_KEY = {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0",
+        "y": "SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps",
+        "d": "0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo"
+    }
+
+    # compose python private key from JWK_PRIVATE_KEY
+    x = int.from_bytes(urlsafe_b64decode((JWK_PRIVATE_KEY["x"] + "===").encode()), byteorder="big")
+    y = int.from_bytes(urlsafe_b64decode((JWK_PRIVATE_KEY["y"] + "===").encode()), byteorder="big")
+    d = int.from_bytes(urlsafe_b64decode((JWK_PRIVATE_KEY["d"] + "===").encode()), byteorder="big")
+    priv_key = ec.EllipticCurvePrivateNumbers(d, ec.EllipticCurvePublicNumbers(x, y, ec.SECP256R1())).private_key()
+
+    # decode the public keys the response's encrypted headers
+    headers_aad = RESPONSE_HEADERS["X-CDS-Header-JWE-Protected-Header"].encode()
+    headers_jwe = json.loads(urlsafe_b64decode(headers_aad + b"==="))
+    assert headers_jwe["alg"] == "ECDH-ES"
+    assert headers_jwe["enc"] == "A256GCM"
+    headers_x = int.from_bytes(urlsafe_b64decode((headers_jwe["epk"]["x"] + "===").encode()), byteorder="big")
+    headers_y = int.from_bytes(urlsafe_b64decode((headers_jwe["epk"]["y"] + "===").encode()), byteorder="big")
+    headers_pubkey = ec.EllipticCurvePublicNumbers(headers_x, headers_y, ec.SECP256R1()).public_key()
+
+    # decode the public keys the response's encrypted body
+    body_aad = RESPONSE_HEADERS["X-CDS-Body-JWE-Protected-Header"].encode()
+    body_jwe = json.loads(urlsafe_b64decode(body_aad + b"==="))
+    assert body_jwe["alg"] == "ECDH-ES"
+    assert body_jwe["enc"] == "A256GCM"
+    body_x = int.from_bytes(urlsafe_b64decode((body_jwe["epk"]["x"] + "===").encode()), byteorder="big")
+    body_y = int.from_bytes(urlsafe_b64decode((body_jwe["epk"]["y"] + "===").encode()), byteorder="big")
+    body_pubkey = ec.EllipticCurvePublicNumbers(body_x, body_y, ec.SECP256R1()).public_key()
+
+    # calculate the JWE ephemeral AES-GCM key for the encrypted headers
+    headers_shared_key = priv_key.exchange(ec.ECDH(), headers_pubkey)
+    headers_algid = headers_jwe["enc"].encode()
+    headers_apu = urlsafe_b64decode((headers_jwe["apu"] + "===").encode()) if "apu" in headers_jwe else b""
+    headers_apv = urlsafe_b64decode((headers_jwe["apv"] + "===").encode()) if "apv" in headers_jwe else b""
+    headers_other_info = b"".join([
+        pack("!I", len(headers_algid)), headers_algid,
+        pack("!I", len(headers_apu)), headers_apu,
+        pack("!I", len(headers_apv)), headers_apv,
+        pack("!I", 256),
+    ])
+    headers_ckdf = concatkdf.ConcatKDFHash(hashes.SHA256(), 256 // 8, headers_other_info)
+    headers_aes_key = headers_ckdf.derive(headers_shared_key)
+
+    # calculate the JWE ephemeral AES-GCM key for the encrypted body
+    body_shared_key = priv_key.exchange(ec.ECDH(), body_pubkey)
+    body_algid = body_jwe["enc"].encode()
+    body_apu = urlsafe_b64decode((body_jwe["apu"] + "===").encode()) if "apu" in body_jwe else b""
+    body_apv = urlsafe_b64decode((body_jwe["apv"] + "===").encode()) if "apv" in body_jwe else b""
+    body_other_info = b"".join([
+        pack("!I", len(body_algid)), body_algid,
+        pack("!I", len(body_apu)), body_apu,
+        pack("!I", len(body_apv)), body_apv,
+        pack("!I", 256),
+    ])
+    body_ckdf = concatkdf.ConcatKDFHash(hashes.SHA256(), 256 // 8, body_other_info)
+    body_aes_key = body_ckdf.derive(body_shared_key)
+
+    # decrypt the headers (NOTE: need to concatinate ciphertext and authentication tag for data to decrypt)
+    headers_iv = urlsafe_b64decode((RESPONSE_HEADERS["X-CDS-Header-JWE-Initialization-Vector"] + "===").encode())
+    headers_ciphertext = urlsafe_b64decode((RESPONSE_HEADERS["X-CDS-Header-JWE-Ciphertext"] + "===").encode())
+    headers_tag = urlsafe_b64decode((RESPONSE_HEADERS["X-CDS-Header-JWE-Authentication-Tag"] + "===").encode())
+    headers_cleartext = aead.AESGCM(headers_aes_key).decrypt(headers_iv, headers_ciphertext + headers_tag, headers_aad)
+
+    # decrypt the body (NOTE: authentication tag is already appended to the end of the response)
+    body_iv = urlsafe_b64decode((RESPONSE_HEADERS["X-CDS-Body-JWE-Initialization-Vector"] + "===").encode())
+    body_cleartext = aead.AESGCM(body_aes_key).decrypt(body_iv, RESPONSE_BODY, body_aad)
+
+    # print the results
+    # (encrypted headers = 'Content-Type: application/json\nX-Log-ID: 123456abcdef')
+    # (encrypted body = '{"accounts":[], "next": null, "previous": null}')
+    print("Headers:")
+    for header_row in headers_cleartext.decode().split("\n"):
+        print(header_row)
+    print("Body:")
+    print(body_cleartext)
+```
+</code>
+</pre>
+</details>
 ---
 
 # Other Drafts <a id="other-drafts" href="#other-drafts" class="permalink">🔗</a>
