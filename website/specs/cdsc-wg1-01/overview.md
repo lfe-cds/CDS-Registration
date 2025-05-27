@@ -1,10 +1,10 @@
 ---
 layout: base
 nav: specs
-title: CDSC-WG1 - 01 Server Metadata - Overview
-meta_description: Linux Foundation Energy - Carbon Data Specification Consortium (CDSC) - Connectivity Working Group (WG1) - Specifications - cdsc-wg1-01 - Server Metadata - Overview
+title: CDS-WG1 - 01 Server Metadata - Overview
+meta_description: Linux Foundation Energy - Connected Data Specifications (CDS) - Registration Working Group (WG1) - Specifications - cds-wg1-01 - Server Metadata - Overview
 ---
-[Home]({{ "/" | relative_url }}) / [Specifications]({{ "/specs" | relative_url }}) / [`cdsc-wg1-01` - Server Metadata]({{ "/specs/cdsc-wg1-01" | relative_url }}) / Overview
+[Home]({{ "/" | relative_url }}) / [Specifications]({{ "/specs" | relative_url }}) / [`cds-wg1-01` - Server Metadata]({{ "/specs/cds-wg1-01" | relative_url }}) / Overview
 
 # Server Metadata - Overview
 
@@ -14,4 +14,4 @@ meta_description: Linux Foundation Energy - Carbon Data Specification Consortium
 
 # Other Drafts <a id="other-drafts" href="#other-drafts" class="permalink">🔗</a>
 
-* Maintainer's draft: [[Website](https://daniel-utilityapi.github.io/Connectivity/specs/cdsc-wg1-01/overview)] [[Code](https://github.com/daniel-utilityapi/Connectivity/blob/main/website/specs/cdsc-wg1-01/overview.md)]
+* Maintainer's draft: [[Website](https://daniel-utilityapi.github.io/CDS-Registration/specs/cds-wg1-01/overview)] [[Code](https://github.com/daniel-utilityapi/CDS-Registration/blob/main/website/specs/cds-wg1-01/overview.md)]
