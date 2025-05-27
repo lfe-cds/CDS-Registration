@@ -2,7 +2,7 @@
 layout: base
 nav: use_cases
 title: Use Cases
-meta_description: What are the use cases that the Connectivity specifications this working group is trying to address?
+meta_description: What are the use cases that the CDS Registration specifications this working group is trying to address?
 ---
 [Home]({{ "/" | relative_url }}) / Use Cases
 
@@ -73,9 +73,13 @@ To alleviate this unstandardized communication processing overhead, these specif
 
 ## Use cases NOT in scope for this working group <a id="not-in-scope" href="#not-in-scope" class="permalink">🔗</a>
 
+<<<<<<< HEAD
 * Specifying communication protocols for specific grid communication use cases (e.g. solar curtailment protocols, energy market bidding protocols, customer data access protocols, etc.).
 
 * Aggregation of utility and other central entity capabilities into a directory or hub for external entities to browse (e.g. search engines, directory services, etc.).
 
 * Operating energy marketplaces, grid programs, or other grid services (e.g. ISO energy markets, rebate programs, statewide incentive programs).
 
+=======
+* Coming soon! See [Issue #1](https://github.com/lfe-cds/CDS-Registration/issues/1) for our progress on finalizing our use cases.
+>>>>>>> upstream-main

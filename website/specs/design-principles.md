@@ -5,10 +5,10 @@ meta_description: These are the various design principles we want to keep in min
 ---
 [Home]({{ "/" | relative_url }}) / [Specifications]({{ "/specs" | relative_url }}) / Design Principles
 
-# CDSC-WG1 Design Principles
+# CDS-WG1 Design Principles
 
 As we write, discuss, and publish our [specifications]({{ '/specs' | relative_url }})
-for how to provide streamlined connectivity to address our target
+for how to provide streamlined, secure registration and connectivity to address our target
 [Use Cases]({{ '/use-cases' | relative_url }}), we will follow several design
 principles that help guide our choices as a working group.
 
