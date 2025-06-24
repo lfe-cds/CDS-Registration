@@ -32,7 +32,7 @@ Because many grid communication specifications and protocols require establishin
 
 #### Examples of users in this use case:
 
-* Other specifications and protocols that require secure, confidential connectivity ([CDSC Customer Data](https://customerdata.carbondataspec.org/), [CDSC Power Systems Data](https://powersystemsdata.carbondataspec.org/), [LF Energy TROLIE](https://lfenergy.org/projects/trolie/), [Super Advanced Meter](https://github.com/super-advanced-meter), [OpenADR](https://www.openadr.org/), [IEEE 1547](https://ieeexplore.ieee.org/document/8332112), etc.)
+* Other specifications and protocols that require secure, confidential connectivity ([CDS Customer Data](https://cds-customerdata.lfenergy.org/), [CDS Power Systems Data](https://cds-powersystemdata.lfenergy.org/), [LF Energy TROLIE](https://lfenergy.org/projects/trolie/), [Super Advanced Meter](https://github.com/super-advanced-meter), [OpenADR](https://www.openadr.org/), [IEEE 1547](https://ieeexplore.ieee.org/document/8332112), etc.)
 
 * Energy programs and markets that require secure communication with external entities ([FERC 2222](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy), [CEC Load Management Standards](https://www.energy.ca.gov/programs-and-topics/topics/load-flexibility/load-management-standards), etc.)
 
@@ -73,13 +73,9 @@ To alleviate this unstandardized communication processing overhead, these specif
 
 ## Use cases NOT in scope for this working group <a id="not-in-scope" href="#not-in-scope" class="permalink">🔗</a>
 
-<<<<<<< HEAD
 * Specifying communication protocols for specific grid communication use cases (e.g. solar curtailment protocols, energy market bidding protocols, customer data access protocols, etc.).
 
 * Aggregation of utility and other central entity capabilities into a directory or hub for external entities to browse (e.g. search engines, directory services, etc.).
 
 * Operating energy marketplaces, grid programs, or other grid services (e.g. ISO energy markets, rebate programs, statewide incentive programs).
 
-=======
-* Coming soon! See [Issue #1](https://github.com/lfe-cds/CDS-Registration/issues/1) for our progress on finalizing our use cases.
->>>>>>> upstream-main
