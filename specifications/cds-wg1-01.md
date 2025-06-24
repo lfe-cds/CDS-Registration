@@ -7,11 +7,13 @@ The defined base metadata endpoint is intended to act as a starting point for or
 
 ## Status <a id="status" href="#status" class="permalink">🔗</a>
 
-<b style="color:red">WARNING: This specification is a DRAFT and has not achieved consensus by the working group.</b>
+<b style="color:red">WARNING: This specification is a DRAFT and may be changed by the working group.</b>
 
 ## Copyright <a id="copyright" href="#copyright" class="permalink">🔗</a>
 
-<span style="background-color:yellow">TODO</span>
+Copyright Joint Development Foundation Projects, LLC, LF Energy Standards and Specifications Series and its contributors ("LFESS").
+All rights reserved.
+For more information, visit [https://lfess.energy/](https://lfess.energy/).
 
 ## Table of Contents <a id="table-of-contents" href="#table-of-contents" class="permalink">🔗</a>
 
@@ -42,12 +44,9 @@ The defined base metadata endpoint is intended to act as a starting point for or
 
 ## 1. Introduction <a id="introduction" href="#introduction" class="permalink">🔗</a>
 
-This specification was developed as part of the global effort to combat the climate crisis.
-Specifically, in order to scalably measure carbon emissions of organizations and calculate the impact of deploying and operating clean energy technologies, companies need an efficient means to discover the details and capabilities of energy utilities and other similar entities.
-
-There are thousands of utilities serving customers across the world, and each have their own way of organizing and structuring data.
+There are thousands of utilities and other central grid entities serving customers across the world, and each have their own way of organizing and structuring data.
 This specification defines a way for these utilities and other entities to provide standardized, structured reference information about them, the functionality they offer, and how organizations can interoperate with them.
-By serving "metadata" defined in this specification, utilities and other entities can automatically incorporate their details and capabilities into carbon tracking websites, apps, products, and other clean energy technologies.
+By serving "metadata" defined in this specification, utilities and other entities can automatically incorporate their details and capabilities into websites, apps, products, and other energy technologies.
 
 This specification is intended to be a starting point for providing basic information about utilities and other similar entities, then extended by other specifications to define additional information and functionality.
 For example, this specification may be extended to define how organizations can dynamically register with a utility in order to gain access to customer-authorized energy usage data.
@@ -60,31 +59,27 @@ These entities can include, but are not limited to, distribution utilities, grid
 
 <a id="client" href="#client" class="permalink">🔗</a> **"Client"** - The entity requesting Server's metadata endpoints.
 A Client can be any organization or user seeking the Server's metadata on their details and capabilities.
-These entities can include, but are not limited to, carbon tracking applications, electric vehicle companies, clean energy technology providers, commercial utility customers, grid management applications, and energy efficiency organizations.
+These entities can include, but are not limited to, building management applications, electric vehicle companies, energy technology providers, commercial utility customers, grid management applications, and energy efficiency organizations.
 
 <a id="referenced-technologies" href="#referenced-technologies" class="permalink">🔗</a> Referenced Technologies:
-"[HTTPS](https://www.rfc-editor.org/rfc/rfc9110#name-https-uri-scheme)",
-"[Request Methods](https://www.rfc-editor.org/rfc/rfc9110#name-methods)",
-"[Status Codes](https://www.rfc-editor.org/rfc/rfc9110#name-status-codes)",
-"[JSON](https://www.rfc-editor.org/rfc/rfc8259)",
-"[Well-Known URI](https://www.rfc-editor.org/rfc/rfc5785)",
-"[ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html)",
-"[OAuth](https://oauth.net/specs/)",
-"[GeoJSON](https://datatracker.ietf.org/doc/html/rfc7946#section-3)",
-<span style="background-color:yellow">TODO: add more as needed</span> are defined by their referenced standards documents.
+"[HTTPS](#ref-https)",
+"[Request Methods](#ref-request-methods)",
+"[Status Codes](#ref-status-codes)",
+"[JSON](#ref-json)",
+"[Well-Known URI](#ref-wellknown-uri)",
+"[GeoJSON](#ref-geojson)"
 
-<a id="string" href="#string" class="permalink">🔗</a> "string" - A series of unicode characters as defined in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259#section-7).
+<a id="string" href="#string" class="permalink">🔗</a> "string" - A series of unicode characters as defined in [RFC 8259 Section 7](#ref-rfc8259-strings).
 
-<a id="datetime" href="#datetime" class="permalink">🔗</a> "datetime" - A string representing date and time in the format of `date-time` as defined by [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) (e.g. "2024-01-01T00:00:00Z").
+<a id="datetime" href="#datetime" class="permalink">🔗</a> "datetime" - A string representing date and time in the format of `date-time` as defined by [RFC 3339 Section 5.6](#ref-rfc3339-datetime) (e.g. "2024-01-01T00:00:00Z").
 
-<a id="url" href="#url" class="permalink">🔗</a> "URL" - A string representing resource as defined in [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3) (e.g. "https://example.com/page1").
+<a id="url" href="#url" class="permalink">🔗</a> "URL" - A string representing resource as defined in [RFC 3986 Section 1.1.3](#ref-rfc3986-url) (e.g. "https://example.com/page1").
 
-<a id="mime-type" href="#mime-type" class="permalink">🔗</a> "MIME type" - A string representing a document media type as defined in [RFC 6838](https://datatracker.ietf.org/doc/html/rfc6838) (e.g. "image/png").
+<a id="mime-type" href="#mime-type" class="permalink">🔗</a> "MIME type" - A string representing a document media type as defined in [RFC 6838](#ref-rfc6838) (e.g. "image/png").
 
-<a id="country-code" href="#country-code" class="permalink">🔗</a> "country code" - A two-character string representing a country as defined in [ISO 3166](https://www.iso.org/iso-3166-country-codes.html) (e.g. "US").
+<a id="country-code" href="#country-code" class="permalink">🔗</a> "country code" - A two-character string representing a country as defined in [ISO 3166](#ref-iso3166) (e.g. "US").
 
-
-<a id="key-words" href="#key-words" class="permalink">🔗</a> Key Words: "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" are defined in accordance with [BCP 14](https://www.rfc-editor.org/info/bcp14).
+<a id="key-words" href="#key-words" class="permalink">🔗</a> Key Words: "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" are defined in accordance with [BCP 14](#ref-bcp14).
 
 ## 3. Metadata Endpoint <a id="metadata-endpoint" href="#metadata-endpoint" class="permalink">🔗</a>
 
@@ -376,7 +371,53 @@ For [well-known metadata endpoints](#metadata-well-known-uri) and other publicly
 
 ## 9. References <a id="references" href="#references" class="permalink">🔗</a>
 
-<span style="background-color:yellow">TODO</span>
+<a id="ref-https" href="#ref-https" class="permalink">🔗</a>
+`HTTPS` - Section 4.2.2. https URI Scheme, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/rfc/rfc9110#section-4.2.2](https://www.rfc-editor.org/rfc/rfc9110#section-4.2.2)
+
+<a id="ref-request-methods" href="#ref-request-methods" class="permalink">🔗</a>
+`Request Methods` - Section 9. Methods, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/rfc/rfc9110#section-9](https://www.rfc-editor.org/rfc/rfc9110#section-9)
+
+<a id="ref-status-codes" href="#ref-status-codes" class="permalink">🔗</a>
+`Status Codes` - Section 15. Status Codes, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/rfc/rfc9110#section-15](https://www.rfc-editor.org/rfc/rfc9110#section-15)
+
+<a id="ref-json" href="#ref-json" class="permalink">🔗</a>
+`JSON` - "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/rfc/rfc8259](https://www.rfc-editor.org/rfc/rfc8259)
+
+<a id="ref-wellknown-uri" href="#ref-wellknown-uri" class="permalink">🔗</a>
+`Well-Known URI` - "Defining Well-Known Uniform Resource Identifiers (URIs)", RFC 5785, Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/rfc/rfc5785](https://www.rfc-editor.org/rfc/rfc5785)
+
+<a id="ref-geojson" href="#ref-geojson" class="permalink">🔗</a>
+`GeoJSON` - Section 3. GeoJSON Object, "The GeoJSON Format", RFC 7946, Internet Engineering Task Force (IETF),
+[https://datatracker.ietf.org/doc/html/rfc7946#section-3](https://datatracker.ietf.org/doc/html/rfc7946#section-3)
+
+<a id="ref-rfc8259-strings" href="#ref-rfc8259-strings" class="permalink">🔗</a>
+`RFC 8259 Section 7` - Section 7. Strings, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/rfc/rfc8259#section-7](https://www.rfc-editor.org/rfc/rfc8259#section-7)
+
+<a id="ref-rfc3339-datetime" href="#ref-rfc3339-datetime" class="permalink">🔗</a>
+`RFC 3339 Section 5.6` - Section 5.6. Internet Date/Time Format, "Date and Time on the Internet: Timestamps", RFC 3339, Internet Engineering Task Force (IETF),
+[https://datatracker.ietf.org/doc/html/rfc3339#section-5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6)
+
+<a id="ref-rfc3986-url" href="#ref-rfc3986-url" class="permalink">🔗</a>
+`RFC 3986 Section 1.1.3` - Section 1.1.3. URI, URL, and URN, "Uniform Resource Identifier (URI): Generic Syntax", RFC 3986, Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3](https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3)
+
+<a id="ref-rfc6838" href="#ref-rfc6838" class="permalink">🔗</a>
+`RFC 6838` - "Media Type Specifications and Registration Procedures", RFC 6838, Internet Engineering Task Force (IETF),
+[https://datatracker.ietf.org/doc/html/rfc6838](https://datatracker.ietf.org/doc/html/rfc6838)
+
+<a id="ref-iso3166" href="#ref-iso3166" class="permalink">🔗</a>
+`ISO 3166` - "Media Type Specifications and Registration Procedures", ISO 3166, International Organization for Standardization (ISO),
+[https://www.iso.org/iso-3166-country-codes.html](https://www.iso.org/iso-3166-country-codes.html)
+
+<a id="ref-bcp14" href="#ref-bcp14" class="permalink">🔗</a>
+`BCP 14` - "Best Current Practice 14", Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/info/bcp14](https://www.rfc-editor.org/info/bcp14)
 
 ## 10. Acknowledgments <a id="acknowledgments" href="#acknowledgments" class="permalink">🔗</a>
 
