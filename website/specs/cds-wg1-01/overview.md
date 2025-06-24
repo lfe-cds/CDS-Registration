@@ -17,8 +17,8 @@ Throughout this overview, the term "utility or entity" is used instead of just "
 
 ## Background <a id="background" href="#background" class="permalink">🔗</a>
 
-There are thousands of utilities serving customers across the world, and each has their own way of organizing and structuring data and functionality.
-For [use case]({{ "/use-cases" | relative_url }}) companies needing to access data or functionality, an efficient means of discovering, registering, and interoperating with these utilities is needed.
+There are thousands of utilities and other central entities serving customers across the world, and each has their own way of organizing and structuring data and functionality.
+For external entities needing to access data or functionality, an efficient means of discovering, registering, and interoperating with these utilities and other central entities is needed.
 
 ## Metadata Endpoint <a id="metadata-endpoint" href="#metadata-endpoint" class="permalink">🔗</a>
 
