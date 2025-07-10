@@ -10,7 +10,7 @@ meta_description: What are the use cases that the CDS Registration specification
 
 These are the use cases that this working group is writing specifications to address.
 
-## Use Case 1: Enabling Initial Configuration for Grid Communication Protocols <a id="initial-configuration" href="#initial-configuration" class="permalink">🔗</a>
+## Use Case 1: Enabling Initial Configuration for Communication Protocols <a id="initial-configuration" href="#initial-configuration" class="permalink">🔗</a>
 
 As the energy grid evolves and energy transition progresses, many utilities and other central entities are increasingly needing to provide secure, confidential, digital, and automated communications with vendors, external entities, and customers.
 These communications can include protocols defined by industry specification (e.g. OpenADR, IEEE 1547, etc.) or using proprietary or custom Application Programming Interface (API) protocols (e.g. Oracle, SAP, Mulesoft, etc.).
@@ -40,7 +40,7 @@ Because many grid communication specifications and protocols require establishin
 
 * Utilities and other central entities that need to setup secure connectivity with vendors for internal data transfers (consultants, data analysts, suppliers/EDI, program implementers, etc.)
 
-## Use Case 2: Enabling Configuration Management for Grid Communication Protocols <a id="configuration-management" href="#configuration-management" class="permalink">🔗</a>
+## Use Case 2: Enabling Configuration Management for Communication Protocols <a id="configuration-management" href="#configuration-management" class="permalink">🔗</a>
 
 In addition to [Use Case #1](#initial-configuration), where utilities and other central entities need to be able to initially securely share confidential configuration details with vendors, external entities, and customer to establish connectivity, they also frequently need to provide a means of managing the connectivity configuration on an ongoing basis (e.g. rotating secrets, sending secure messages, notifying of outages, etc.).
 

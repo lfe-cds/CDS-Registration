@@ -24,8 +24,8 @@ abilities to third party entities.
 We have defined several broad categories of [use cases]({{ "/use-cases" | relative_url }}) we will focus on addressing,
 along with what connectivity protocols will need to be specified to accommodate those use cases.
 
-* `Use Case 1` - [Enabling Initial Configuration for Grid Communication Protocols]({{ "/use-cases" | relative_url }}#initial-configuration)
-* `Use Case 2` - [Enabling Configuration Management for Grid Communication Protocols]({{ "/use-cases" | relative_url }}#configuration-management)
+* `Use Case 1` - [Enabling Initial Configuration for Communication Protocols]({{ "/use-cases" | relative_url }}#initial-configuration)
+* `Use Case 2` - [Enabling Configuration Management for Communication Protocols]({{ "/use-cases" | relative_url }}#configuration-management)
 
 We've also made a list of what data and functionality is specifically [not in scope]({{ "/use-cases" | relative_url }}#not-in-scope).
 
