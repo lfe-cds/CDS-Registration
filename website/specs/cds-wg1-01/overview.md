@@ -64,7 +64,7 @@ Content-Type: application/json;charset=UTF-8
 
 ## Coverage Endpoint <a id="coverage-endpoint" href="#coverage-endpoint" class="permalink">🔗</a>
 
-This specification also defines a `coverage` capability that adds the the [Coverage Endpoint]({{ "/specs/cds-wg1-01" | relative_url }}#coverage-endpoint) for Servers to offer a way to list the covered geographic territories or logical groupings for which they offer the listed capabilities in a structured format.
+This specification also defines a `coverage` capability that adds the [Coverage Endpoint]({{ "/specs/cds-wg1-01" | relative_url }}#coverage-endpoint) for Servers to offer a way to list the covered geographic territories or logical groupings for which they offer the listed capabilities in a structured format.
 
 #### Coverage Example <a id="coverage-example" href="#coverage-example" class="permalink">🔗</a>
 ```
