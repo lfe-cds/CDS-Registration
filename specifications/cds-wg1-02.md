@@ -45,10 +45,11 @@ This specification defines how utilities and other central entities ("Servers") 
     * [6.3. Message Statuses](#message-statuses)  
     * [6.4. Message Related Types](#message-related-types)  
     * [6.5. Client Update Request Object Format](#client-update-request-format)  
-    * [6.6. Listing Messages](#messages-list)  
-    * [6.7. Creating Messages](#messages-create)  
-    * [6.8. Retrieving Individual Messages](#messages-get)
-    * [6.9. Modifying Messages](#messages-modify)  
+    * [6.6. Client Grant Request Object Format](#client-grant-request-format)  
+    * [6.7. Listing Messages](#messages-list)  
+    * [6.8. Creating Messages](#messages-create)  
+    * [6.9. Retrieving Individual Messages](#messages-get)
+    * [6.10. Modifying Messages](#messages-modify)  
 * [7. Credentials API](#credentials-api)  
     * [7.1. Credentials Object Format](#credentials-format)  
     * [7.2. Credentials Types](#credentials-types)  
@@ -677,11 +678,14 @@ Message objects are formatted as JSON objects and contain the following named va
   If the Message `type` is `notification`, `private_message`, or `support_request`, this is the message body.
 * `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - (OPTIONAL) The list of values that a Client has requested to be updated.
   This field is required for Messages with a `type` value of `field_changes` or `server_request`.
+* `grants_requested` - _Array[[ClientGrantRequest](#client-grant-request-format)]_ - (OPTIONAL) The list of grants with their parameters that a Client has requested to be issued by the Server.
+  This field is required for Messages with a `type` value of `grant_request`.
 * `related_uri` - _[URL](#url) or `null`_ - (OPTIONAL) If the Message `type` is `notification` or `private_message`, this value is where the Client can find more information, if available.
   If the Message `type` is `support_request`, this value is a relevant URL for which the Client is requesting technical support.
   If the Message `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
   If the Message `type` is `payment_request`, this is where the Client can submit their payment to the Server or if paid, a link to the payment receipt.
   If the Message `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
+  If the Message `type` is `grant_request`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assinged to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
 * `related_type` - _[ClientMessageRelatedType](#message-related-types)_ - (OPTIONAL) The type of object or resource linked to by the `related_uri`.
   If `related_uri` is included, this field is REQUIRED.
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Message `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
@@ -696,6 +700,7 @@ Message object `type` values MUST be one of the following:
 * `private_message` - The Server or Client is sending a private message to the opposite party.
   This message is considered to be individually tailored and relevant only to that Client or Server.
 * `support_request` - The Client is submitting a technical support request to the Server.
+* `grant_request` - The Client is submitting a request for the Server to create Grants with the parameters provided in the `grants_requested` list.
 * `field_changes` - This Message represents that the Client has submitted changes to field values in other API objects, listed in the `updates_requested` list, but these changes were not synchronously approved by the Server and need to be reviewed asynchronously by the Server.
   While the Client originally triggered this Message to be created by submitting field changes that need to be asynchronously reviewed, the Server is responsible for creating this Message, so the `creator` value is `null`.
 * `server_request` - The Server is requesting the Client submit a new Message of type `client_submission` with the fields listed in `updates_requested`.
@@ -708,9 +713,9 @@ Message object `type` values MUST be one of the following:
 Message object `status` values MUST be one of the following:
 
 * `complete` - For Messages with `type` values of `notification`, `private_message`, or `client_submission`, the `status` MUST be set as `complete`.
-  For Messages with `type` values of `support_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
+  For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
 * `open` - For Messages with `type` values of `server_request` or `payment_request`, this represents that the Client has not yet submitted a response to the Server's submission or payment request.
-* `pending` - For Messages with `type` values of `support_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's technical support request, field changes, submission, or payment.
+* `pending` - For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's technical support request, field changes, submission, or payment.
 * `rejected` - For Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested field changes, submission, or payment.
 * `errored` - For Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
   The Client is RECOMMENDED to submit a `support_request` Messages with the `related_uri` as the relevant errored Message's `uri`.
@@ -748,7 +753,14 @@ Client Update Request objects are formatted as JSON objects and contain the foll
 * `previous_value` - _various_ - (OPTIONAL) For Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed from.
 * `new_value` - _various_ - (OPTIONAL) For Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed to.
 
-### 6.6. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>
+### 6.6. Client Grant Request Object Format <a id="client-grant-request-format" href="#client-grant-request-format" class="permalink">🔗</a>
+
+Client Grant Request objects are formatted as JSON objects and contain the following named values:
+
+* `scope` - _[string](#string)_ - (REQUIRED) The OAuth scope string being requested for the Grant.
+* `authorization_details` - _Array[[OAuth AuthorizationDetail](https://www.rfc-editor.org/rfc/rfc9396#section-7.1)]_ - (OPTIONAL) The OAuth authorization details, if any, to further specify the grant's requested scope.
+
+### 6.7. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>
 
 Clients may request to list Message objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_messages_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Message listing request responses are formatted as JSON objects and contain the following named values.
@@ -774,7 +786,7 @@ For example, if the Client requests a `unread_next`, the Server's response MUST 
 
 Listings of Message objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently modified relevant Message MUST be first in each listing.
 
-### 6.7. Creating Messages <a id="messages-create" href="#messages-create" class="permalink">🔗</a>
+### 6.8. Creating Messages <a id="messages-create" href="#messages-create" class="permalink">🔗</a>
 
 Clients create new Messages by sending an authenticated HTTPS `POST` request to the `cds_messages_api` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object MUST include the following:
@@ -805,11 +817,11 @@ When committing Messages created by Clients, Servers MUST populate the following
 
 When Clients submit Messages with `type` value of `client_submission`, if the Message referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Message to `pending`, which indicates that the Client has submitted a response for Server review.
 
-### 6.8. Retrieving Individual Messages <a id="messages-get" href="#messages-get" class="permalink">🔗</a>
+### 6.9. Retrieving Individual Messages <a id="messages-get" href="#messages-get" class="permalink">🔗</a>
 
 The URL to be used to send `GET` requests for retrieving individual Message objects MUST be the Message `uri` provided in the [Message object](#message-format).
 
-### 6.9. Modifying Messages <a id="messages-modify" href="#messages-modify" class="permalink">🔗</a>
+### 6.10. Modifying Messages <a id="messages-modify" href="#messages-modify" class="permalink">🔗</a>
 
 Clients may modify fields in a Messages object by sending an authenticated HTTPS `PATCH` request to the Message `uri` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to modify with the submitted fields' values.
