@@ -184,11 +184,12 @@ The following values are included in the default list available in coverage entr
 * `commodity_types` - _Array[[CommodityType](#commodity-types)]_ - (REQUIRED) A list of services or commodities that are applicable to the coverage entry, which may be an empty array if the entry does not have an applicable commodity.
 * `capabilities` - _Array[[ServerCapability](#server-capabilities)]_ - (REQUIRED) What capabilities and functionality this Server supports for the coverage entry, which may be an empty array if the Server is not offering any capabilities for the coverage entry and is just publishing the coverage entry itself for informational purposes. This list MUST NOT include the `coverage` capability.
 * `map_resource` - _[URL](#url)_ - (OPTIONAL) Link to a map of the coverage territory.
-* `map_content_type` - _[MIME type](#mime-type)_ - (OPTIONAL) Content-Type format of the `map_resource`.
+* `map_content_type` - _[MIME type](#mime-type)_ - (OPTIONAL) Content-Type format of the `map_resource`. This field is REQUIRED if `map_resource` is provided.
 * `geojson_resource` - _[URL](#url)_ - (OPTIONAL) Link to a GeoJSON object mapping the coverage territory.
+  If provided, the linked GeoJSON object MUST use the default WGS 84 coordinate system, as described in the GeoJSON specification ([Section 4](#ref-geojson-coords)).
+  If Servers want to provide shapefiles or other geometries as GeoJSON data in coordinate systems other than WSG 84, they MUST [extend](#extensions) this specification to add another field in the Coverage Entry object besides `geojson_resource` so that Clients do not misinterpret the linked GeoJSON object as being in the WSG 84 coordinate system.
 
 When `type` is `geographic`, one or both of `map_resource` and `geojson_resource` MUST be provided.
-If `map_resource` is provided, then `map_content_type` MUST also be provided.
 
 ### 4.4. Coverage Entry Types <a id="coverage-entry-types" href="#coverage-entry-types" class="permalink">🔗</a>
 
@@ -256,16 +257,16 @@ The Server MUST maintain the redirect response for as long as the Server retains
 
 Other specifications MAY extend this specification to allow for seamless expansion in Server metadata, capabilities, and coverage.
 
-[Metadata Object](#metadata-object-format), [Coverage Listing](#coverage-listing-format), and [Coverage Entry](#coverage-listing-format) MAY be extended by other specifications to allow for additional values to be possible in their object formats.
-When extending the object format, other specifications MUST reference the relevant section in this specification and denote that they are extending the object to add a new named value.
-The additional named value MUST be specified with a general description, the value's format, and whether the value is REQUIRED or OPTIONAL.
+[Metadata Object](#metadata-object-format), [Coverage Listing](#coverage-listing-format), and [Coverage Entry](#coverage-listing-format) MAY be extended by other specifications to allow for additional fields to be possible in their objects.
+When extending the object format, other specifications MUST reference the relevant section in this specification and denote that they are extending the object to add a new named field.
+The additional field MUST be specified with a general description, the field value's format, and whether the field is REQUIRED or OPTIONAL.
 
 The enumerated lists for valid [Server Capabilities](#server-capabilities), [Coverage Listing Filters](#coverage-listing-filters), [Coverage Entry Types](#coverage-entry-types), [Capability Roles](#capability-roles), [Infrastructure Types](#infrastructure-types), [Commodity Types](#commodity-types), and  MAY be extended by other specifications to allow for additional strings to be valid.
 When extending enumerated list, other specifications MUST reference the relevant section in this specification and denote that they are extending the list to add a new string.
 The additional string MUST be specified with a description of what that string means when it is included in the relevant array.
 
-To facilitate forwards compatibility, Clients MUST ignore unknown or undocumented object values and enumerated strings.
-If a Client cannot provide adequate functionality based on too many unknown or undocumented object values or enumerated strings, the Client SHOULD refer to the Server's technical documentation (the `documentation` value in the metadata object) or contact the Server's technical support (via the `support` value in the metadata object).
+To facilitate forwards compatibility, Clients MUST ignore unknown or undocumented object fields and enumerated strings.
+If a Client cannot provide adequate functionality based on too many unknown or undocumented object fields or enumerated strings, the Client SHOULD refer to the Server's technical documentation (the `documentation` value in the metadata object) or contact the Server's technical support (via the `support` value in the metadata object).
 
 ## 7. Examples <a id="examples" href="#examples" class="permalink">🔗</a>
 
@@ -394,6 +395,10 @@ For [well-known metadata endpoints](#metadata-well-known-uri) and other publicly
 <a id="ref-geojson" href="#ref-geojson" class="permalink">🔗</a>
 `GeoJSON` - Section 3. GeoJSON Object, "The GeoJSON Format", RFC 7946, Internet Engineering Task Force (IETF),
 [https://datatracker.ietf.org/doc/html/rfc7946#section-3](https://datatracker.ietf.org/doc/html/rfc7946#section-3)
+
+<a id="ref-geojson-coords" href="#ref-geojson-coords" class="permalink">🔗</a>
+`GeoJSON Coordinate System` - Section 4. Coordinate Reference System, "The GeoJSON Format", RFC 7946, Internet Engineering Task Force (IETF),
+[https://datatracker.ietf.org/doc/html/rfc7946#section-4](https://datatracker.ietf.org/doc/html/rfc7946#section-4)
 
 <a id="ref-rfc8259-strings" href="#ref-rfc8259-strings" class="permalink">🔗</a>
 `RFC 8259 Section 7` - Section 7. Strings, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),
