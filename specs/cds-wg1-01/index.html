@@ -132,7 +132,469 @@
 
 <hr />
 
-<p><code class="language-plaintext highlighter-rouge">[No main draft available yet]</code> See <a href="#other-drafts">Other Drafts</a> section for in-progress and alternative drafts</p>
+<h1 id="cds-wg1-01---server-metadata">CDS-WG1-01 - Server Metadata</h1>
+
+<h2 id="abstract-">Abstract <a id="abstract" href="#abstract" class="permalink">🔗</a></h2>
+
+<p>This specification defines how utilities and other entities may provide structured “metadata”, such as reference information about them, functionality they offer, and how organizations can interoperate with them.
+The defined base metadata endpoint is intended to act as a starting point for organizations to discover details and capabilities of energy utilities and other similar entities.</p>
+
+<h2 id="status-">Status <a id="status" href="#status" class="permalink">🔗</a></h2>
+
+<p><b style="color:red">WARNING: This specification is a DRAFT and may be changed by the working group.</b></p>
+
+<h2 id="copyright-">Copyright <a id="copyright" href="#copyright" class="permalink">🔗</a></h2>
+
+<p>Copyright Joint Development Foundation Projects, LLC, LF Energy Standards and Specifications Series and its contributors (“LFESS”).
+All rights reserved.
+For more information, visit <a href="https://lfess.energy/">https://lfess.energy/</a>.</p>
+
+<h2 id="table-of-contents-">Table of Contents <a id="table-of-contents" href="#table-of-contents" class="permalink">🔗</a></h2>
+
+<ul>
+  <li><a href="#introduction">1. Introduction</a></li>
+  <li><a href="#terminology">2. Terminology</a></li>
+  <li><a href="#metadata-endpoint">3. Metadata Endpoint</a>
+    <ul>
+      <li><a href="#metadata-well-known-uri">3.1. Metadata Well-Known URI</a></li>
+      <li><a href="#metadata-object-format">3.2. Metadata Object Format</a></li>
+      <li><a href="#metadata-endpoint-organization">3.3. Metadata Endpoint Organization</a></li>
+      <li><a href="#server-capabilities">3.4. Server Capabilities</a></li>
+    </ul>
+  </li>
+  <li><a href="#coverage-endpoint">4. Coverage Endpoint</a>
+    <ul>
+      <li><a href="#coverage-listing-format">4.1. Coverage Listing Format</a></li>
+      <li><a href="#coverage-listing-filters">4.2. Coverage Listing Filters</a></li>
+      <li><a href="#coverage-entry-format">4.3. Coverage Entry Format</a></li>
+      <li><a href="#coverage-entry-types">4.4. Coverage Entry Types</a></li>
+      <li><a href="#capability-roles">4.5. Capability Roles</a></li>
+      <li><a href="#infrastructure-types">4.6. Infrastructure Types</a></li>
+      <li><a href="#commodity-types">4.7. Commodity Types</a></li>
+    </ul>
+  </li>
+  <li><a href="#server-migration">5. Server Migration</a></li>
+  <li><a href="#extensions">6. Extensions</a></li>
+  <li><a href="#examples">7. Examples</a></li>
+  <li><a href="#security">8. Security Considerations</a>
+    <ul>
+      <li><a href="#restricted-access">8.1. Restricted Access</a></li>
+      <li><a href="#rate-limiting">8.2. Rate Limiting</a></li>
+    </ul>
+  </li>
+  <li><a href="#references">9. References</a></li>
+  <li><a href="#acknowledgments">10. Acknowledgments</a></li>
+  <li><a href="#authors-addresses">11. Authors’ Addresses</a></li>
+</ul>
+
+<h2 id="1-introduction-">1. Introduction <a id="introduction" href="#introduction" class="permalink">🔗</a></h2>
+
+<p>There are thousands of utilities and other central grid entities serving customers across the world, and each have their own way of organizing and structuring data.
+This specification defines a way for these utilities and other entities to provide standardized, structured reference information about them, the functionality they offer, and how organizations can interoperate with them.
+By serving “metadata” defined in this specification, utilities and other entities can automatically incorporate their details and capabilities into websites, apps, products, and other energy technologies.</p>
+
+<p>This specification is intended to be a starting point for providing basic information about utilities and other similar entities, then extended by other specifications to define additional information and functionality.
+For example, this specification may be extended to define how organizations can dynamically register with a utility in order to gain access to customer-authorized energy usage data.</p>
+
+<h2 id="2-terminology-">2. Terminology <a id="terminology" href="#terminology" class="permalink">🔗</a></h2>
+
+<p><a id="server" href="#server" class="permalink">🔗</a> <strong>“Server”</strong> - The entity hosting the metadata endpoint.
+A Server can be an energy utility or another type of entity that want to provide structured information and capabilities about themselves.
+These entities can include, but are not limited to, distribution utilities, grid operators, electric retailers, community choice aggregators, government agencies, data warehouses, and private infrastructure providers.</p>
+
+<p><a id="client" href="#client" class="permalink">🔗</a> <strong>“Client”</strong> - The entity requesting Server’s metadata endpoints.
+A Client can be any organization or user seeking the Server’s metadata on their details and capabilities.
+These entities can include, but are not limited to, building management applications, electric vehicle companies, energy technology providers, commercial utility customers, grid management applications, and energy efficiency organizations.</p>
+
+<p><a id="referenced-technologies" href="#referenced-technologies" class="permalink">🔗</a> Referenced Technologies:
+“<a href="#ref-https">HTTPS</a>”,
+“<a href="#ref-request-methods">Request Methods</a>”,
+“<a href="#ref-status-codes">Status Codes</a>”,
+“<a href="#ref-json">JSON</a>”,
+“<a href="#ref-wellknown-uri">Well-Known URI</a>”,
+“<a href="#ref-geojson">GeoJSON</a>”</p>
+
+<p><a id="string" href="#string" class="permalink">🔗</a> “string” - A series of unicode characters as defined in <a href="#ref-rfc8259-strings">RFC 8259 Section 7</a>.</p>
+
+<p><a id="datetime" href="#datetime" class="permalink">🔗</a> “datetime” - A string representing date and time in the format of <code class="language-plaintext highlighter-rouge">date-time</code> as defined by <a href="#ref-rfc3339-datetime">RFC 3339 Section 5.6</a> (e.g. “2024-01-01T00:00:00Z”).</p>
+
+<p><a id="url" href="#url" class="permalink">🔗</a> “URL” - A string representing resource as defined in <a href="#ref-rfc3986-url">RFC 3986 Section 1.1.3</a> (e.g. “https://example.com/page1”).</p>
+
+<p><a id="mime-type" href="#mime-type" class="permalink">🔗</a> “MIME type” - A string representing a document media type as defined in <a href="#ref-rfc6838">RFC 6838</a> (e.g. “image/png”).</p>
+
+<p><a id="country-code" href="#country-code" class="permalink">🔗</a> “country code” - A two-character string representing a country as defined in <a href="#ref-iso3166">ISO 3166</a> (e.g. “US”).</p>
+
+<p><a id="key-words" href="#key-words" class="permalink">🔗</a> Key Words: “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “NOT RECOMMENDED”, “MAY”, and “OPTIONAL” are defined in accordance with <a href="#ref-bcp14">BCP 14</a>.</p>
+
+<h2 id="3-metadata-endpoint-">3. Metadata Endpoint <a id="metadata-endpoint" href="#metadata-endpoint" class="permalink">🔗</a></h2>
+
+<p>Servers supporting this specification SHALL offer one or more HTTPS URLs from which a Client can perform a GET request to retrieve Server metadata, and the Server will respond with the Server’s metadata JSON object.</p>
+
+<p>For successful responses, Servers MUST respond with a “200 OK” Status Code and body containing a JSON object that is formatted as defined in <a href="#metadata-object-format">Metadata Object Format</a>.
+Cache-optimized responses, such as “304 Not Modified”, to Client requests with cached value headers, such as <code class="language-plaintext highlighter-rouge">If-None-Match</code>, is also acceptable.</p>
+
+<p>For invalid requests and error responses, Servers MUST respond with the appropriate Response Code for the type of issue or error (e.g. “503 Service Unavailable” if the Server is temporarily down for maintenance).</p>
+
+<h3 id="31-metadata-well-known-uri-">3.1. Metadata Well-Known URI <a id="metadata-well-known-uri" href="#metadata-well-known-uri" class="permalink">🔗</a></h3>
+
+<p>If the Server wishes to provide metadata publicly, the Server MUST support a metadata endpoint at the Well-Known URI <code class="language-plaintext highlighter-rouge">"/.well-known/cds-server-metadata.json"</code> on their hostname (e.g. https://example.com/.well-known/cds-server-metadata.json).</p>
+
+<p>Servers MAY additionally support other public and restricted URLs for special case or private metadata endpoints, as needed.</p>
+
+<h3 id="32-metadata-object-format-">3.2. Metadata Object Format <a id="metadata-object-format" href="#metadata-object-format" class="permalink">🔗</a></h3>
+
+<p>Metadata objects are formatted as JSON objects and contain named values, some of which are required and some of which are optional.
+The following values are included in the default list available in metadata objects.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">cds_metadata_version</code> - <em><a href="#string">string</a></em> - (REQUIRED) The version of metadata object format this Server follows, which for this version of the specification is <code class="language-plaintext highlighter-rouge">v1</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">cds_metadata_url</code> - <em><a href="#string">string</a></em> - (REQUIRED) A URL link to this metadata object’s canonical network location.</li>
+  <li><code class="language-plaintext highlighter-rouge">created</code> - <em><a href="#datetime">datetime</a></em> - (REQUIRED) When the metadata url was first made available.</li>
+  <li><code class="language-plaintext highlighter-rouge">updated</code> - <em><a href="#datetime">datetime</a></em> - (REQUIRED) When this metadata object was last modified.</li>
+  <li><code class="language-plaintext highlighter-rouge">name</code> - <em><a href="#string">string</a></em> - (REQUIRED) The name of the utility or entity (e.g. “Demo Gas &amp; Electric”).</li>
+  <li><code class="language-plaintext highlighter-rouge">description</code> - <em><a href="#string">string</a></em> - (REQUIRED) A brief description about the utility or entity (e.g. “An electric and gas utility serving customers in Northern California”).</li>
+  <li><code class="language-plaintext highlighter-rouge">website</code> - <em><a href="#url">URL</a></em> - (REQUIRED) Where users can learn more about the utility or entity and its capabilities.</li>
+  <li><code class="language-plaintext highlighter-rouge">documentation</code> - <em><a href="#url">URL</a></em> - (REQUIRED) Where Clients can find the utility or entity’s technical reference documentation.</li>
+  <li><code class="language-plaintext highlighter-rouge">support</code> - <em><a href="#url">URL</a></em> - (REQUIRED) Where Clients can find contact information for technical support on the Server’s capabilities.</li>
+  <li><code class="language-plaintext highlighter-rouge">capabilities</code> - <em>Array[<a href="#server-capabilities">ServerCapability</a>]</em> - (REQUIRED) What capabilities and functionality this Server supports, which may be an empty array if the Server is not offering any additional capabilities beyond just this metadata object. If the list of capabilities includes <code class="language-plaintext highlighter-rouge">coverage</code>, this array MUST also include a union of the capabilities listed in the <a href="#coverage-endpoint">Coverage Endpoint</a> list of <a href="#coverage-entry-format">Coverage Entry</a> objects’ <code class="language-plaintext highlighter-rouge">capabilities</code> values.</li>
+  <li><code class="language-plaintext highlighter-rouge">coverage</code> - <em><a href="#url">URL</a></em> - (OPTIONAL) Where to find the <a href="#coverage-endpoint">Coverage Endpoint</a>. This field is REQUIRED if <code class="language-plaintext highlighter-rouge">coverage</code> is listed in the <code class="language-plaintext highlighter-rouge">capabilities</code> array.</li>
+  <li><code class="language-plaintext highlighter-rouge">related_metadata</code> - <em>Array[<a href="#url">URL</a>]</em> - (OPTIONAL) Where to find other related <a href="#metadata-endpoint">Metadata Endpoints</a>.</li>
+</ul>
+
+<h3 id="33-metadata-endpoint-organization-">3.3. Metadata Endpoint Organization <a id="metadata-endpoint-organization" href="#metadata-endpoint-organization" class="permalink">🔗</a></h3>
+
+<p>Many utilities and other similar entities are structured as multiple divisions, operating companies, territories, legal constructs, or other types of groupings.
+These organizational complexities and legal structures can make it difficult to publish a single representative metadata endpoint for an entire entity.</p>
+
+<p>When utilities and other similar entities wish to publicly provide multiple metadata objects that more cleanly define the metadata and capabilities for their entity, their Server MUST publish a single metadata endpoint at the <a href="metadata-well-known-uri">well-known URI</a> and within that metadata object include an array of <code class="language-plaintext highlighter-rouge">related_metadata</code> URLs that link the Client to the various subdivided or related metadata endpoints.</p>
+
+<p>If capabilities are available by a parent organization across a group of subsidiary utilities or entities (e.g. a holding company offers universal customer data access across many of their utility operating company territories), the parent organization MAY publish a single metatdata object with coverage entries that list the individual subsidiary utility or entity coverage entries.</p>
+
+<p>It is acceptable for the initial well-known metadata endpoint object to include a minimal or empty array of <code class="language-plaintext highlighter-rouge">capabilities</code>, as it represents the entire entity, and leave enumerating the <code class="language-plaintext highlighter-rouge">capabilities</code> to the related metadata endpoints.</p>
+
+<h3 id="34-server-capabilities-">3.4. Server Capabilities <a id="server-capabilities" href="#server-capabilities" class="permalink">🔗</a></h3>
+
+<p>Server capabilities are what specific interoperability or informational capabilities a Server is providing.
+The following list of strings are an enumerated set of capabilities that are defined by default in this specification.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">coverage</code> - The Server is providing coverage details related to itself as it relates the other listed capabilities.
+If included, a <code class="language-plaintext highlighter-rouge">coverage</code> value is REQUIRED in the metadata object.</li>
+</ul>
+
+<p>Other specifications that define interoperability or informational capabilities for utilities and other entities are encouraged to define an extension that adds their capability as a string to the above list.
+See the <a href="#Extensions">Extensions</a> section for details on how to extend this list of Server capabilities.</p>
+
+<h2 id="4-coverage-endpoint-">4. Coverage Endpoint <a id="coverage-endpoint" href="#coverage-endpoint" class="permalink">🔗</a></h2>
+
+<p>If Servers include the <code class="language-plaintext highlighter-rouge">coverage</code> <a href="#server-capabilities">Server capability</a>, a URL to the utility or entity’s coverage MUST be included in the metadata object.</p>
+
+<p>When the URL is requested using the HTTP <code class="language-plaintext highlighter-rouge">GET</code> method and the request is valid, the Server MUST respond with a “200 OK” Status Code and body containing JSON object formatted according to the <a href="#coverage-listing-format">Coverage Listing Format</a>.
+Cache-optimized responses, such as “304 Not Modified”, to Client requests with cached value headers, such as <code class="language-plaintext highlighter-rouge">If-None-Match</code>, is also acceptable.</p>
+
+<p>For invalid requests and error responses, Servers MUST respond with the appropriate Response Code for the type of issue or error (e.g. “503 Service Unavailable” if the Server is temporarily down for maintenance).</p>
+
+<h3 id="41-coverage-listing-format-">4.1. Coverage Listing Format <a id="coverage-listing-format" href="#coverage-listing-format" class="permalink">🔗</a></h3>
+
+<p>Coverage objects are formatted as JSON objects and contain the following named values. This object serves mostly as an object wrapper around a list of <a href="#coverage-entry-format">coverage entries</a>, so that the list of coverage entries can be paginated by the Server if too long for one response.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">coverage_entries</code> - <em>Array[<a href="#coverage-entry-format">CoverageEntry</a>]</em> - (REQUIRED) A list of segments this Server covers</li>
+  <li><code class="language-plaintext highlighter-rouge">next</code> - <em><code class="language-plaintext highlighter-rouge">null</code> or <a href="#url">URL</a></em> - (REQUIRED) Link to the next page of coverage entries (<code class="language-plaintext highlighter-rouge">null</code> if no more subsequent pages)</li>
+  <li><code class="language-plaintext highlighter-rouge">previous</code> - <em><code class="language-plaintext highlighter-rouge">null</code> or <a href="#url">URL</a></em> - (REQUIRED) Link to the previous page of coverage entries (<code class="language-plaintext highlighter-rouge">null</code> if no more prior pages)</li>
+</ul>
+
+<p>Listings of Coverage Entry objects MUST be ordered in reverse chronological order by <code class="language-plaintext highlighter-rouge">updated</code> datetime, where the most recently updated relevant Coverage Entry MUST be first in each listing.</p>
+
+<h3 id="42-coverage-listing-filters-">4.2. Coverage Listing Filters <a id="coverage-listing-filters" href="#coverage-listing-filters" class="permalink">🔗</a></h3>
+
+<p>Servers MUST support Clients adding any of the following URL parameters to the <a href="#coverage-endpoint">Coverage Endpoint</a> GET request, which will filter the list of Coverage Entry objects to be the intersection of results for each of the URL parameters filters:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ids</code> - A space-separated list of <code class="language-plaintext highlighter-rouge">id</code> values for which the Servers MUST filter the Coverage Entries.</li>
+</ul>
+
+<h3 id="43-coverage-entry-format-">4.3. Coverage Entry Format <a id="coverage-entry-format" href="#coverage-entry-format" class="permalink">🔗</a></h3>
+
+<p>Coverage entries are formatted as JSON objects and contain named values, some of which are required and some of which are optional.
+The following values are included in the default list available in coverage entries.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">id</code> - <em><a href="#string">string</a></em> - (REQUIRED) A unique identifier for the coverage entry.</li>
+  <li><code class="language-plaintext highlighter-rouge">created</code> - <em><a href="#datetime">datetime</a></em> - (REQUIRED) When this coverage entry was first made available.</li>
+  <li><code class="language-plaintext highlighter-rouge">updated</code> - <em><a href="#datetime">datetime</a></em> - (REQUIRED) When this coverage entry was last modified.</li>
+  <li><code class="language-plaintext highlighter-rouge">entity_name</code> - <em><a href="#string">string</a></em> - (REQUIRED) A human readable name for the entity being covered (e.g. “Demo Gas &amp; Electric”).
+The entity name in a coverage entry MAY be different than the Server metadata <code class="language-plaintext highlighter-rouge">name</code> value in situations where the Server is operated by a parent or other entity.</li>
+  <li><code class="language-plaintext highlighter-rouge">entity_abbreviation</code> - <em><code class="language-plaintext highlighter-rouge">null</code> or <a href="#string">string</a></em> - (REQUIRED) The abbreviation for the entity being covered by the coverage entry (e.g. “DG&amp;E”).
+This field is to assist Clients in parsing coverage for entities that are commonly known by their abbreviated names (e.g. “DG&amp;E” rather than “Demo Gas &amp; Electric”).
+If no abbreviation is available for the entity being covered, this value is <code class="language-plaintext highlighter-rouge">null</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">country</code> - <em><a href="#country-code">country code</a></em> - (REQUIRED) The country that has jurisdiction over the Coverage Entity.
+If multiple countries have jurisdiction over a piece of coverage, Servers MUST have multiple Coverage Entries, one for each country having jurisdiction.</li>
+  <li><code class="language-plaintext highlighter-rouge">name</code> - <em><a href="#string">string</a></em> - (REQUIRED) A human readable name for the coverage area or category (e.g. “Upstate New York electric territory”).</li>
+  <li><code class="language-plaintext highlighter-rouge">description</code> - <em><a href="#string">string</a></em> - (OPTIONAL) A brief description the coverage area or category (e.g. “Example Electric’s coverage for the northern half of New York state”).</li>
+  <li><code class="language-plaintext highlighter-rouge">type</code> - <em><a href="#coverage-entry-types">CoverageType</a></em> - (REQUIRED) The type of coverage entry.</li>
+  <li><code class="language-plaintext highlighter-rouge">role</code> - <em><a href="#capability-roles">CapabilityRole</a></em> - (REQUIRED) The role of the Server in offering capabilities for the coverage entry.</li>
+  <li><code class="language-plaintext highlighter-rouge">infrastructure_types</code> - <em>Array[<a href="#infrastructure-types">InfrastructureType</a>]</em> - (REQUIRED) A list of infrastructure categories that are applicable to the coverage entry, which may be an empty array if the entry is not any of the possible infrastructure types.</li>
+  <li><code class="language-plaintext highlighter-rouge">commodity_types</code> - <em>Array[<a href="#commodity-types">CommodityType</a>]</em> - (REQUIRED) A list of services or commodities that are applicable to the coverage entry, which may be an empty array if the entry does not have an applicable commodity.</li>
+  <li><code class="language-plaintext highlighter-rouge">capabilities</code> - <em>Array[<a href="#server-capabilities">ServerCapability</a>]</em> - (REQUIRED) What capabilities and functionality this Server supports for the coverage entry, which may be an empty array if the Server is not offering any capabilities for the coverage entry and is just publishing the coverage entry itself for informational purposes. This list MUST NOT include the <code class="language-plaintext highlighter-rouge">coverage</code> capability.</li>
+  <li><code class="language-plaintext highlighter-rouge">map_resource</code> - <em><a href="#url">URL</a></em> - (OPTIONAL) Link to a map of the coverage territory.</li>
+  <li><code class="language-plaintext highlighter-rouge">map_content_type</code> - <em><a href="#mime-type">MIME type</a></em> - (OPTIONAL) Content-Type format of the <code class="language-plaintext highlighter-rouge">map_resource</code>. This field is REQUIRED if <code class="language-plaintext highlighter-rouge">map_resource</code> is provided.</li>
+  <li><code class="language-plaintext highlighter-rouge">geojson_resource</code> - <em><a href="#url">URL</a></em> - (OPTIONAL) Link to a GeoJSON object mapping the coverage territory.
+If provided, the linked GeoJSON object MUST use the default WGS 84 coordinate system, as described in the GeoJSON specification (<a href="#ref-geojson-coords">Section 4</a>).
+If Servers want to provide shapefiles or other geometries as GeoJSON data in coordinate systems other than WSG 84, they MUST <a href="#extensions">extend</a> this specification to add another field in the Coverage Entry object besides <code class="language-plaintext highlighter-rouge">geojson_resource</code> so that Clients do not misinterpret the linked GeoJSON object as being in the WSG 84 coordinate system.</li>
+</ul>
+
+<p>When <code class="language-plaintext highlighter-rouge">type</code> is <code class="language-plaintext highlighter-rouge">geographic</code>, one or both of <code class="language-plaintext highlighter-rouge">map_resource</code> and <code class="language-plaintext highlighter-rouge">geojson_resource</code> MUST be provided.</p>
+
+<h3 id="44-coverage-entry-types-">4.4. Coverage Entry Types <a id="coverage-entry-types" href="#coverage-entry-types" class="permalink">🔗</a></h3>
+
+<p>Coverage entry types describe what group is being detailed in the coverage entry.
+Coverage entries MAY represent physical geographic territories (e.g. where a utility provides electric service) or logical groupings (e.g. a certain segment of customers).
+Many utilities have different geographic or logical coverage for their different territories and capabilities (e.g. their electric service territory is different from their natural gas service territory), so Servers MAY include multiple coverage entries for different types of service without having to publish multiple metadata endpoints.</p>
+
+<p>The following list of strings are an enumerated set of coverage entry types that are valid <code class="language-plaintext highlighter-rouge">type</code> values in the coverage entry object.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">geographic</code> - The coverage entry represents a geographic area (e.g. electric service territory).</li>
+  <li><code class="language-plaintext highlighter-rouge">logical</code> - The coverage entry represents a non-geographic logical grouping (e.g. a set of commerical customers).</li>
+</ul>
+
+<h3 id="45-capability-roles-">4.5. Capability Roles <a id="capability-roles" href="#capability-roles" class="permalink">🔗</a></h3>
+
+<p>Capability Roles disclose the Server’s role in the provision of capabilities covered by the coverage entry.
+The following list of strings are an enumerated set of role types that MAY be set as the <code class="language-plaintext highlighter-rouge">role</code> value in the coverage entry object.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">authoritative</code> - The Server represents the authoritative entity for the capabilities covered by the coverage entry (e.g. the utility itself is providing the capability).
+Only one Server SHOULD mark itself as <code class="language-plaintext highlighter-rouge">authoritative</code> for the same coverage and capability, to prevent any abiguity for Clients as to a “source of truth”.</li>
+  <li><code class="language-plaintext highlighter-rouge">official</code> - The Server represents a contractually obligated or government mandated entity that has an official connection to the <code class="language-plaintext highlighter-rouge">authoritative</code> entity and is offering funcational capabilities for the <code class="language-plaintext highlighter-rouge">direct</code> entity in an official capacity (e.g. a state-wide data hub offering customer data access).
+Multiple Servers could mark themselves as <code class="language-plaintext highlighter-rouge">official</code> for the same coverage and capability if the <code class="language-plaintext highlighter-rouge">authoritative</code> entity has multiple implementations of capabilities with officially designated service providers or data hubs.</li>
+  <li><code class="language-plaintext highlighter-rouge">aggregator</code> - The Server represents an external entity that offers capabilities by proxy and does not have an official agreement with the <code class="language-plaintext highlighter-rouge">direct</code> entity (e.g. a service provider that aggregates many utility territory capabilities).</li>
+</ul>
+
+<h3 id="46-infrastructure-types-">4.6. Infrastructure Types <a id="infrastructure-types" href="#infrastructure-types" class="permalink">🔗</a></h3>
+
+<p>Infrastructure types are general categories of utility and energy grid entities that are likely to need to provide access to metadata and capabilities under this specification.
+The following list of strings are an enumerated set of infrastructure types that MAY be included in the <code class="language-plaintext highlighter-rouge">infrastructure_types</code> array of values in the coverage entry object.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">distribution_utility</code> - A electric, natural gas, and/or water utility that distributes the utility service to the end customer (e.g. “who maintains the wires to your house”).</li>
+  <li><code class="language-plaintext highlighter-rouge">metering_provider</code> - An entity that maintains the utility metering infrastructure and/or reads end customer meters (e.g. “who reads your meter”).</li>
+  <li><code class="language-plaintext highlighter-rouge">supplier</code> - An energy supplier for the end customer (e.g. “who you buy power from”).</li>
+  <li><code class="language-plaintext highlighter-rouge">generator</code> - An entity that operates energy generation assets (e.g. a power plant owner and/or operator).</li>
+  <li><code class="language-plaintext highlighter-rouge">market_operator</code> - An entity that operates an energy or grid market (e.g. a wholesale energy trading system).</li>
+  <li><code class="language-plaintext highlighter-rouge">distribution_service_operator</code> - Commonly called a “DSO”, this is a control entity manages one or more distribution grids.</li>
+  <li><code class="language-plaintext highlighter-rouge">transmission_service_operator</code> - Commonly called a “TSO” or Interstate Service Operator (“ISO”), this is a control entity manages one or more distribution grids.</li>
+  <li><code class="language-plaintext highlighter-rouge">service_provider</code> - An entity that provides customer, utilty, grid, or other services (e.g. a virtual power plant operator).</li>
+</ul>
+
+<h3 id="47-commodity-types-">4.7. Commodity Types <a id="commodity-types" href="#commodity-types" class="permalink">🔗</a></h3>
+
+<p>Commodity types are what general categories of services a utility or entity provides to end customers.
+The following list of strings are an enumerated set of commodity types that MAY be included in the <code class="language-plaintext highlighter-rouge">commodity_types</code> array of values in the coverage entry object.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">electricity</code> - Has metadata or capabilities around utility electric services</li>
+  <li><code class="language-plaintext highlighter-rouge">natural_gas</code> - Has metadata or capabilities around utility natural gas services</li>
+  <li><code class="language-plaintext highlighter-rouge">fuel_oil</code> - Has metadata or capabilities around utility fuel oil services</li>
+  <li><code class="language-plaintext highlighter-rouge">water</code> - Has metadata or capabilities around utility water services</li>
+  <li><code class="language-plaintext highlighter-rouge">wastewater</code> - Has metadata or capabilities around utility wastewater services</li>
+  <li><code class="language-plaintext highlighter-rouge">trash</code> - Has metadata or capabilities around utility trash services</li>
+  <li><code class="language-plaintext highlighter-rouge">distributed_energy</code> - Has metadata or capabilities around distributed energy resource (DER) services</li>
+</ul>
+
+<h2 id="5-server-migration--">5. Server Migration  <a id="server-migration" href="#server-migration" class="permalink">🔗</a></h2>
+
+<p>Utilities and other entities frequently change their organizational structures, such as buying another utility and merging the utility territory together.
+As utilities and other entities evolve, their Server metadata endpoints, including the domains from which they are served, may no longer be valid.</p>
+
+<p>This section describes how Servers MUST transition their <a href="#metadata-well-known-uri">well-known metadata endpoint</a> when migrating or merging into another Server.</p>
+
+<p>For organizational changes where the utility or other entity is not changing their domain, the Server MUST update their existing well-known metadata endpoint in place to match the new organizational structure.</p>
+
+<p>For organizational changes where the new entity structure will not match the existing domain, the Server MUST create a new well-known metadata endpoint on their new domain and update the metadata contents to match the new organization.
+The Server MUST also respond to requests to the previous well-known metadata endpoint with a “301 Moved Permanently” or “302 Found” Status Code with a <code class="language-plaintext highlighter-rouge">Location</code> header containing the URL of the new updated metadata endpoint so that Clients may be automatically redirected to the overriding.
+The Server MUST maintain the redirect response for as long as the Server retains control over the domain or up to 3 years, whichever is less.</p>
+
+<h2 id="6-extensions-">6. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a></h2>
+
+<p>Other specifications MAY extend this specification to allow for seamless expansion in Server metadata, capabilities, and coverage.</p>
+
+<p><a href="#metadata-object-format">Metadata Object</a>, <a href="#coverage-listing-format">Coverage Listing</a>, and <a href="#coverage-listing-format">Coverage Entry</a> MAY be extended by other specifications to allow for additional fields to be possible in their objects.
+When extending the object format, other specifications MUST reference the relevant section in this specification and denote that they are extending the object to add a new named field.
+The additional field MUST be specified with a general description, the field value’s format, and whether the field is REQUIRED or OPTIONAL.</p>
+
+<p>The enumerated lists for valid <a href="#server-capabilities">Server Capabilities</a>, <a href="#coverage-listing-filters">Coverage Listing Filters</a>, <a href="#coverage-entry-types">Coverage Entry Types</a>, <a href="#capability-roles">Capability Roles</a>, <a href="#infrastructure-types">Infrastructure Types</a>, <a href="#commodity-types">Commodity Types</a>, and  MAY be extended by other specifications to allow for additional strings to be valid.
+When extending enumerated list, other specifications MUST reference the relevant section in this specification and denote that they are extending the list to add a new string.
+The additional string MUST be specified with a description of what that string means when it is included in the relevant array.</p>
+
+<p>To facilitate forwards compatibility, Clients MUST ignore unknown or undocumented object fields and enumerated strings.
+If a Client cannot provide adequate functionality based on too many unknown or undocumented object fields or enumerated strings, the Client SHOULD refer to the Server’s technical documentation (the <code class="language-plaintext highlighter-rouge">documentation</code> value in the metadata object) or contact the Server’s technical support (via the <code class="language-plaintext highlighter-rouge">support</code> value in the metadata object).</p>
+
+<h2 id="7-examples-">7. Examples <a id="examples" href="#examples" class="permalink">🔗</a></h2>
+
+<p>The following is a non-normative example of a Client request and Server response to a metadata endpoint.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
+GET /.well-known/cds-server-metadata.json HTTP/1.1
+Host: example.com
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "cds_metadata_version": "v1",
+    "cds_metadata_url": "https://example.com/.well-known/cds-server-metadata.json",
+
+    "created": "2022-01-01T00:00:00Z",
+    "updated": "2022-06-01T00:00:00Z",
+
+    "name": "Example Data Hub",
+    "description": "A fictional regional data hub that offers information about the region's utilities.",
+    "website": "https://example.com/data-access",
+    "documentation": "https://example.com/data-access/docs",
+    "support": "https://example.com/developers/contact",
+    "capabilities": [
+        "coverage",
+    ],
+
+    "coverage": "https://static.example.com/cds-coverage.json"
+}
+</code></pre></div></div>
+
+<p>The following is a non-normative example of a Client request and Server response to a coverage endpoint.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
+GET /cds-coverage.json HTTP/1.1
+Host: static.example.com
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "coverage_entries": [
+        {
+            "id": "dge_elec_west",
+
+            "created": "2022-06-01T00:00:00.000000Z",
+            "updated": "2022-06-01T00:00:00.000000Z",
+
+            "entity_name": "Demo Gas &amp; Electric",
+            "entity_abbreviation": "DG&amp;E",
+
+            "name": "Western electric service territory",
+            "description": "This is the electric service coverage for the western half of the region.",
+
+            "type": "geographic",
+            "role": "official",
+            "infrastructure_types": [
+                "distribution_utility",
+            ],
+            "commodity_types": [
+                "electricity",
+            ],
+            "capabilities": [],
+
+            "map_resource": "https://static.example.com/cds-coverage-map.png",
+            "map_content_type": "image/png",
+            "geojson_resource": "https://static.example.com/cds-coverage-map-geo.json"
+        }
+    ],
+    "next": null,
+    "previous": null
+}
+</code></pre></div></div>
+
+<h2 id="8-security-considerations-">8. Security Considerations <a id="security" href="#security" class="permalink">🔗</a></h2>
+
+<p>This specification involves a utility or other entity publishing details about itself.
+Server operators MUST review all material published in the metadata and coverage endpoints and make sure it is information that is allowed to be made available to Clients.
+This is especially true for <a href="#metadata-well-known-uri">well-known metadata endpoints</a>, as not only are these endpoints public, they are intentionally published with a URL structure that allows them to auto-discovered by Clients.</p>
+
+<h3 id="81-restricted-access-">8.1. Restricted Access <a id="restricted-access" href="#restricted-access" class="permalink">🔗</a></h3>
+
+<p>Servers that wish to restrict access to a metadata or coverage endpoint to certain Clients MUST configure well established authentication processes for Clients to ensure that only the approved Clients may access the restricted endpoint.</p>
+
+<p>This specification does not describe specifically how Servers will authenticate Clients, as these restricted access protocols are context dependent.
+For example, if a Server is providing the metadata endpoint as part of an existing logged in portal, then they can use that logged in portal’s session cookie to authenticate Client requests to the metadata endpoint.</p>
+
+<p><a href="#metadata-well-known-uri">Well-known metadata endpoints</a> MUST NOT require Client authentication to access, since these metadata endpoints are intended to be published publicly.</p>
+
+<p>Resources provided as URLs in metadata and coverage objects MUST be accessible under at least the same level of authentication requirements as accessing the metadata or coverage objects themselves.
+For example, if a coverage entry object requires cookie-based authentication to access, then and linked the GeoJSON object must also be accessible using the same cookie-based authentication.
+Servers MAY also choose to also make those resources available publicly, where any included authentication in the request is ignored.
+If the metadata or coverage object is made available publicly, then the linked resource must also be accessible publicly.</p>
+
+<h3 id="82-rate-limiting-">8.2. Rate Limiting <a id="rate-limiting" href="#rate-limiting" class="permalink">🔗</a></h3>
+
+<p>For <a href="#metadata-well-known-uri">well-known metadata endpoints</a> and other publicly accessible metadata and coverage endpoints, Serves SHOULD configure rate limiting restrictions so that bots and misconfigured scripts will not flood and overwhelm the endpoints with requests, while still allowing legitimate and low-volume requests have access to the endpoints.</p>
+
+<h2 id="9-references-">9. References <a id="references" href="#references" class="permalink">🔗</a></h2>
+
+<p><a id="ref-https" href="#ref-https" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">HTTPS</code> - Section 4.2.2. https URI Scheme, “HTTP Semantics”, RFC 9110, Internet Engineering Task Force (IETF),
+<a href="https://www.rfc-editor.org/rfc/rfc9110#section-4.2.2">https://www.rfc-editor.org/rfc/rfc9110#section-4.2.2</a></p>
+
+<p><a id="ref-request-methods" href="#ref-request-methods" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">Request Methods</code> - Section 9. Methods, “HTTP Semantics”, RFC 9110, Internet Engineering Task Force (IETF),
+<a href="https://www.rfc-editor.org/rfc/rfc9110#section-9">https://www.rfc-editor.org/rfc/rfc9110#section-9</a></p>
+
+<p><a id="ref-status-codes" href="#ref-status-codes" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">Status Codes</code> - Section 15. Status Codes, “HTTP Semantics”, RFC 9110, Internet Engineering Task Force (IETF),
+<a href="https://www.rfc-editor.org/rfc/rfc9110#section-15">https://www.rfc-editor.org/rfc/rfc9110#section-15</a></p>
+
+<p><a id="ref-json" href="#ref-json" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">JSON</code> - “The JavaScript Object Notation (JSON) Data Interchange Format”, RFC 8259, Internet Engineering Task Force (IETF),
+<a href="https://www.rfc-editor.org/rfc/rfc8259">https://www.rfc-editor.org/rfc/rfc8259</a></p>
+
+<p><a id="ref-wellknown-uri" href="#ref-wellknown-uri" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">Well-Known URI</code> - “Defining Well-Known Uniform Resource Identifiers (URIs)”, RFC 5785, Internet Engineering Task Force (IETF),
+<a href="https://www.rfc-editor.org/rfc/rfc5785">https://www.rfc-editor.org/rfc/rfc5785</a></p>
+
+<p><a id="ref-geojson" href="#ref-geojson" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">GeoJSON</code> - Section 3. GeoJSON Object, “The GeoJSON Format”, RFC 7946, Internet Engineering Task Force (IETF),
+<a href="https://datatracker.ietf.org/doc/html/rfc7946#section-3">https://datatracker.ietf.org/doc/html/rfc7946#section-3</a></p>
+
+<p><a id="ref-geojson-coords" href="#ref-geojson-coords" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">GeoJSON Coordinate System</code> - Section 4. Coordinate Reference System, “The GeoJSON Format”, RFC 7946, Internet Engineering Task Force (IETF),
+<a href="https://datatracker.ietf.org/doc/html/rfc7946#section-4">https://datatracker.ietf.org/doc/html/rfc7946#section-4</a></p>
+
+<p><a id="ref-rfc8259-strings" href="#ref-rfc8259-strings" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">RFC 8259 Section 7</code> - Section 7. Strings, “The JavaScript Object Notation (JSON) Data Interchange Format”, RFC 8259, Internet Engineering Task Force (IETF),
+<a href="https://www.rfc-editor.org/rfc/rfc8259#section-7">https://www.rfc-editor.org/rfc/rfc8259#section-7</a></p>
+
+<p><a id="ref-rfc3339-datetime" href="#ref-rfc3339-datetime" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">RFC 3339 Section 5.6</code> - Section 5.6. Internet Date/Time Format, “Date and Time on the Internet: Timestamps”, RFC 3339, Internet Engineering Task Force (IETF),
+<a href="https://datatracker.ietf.org/doc/html/rfc3339#section-5.6">https://datatracker.ietf.org/doc/html/rfc3339#section-5.6</a></p>
+
+<p><a id="ref-rfc3986-url" href="#ref-rfc3986-url" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">RFC 3986 Section 1.1.3</code> - Section 1.1.3. URI, URL, and URN, “Uniform Resource Identifier (URI): Generic Syntax”, RFC 3986, Internet Engineering Task Force (IETF),
+<a href="https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3">https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3</a></p>
+
+<p><a id="ref-rfc6838" href="#ref-rfc6838" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">RFC 6838</code> - “Media Type Specifications and Registration Procedures”, RFC 6838, Internet Engineering Task Force (IETF),
+<a href="https://datatracker.ietf.org/doc/html/rfc6838">https://datatracker.ietf.org/doc/html/rfc6838</a></p>
+
+<p><a id="ref-iso3166" href="#ref-iso3166" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">ISO 3166</code> - “Media Type Specifications and Registration Procedures”, ISO 3166, International Organization for Standardization (ISO),
+<a href="https://www.iso.org/iso-3166-country-codes.html">https://www.iso.org/iso-3166-country-codes.html</a></p>
+
+<p><a id="ref-bcp14" href="#ref-bcp14" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">BCP 14</code> - “Best Current Practice 14”, Internet Engineering Task Force (IETF),
+<a href="https://www.rfc-editor.org/info/bcp14">https://www.rfc-editor.org/info/bcp14</a></p>
+
+<h2 id="10-acknowledgments-">10. Acknowledgments <a id="acknowledgments" href="#acknowledgments" class="permalink">🔗</a></h2>
+
+<p>The authors would like to thank the late Shuli Goodman, who was the Executive Director of LFEnergy, for her incredible leadership in initially organizing the CDS.</p>
+
+<h2 id="11-authors-addresses-">11. Authors’ Addresses <a id="authors-addresses" href="#authors-addresses" class="permalink">🔗</a></h2>
+
+<p>Daniel Roesler<br />
+UtilityAPI<br />
+Email: <a href="mailto:daniel@utilityapi.com">daniel@utilityapi.com</a><br />
+URI: <a href="https://utilityapi.com/">https://utilityapi.com/</a></p>
 
 <hr />
 
