@@ -207,7 +207,7 @@ The following list of strings are an enumerated set of coverage entry types that
 Capability Roles disclose the Server's role in the provision of capabilities covered by the coverage entry.
 The following list of strings are an enumerated set of role types that MAY be set as the `role` value in the coverage entry object.
 
-* `authoritative` - The Server represents the authoritative entity for the capabilities covered by the coverage entry (e.g. the utility itselfis providing the capability).
+* `authoritative` - The Server represents the authoritative entity for the capabilities covered by the coverage entry (e.g. the utility itself is providing the capability).
   Only one Server SHOULD mark itself as `authoritative` for the same coverage and capability, to prevent any abiguity for Clients as to a "source of truth".
 * `official` - The Server represents a contractually obligated or government mandated entity that has an official connection to the `authoritative` entity and is offering funcational capabilities for the `direct` entity in an official capacity (e.g. a state-wide data hub offering customer data access).
   Multiple Servers could mark themselves as `official` for the same coverage and capability if the `authoritative` entity has multiple implementations of capabilities with officially designated service providers or data hubs.
