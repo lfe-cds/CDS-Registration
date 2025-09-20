@@ -21,9 +21,11 @@ abilities to third party entities.
 
 ## Use Cases <a id="use-cases" href="#use-cases" class="permalink">🔗</a>
 
-We have defined several broad categories of [use cases]({{ "/use-cases" | relative_url }}) we will focus on addressing with our specifications.
+We have defined several broad categories of [use cases]({{ "/use-cases" | relative_url }}) we will focus on addressing,
+along with what connectivity protocols will need to be specified to accommodate those use cases.
 
-* Coming soon! See [Issue #1](https://github.com/lfe-cds/CDS-Registration/issues/1) for our progress on finalizing our use cases.
+* `Use Case 1` - [Enabling Initial Configuration for Communication Protocols]({{ "/use-cases" | relative_url }}#initial-configuration)
+* `Use Case 2` - [Enabling Configuration Management for Communication Protocols]({{ "/use-cases" | relative_url }}#configuration-management)
 
 We've also made a list of what data and functionality is specifically [not in scope]({{ "/use-cases" | relative_url }}#not-in-scope).
 
@@ -31,8 +33,8 @@ We've also made a list of what data and functionality is specifically [not in sc
 
 These are the official [specifications]({{ "/specs" | relative_url }}) written by this working group.
 
-* `CDS-WG1-01` - Server Metadata [[Overview]({{ "/specs/cds-wg1-01/overview" | relative_url }})] [[Specification]({{ "/specs/cds-wg1-01" | relative_url }})] `(in progress)`
-* `CDS-WG1-02` - Client Registration [[Overview]({{ "/specs/cds-wg1-02/overview" | relative_url }})] [[Specification]({{ "/specs/cds-wg1-02" | relative_url }})] `(in progress)`
+* `CDS-WG1-01` - Server Metadata [[Overview]({{ "/specs/cds-wg1-01/overview" | relative_url }})] [[Specification]({{ "/specs/cds-wg1-01" | relative_url }})] `(status: draft)`
+* `CDS-WG1-02` - Client Registration [[Overview]({{ "/specs/cds-wg1-02/overview" | relative_url }})] [[Specification]({{ "/specs/cds-wg1-02" | relative_url }})] `(status: draft)`
 
 If you would like to contribute to these specifications, please see our docs on [Contributing]({{ "/" | relative_url }}#contributing) and [Design Principles]({{ "specs/design-principles" | relative_url }}).
 
