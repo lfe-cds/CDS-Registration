@@ -595,6 +595,10 @@ The Client listing request responses are formatted as JSON objects and contain t
 * `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Clients.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
+Servers MUST support Clients adding any of the following URL parameters to the `GET` request, which will filter the list of Client objects to be the intersection of results for each of the URL parameters filters:
+
+* `client_ids` - A space-separated list of `client_id` values for which the Servers MUST filter the Client objects.
+
 Listings of Client objects MUST be ordered in reverse chronological order by `cds_modified` timestamp, where the most recently updated relevant Client MUST be first in each listing.
 
 For Client objects in the listing that are added, removed, or modified by the Server or Client after initial registration, Servers MUST add a message to the [listed Messages](#messages-list) notifiying the Client that a Client object has been added, removed, or modified.
@@ -664,6 +668,7 @@ The Messages API endpoints are authenticated using a Bearer `access_token` obtai
 
 Message objects are formatted as JSON objects and contain the following named values:
 
+* `message_id` - _[string](#string)_ - (REQUIRED) The unique identifier for the Message on the Server's system.
 * `uri` - _[URL](#url)_ - (REQUIRED) Where to retrieve or modify this specific Message object.
 * `previous_uri` - _[URL](#url) or `null`_ - (REQUIRED) Where to find the previous Message to which this Message has been created as a reply.
 * `type` - _[ClientMessageType](#message-types)_ - (REQUIRED) The type of Message.
@@ -783,6 +788,10 @@ The Message listing request responses are formatted as JSON objects and contain 
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
 * `read_previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of read Messages.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
+
+Servers MUST support Clients adding any of the following URL parameters to the `GET` request, which will filter the list of Messages to be the intersection of results for each of the URL parameters filters:
+
+* `message_ids` - A space-separated list of `message_id` values for which the Servers MUST filter the Messages.
 
 Responses to `outstanding_next`, `outstanding_previous`, `unread_next`, `unread_previous`, `read_next`, or `read_previous` MUST be formatted the same as the initial Message listing, and MUST only include listings for the relevant next segment.
 For example, if the Client requests a `unread_next`, the Server's response MUST have `outstanding` and `read` lists be empty lists (`[]`).
@@ -1021,6 +1030,7 @@ The Grant listing request responses are formatted as JSON objects and contain th
 
 Servers MUST support Clients adding any of the following URL parameters to the `GET` request, which will filter the list of Grants to be the intersection of results for each of the URL parameters filters:
 
+* `grant_ids` - A space-separated list of `grant_id` values for which the Servers MUST filter the Grants.
 * `statuses` - A space-separated list of `status` values for which the Servers MUST filter the Grants.
 * `client_ids` - A space-separated list of `client_id` values for which the Servers MUST filter the Grants.
 * `cds_client_uris` - A space-separated list of `cds_client_uri` values for which the Servers MUST filter the Grants.
@@ -1094,6 +1104,10 @@ The Server-Provided File listing request responses are formatted as JSON objects
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
 * `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Server-Provided File objects.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
+
+Servers MUST support Clients adding any of the following URL parameters to the `GET` request, which will filter the list of Server-Provided Files to be the intersection of results for each of the URL parameters filters:
+
+* `file_ids` - A space-separated list of `file_id` values for which the Servers MUST filter the Server-Provided Files.
 
 Listings of Server-Provided File objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently updated relevant Server-Provided File object MUST be first in each listing.
 
