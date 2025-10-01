@@ -1227,5 +1227,5 @@ ENCRYPTED_HEADERS_AND_BODY=$(curl -v --include \
 
 # Other Drafts <a id="other-drafts" href="#other-drafts" class="permalink">🔗</a>
 
-* Maintainer's draft: [[Website](https://daniel-utilityapi.github.io/CDS-Registration/specs/cds-wg1-02/overview)] [[Code](https://github.com/daniel-utilityapi/CDS-Registration/blob/main/website/specs/cds-wg1-02/overview.md)]
+* Maintainer's draft: [[Website](https://daniel-roesler.github.io/CDS-Registration/specs/cds-wg1-02/overview)] [[Code](https://github.com/daniel-roesler/CDS-Registration/blob/main/website/specs/cds-wg1-02/overview.md)]
 
