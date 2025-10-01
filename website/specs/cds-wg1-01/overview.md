@@ -118,5 +118,5 @@ Content-Type: application/json;charset=UTF-8
 
 # Other Drafts <a id="other-drafts" href="#other-drafts" class="permalink">🔗</a>
 
-* Maintainer's draft: [[Website](https://daniel-utilityapi.github.io/CDS-Registration/specs/cds-wg1-01/overview)] [[Code](https://github.com/daniel-utilityapi/CDS-Registration/blob/main/website/specs/cds-wg1-01/overview.md)]
+* Maintainer's draft: [[Website](https://daniel-roesler.github.io/CDS-Registration/specs/cds-wg1-01/overview)] [[Code](https://github.com/daniel-roesler/CDS-Registration/blob/main/website/specs/cds-wg1-01/overview.md)]
 
