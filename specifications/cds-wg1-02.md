@@ -10,7 +10,9 @@ This specification defines how utilities and other central entities ("Servers") 
 
 ## Copyright <a id="copyright" href="#copyright" class="permalink">🔗</a>
 
-<span style="background-color:yellow">TODO</span>
+Copyright Joint Development Foundation Projects, LLC, LF Energy Standards and Specifications Series and its contributors ("LFESS").
+All rights reserved.
+For more information, visit [https://lfess.energy/](https://lfess.energy/).
 
 ## Table of Contents <a id="table-of-contents" href="#table-of-contents" class="permalink">🔗</a>
 
@@ -714,6 +716,7 @@ Message object `status` values MUST be one of the following:
 
 * `complete` - For Messages with `type` values of `notification`, `private_message`, or `client_submission`, the `status` MUST be set as `complete`.
   For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
+  For Messages with a `type` value of `grant_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `grant_list` and `related_uri` to link to Grants API [listing](#grants-list) with URL parameters that filter to only the relevant Grants.
 * `open` - For Messages with `type` values of `server_request` or `payment_request`, this represents that the Client has not yet submitted a response to the Server's submission or payment request.
 * `pending` - For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's technical support request, field changes, submission, or payment.
 * `rejected` - For Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested field changes, submission, or payment.
