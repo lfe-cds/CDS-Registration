@@ -692,7 +692,7 @@ Message objects are formatted as JSON objects and contain the following named va
   If the Message `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
   If the Message `type` is `payment_request`, this is where the Client can submit their payment to the Server or if paid, a link to the payment receipt.
   If the Message `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
-  If the Message `type` is `grant_request`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assinged to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
+  If the Message `type` is `grant_request` and `creator` is not `null`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assinged to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
 * `related_type` - _[ClientMessageRelatedType](#message-related-types)_ - (OPTIONAL) The type of object or resource linked to by the `related_uri`.
   If `related_uri` is included, this field is REQUIRED.
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Message `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
@@ -724,7 +724,8 @@ Message object `status` values MUST be one of the following:
   For Messages with a `type` value of `grant_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `grant_list` and `related_uri` to link to Grants API [listing](#grants-list) with URL parameters that filter to only the relevant Grants.
 * `open` - For Messages with `type` values of `server_request` or `payment_request`, this represents that the Client has not yet submitted a response to the Server's submission or payment request.
 * `pending` - For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's technical support request, field changes, submission, or payment.
-* `rejected` - For Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested field changes, submission, or payment.
+* `rejected` - For Messages with `type` values of `field_changes`, `server_request`, `grant_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested field changes, submission, grant, or payment.
+  When Servers create a rejected Message, the Server's created Message MUST contain information in the `description` field on why the Message that was created by the Client, typically linked by the `previous_uri` field, was rejected.
 * `errored` - For Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
   The Client is RECOMMENDED to submit a `support_request` Messages with the `related_uri` as the relevant errored Message's `uri`.
 
@@ -801,19 +802,24 @@ Listings of Message objects MUST be ordered in reverse chronological order by `m
 ### 6.8. Creating Messages <a id="messages-create" href="#messages-create" class="permalink">🔗</a>
 
 Clients create new Messages by sending an authenticated HTTPS `POST` request to the `cds_messages_api` endpoint with the body of the request formatted a JSON object.
+
 The fields included in JSON object MUST include the following:
 
 * `previous_uri` - _[URL](#url) or `null`_ - If submitting a Message with a `type` value of `client_submission`, this value MUST be the Message `uri` that this Message is being submitted in response to (i.e. must have a `type` value of `server_request`).
   If submitting a Message with a `type` value of `support_request` or `private_message`, if the Client is responding to a previous Message, this value MUST be the Message `uri` of that Message.
   If submitting a Message with a `type` value of `support_request` or `private_message` that is not responding to another specific Message, this value MUST be `null`.
-* `type` - _[ClientMessageType](#message-types)_ - This value MUST be one of `private_message`, `support_request`, or `client_submission`.
+* `type` - _[ClientMessageType](#message-types)_ - This value MUST be one of `private_message`, `support_request`, `grant_request`, or `client_submission`.
 * `name` - _[string](#string)_ - If submitting a Message with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
   If submitting a Message with a `type` value of `support_request` or `private_message`, this value MUST be the subject line of the message.
 * `description` - _[string](#string)_ - If submitting a Message with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
   If submitting a Message with a `type` value of `support_request` or `private_message`, this value MUST be the body of the message.
-* `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - If submitting a Client Update with a `type` value of `client_submission`, this value MUST be a list of [Client Update Request](#client-update-request-format) objects with `field` values matching the `field` values in the corresponding `server_request` Client Update Request objects, and `description` or `submitted_uri` values being the Client's submission response to the Server's request for that `field`.
+
+The fields included in JSON object MAY include the following:
+
+* `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - If submitting a Client Update with a `type` value of `client_submission`, this is required and MUST be a list of [Client Update Request](#client-update-request-format) objects with `field` values matching the `field` values in the corresponding `server_request` Client Update Request objects, and `description` or `submitted_uri` values being the Client's submission response to the Server's request for that `field`.
+* `grants_requested` - _Array[[ClientGrantRequest](#client-grant-request-format)]_ - If submitting a Client Update with a `type` value of `grant_request`, this is required and MUST be a list of [Client Grant Request](#client-grant-request-format) objects.
 * `related_uri` - _[URL](#url) or `null`_ - If submitting a Message with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
-  If there is no relevant API endpoint, the Client MUST set this value as `null`.
+  If there is no relevant API endpoint, the Client MUST not include this field.
 
 Servers MUST reject requests with a `400 Bad Request` response when a Client submits an incomplete request or the submitted values are invalid.
 For valid `POST` requests from Clients, Servers MUST respond with a `201 Created` response with a JSON object of the complete newly created Message object.
@@ -825,9 +831,11 @@ When committing Messages created by Clients, Servers MUST populate the following
 * `created` - _[datetime](#datetime)_ - Always set to the Server's timestamp for when the Message was created.
 * `modified` - _[datetime](#datetime)_ - Always the same as `created`.
 * `status` - _[ClientMessageStatus](#message-statuses)_ - For `type` values of `private_message` or `client_submission`, this value MUST be `complete`.
-  For `type` values of `support_request`, this value MUST be `pending`.
+  For `type` values of `support_request` and `grant_request`, this value MUST be `pending`.
 
 When Clients submit Messages with `type` value of `client_submission`, if the Message referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Message to `pending`, which indicates that the Client has submitted a response for Server review.
+
+When Clients submit Messages with `type` value of `grant_request`, Servers MUST review `grants_requested` values and create a new Message replying to the Client with `type` value of `grant_request`, `previous_uri` value of the Clients grant request Message `uri`, and `status` of `pending` (if the Server has not yet determined whether to create the requested grants), `complete` (if the request is approved and Grants have been created), or `rejected` (if the request is rejected for any reason).
 
 ### 6.9. Retrieving Individual Messages <a id="messages-get" href="#messages-get" class="permalink">🔗</a>
 
