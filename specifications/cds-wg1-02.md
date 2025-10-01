@@ -48,10 +48,11 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
     * [6.4. Message Related Types](#message-related-types)  
     * [6.5. Client Update Request Object Format](#client-update-request-format)  
     * [6.6. Client Grant Request Object Format](#client-grant-request-format)  
-    * [6.7. Listing Messages](#messages-list)  
-    * [6.8. Creating Messages](#messages-create)  
-    * [6.9. Retrieving Individual Messages](#messages-get)
-    * [6.10. Modifying Messages](#messages-modify)  
+    * [6.7. Message Attachment Object Format](#message-attachment-format)  
+    * [6.8. Listing Messages](#messages-list)  
+    * [6.9. Creating Messages](#messages-create)  
+    * [6.10. Retrieving Individual Messages](#messages-get)
+    * [6.11. Modifying Messages](#messages-modify)  
 * [7. Credentials API](#credentials-api)  
     * [7.1. Credentials Object Format](#credentials-format)  
     * [7.2. Credentials Types](#credentials-types)  
@@ -687,6 +688,11 @@ Message objects are formatted as JSON objects and contain the following named va
   This field is required for Messages with a `type` value of `field_changes` or `server_request`.
 * `grants_requested` - _Array[[ClientGrantRequest](#client-grant-request-format)]_ - (OPTIONAL) The list of grants with their parameters that a Client has requested to be issued by the Server.
   This field is required for Messages with a `type` value of `grant_request`.
+* `attachments` - _Array[[MessageAttachment](#message-attachment-format)]_ - (OPTIONAL) A list of file attachments associated with the Message.
+  Message attachments are intended to allow Clients and Servers to attach relatively small unstructured files, such as PDF documents, to their messages that are relevant.
+  For example, a Client MAY attach a letter of authorization scanned PDF as part their `grant_request` Message.
+  Message attachments are not intended to provide a means for repeatedly transferring structured data or large amounts of data.
+  It is RECOMMNEDED that Servers prefer to share files via the [Server-Provided Files API](#server-provided-files-api) or other relevant APIs and only use Message attachments when the attachment is relatively small in size and only relevant to the Message.
 * `related_uri` - _[URL](#url) or `null`_ - (OPTIONAL) If the Message `type` is `notification` or `private_message`, this value is where the Client can find more information, if available.
   If the Message `type` is `support_request`, this value is a relevant URL for which the Client is requesting technical support.
   If the Message `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
@@ -769,7 +775,15 @@ Client Grant Request objects are formatted as JSON objects and contain the follo
 * `scope` - _[string](#string)_ - (REQUIRED) The OAuth scope string being requested for the Grant.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](https://www.rfc-editor.org/rfc/rfc9396#section-7.1)]_ - (OPTIONAL) The OAuth authorization details, if any, to further specify the grant's requested scope.
 
-### 6.7. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>
+### 6.7. Message Attachment Object Format <a id="message-attachment-format" href="#message-attachment-format" class="permalink">🔗</a>
+
+Message Attachment objects are formatted as JSON objects and contain the following named values:
+
+* `filename` - _[string](#string)_ - (REQUIRED) The attached file's name.
+* `mime_type` - _[string](#string)_ - (REQUIRED) The attached file's content type. For example, an attached PDF file would have a `mime_type` of `application/pdf`. Unknown file content types MUST have a `mime_type` value of `application/octet-stream`.
+* `data` - _[string](#string)_ - (REQUIRED) A Base-64 encoded string of the file's data.
+
+### 6.8. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>
 
 Clients may request to list Message objects that they have access to by making an HTTPS `GET` request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_messages_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Message listing request responses are formatted as JSON objects and contain the following named values.
@@ -799,7 +813,7 @@ For example, if the Client requests a `unread_next`, the Server's response MUST 
 
 Listings of Message objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently modified relevant Message MUST be first in each listing.
 
-### 6.8. Creating Messages <a id="messages-create" href="#messages-create" class="permalink">🔗</a>
+### 6.9. Creating Messages <a id="messages-create" href="#messages-create" class="permalink">🔗</a>
 
 Clients create new Messages by sending an authenticated HTTPS `POST` request to the `cds_messages_api` endpoint with the body of the request formatted a JSON object.
 
@@ -821,7 +835,8 @@ The fields included in JSON object MAY include the following:
 * `related_uri` - _[URL](#url) or `null`_ - If submitting a Message with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
   If there is no relevant API endpoint, the Client MUST not include this field.
 
-Servers MUST reject requests with a `400 Bad Request` response when a Client submits an incomplete request or the submitted values are invalid.
+Servers MUST reject requests with a `400 Bad Request` response when a Client submits an incomplete request, the submitted values are invalid.
+Servers MUST reject requests with a `413 Content Too Large` response when a Client submits a Message with attachments that exceed the Server's submission size limit, which MUST be equal to or greater than 10 megabytes.
 For valid `POST` requests from Clients, Servers MUST respond with a `201 Created` response with a JSON object of the complete newly created Message object.
 When committing Messages created by Clients, Servers MUST populate the following fields in addition to the Client's submitted fields:
 
@@ -837,11 +852,11 @@ When Clients submit Messages with `type` value of `client_submission`, if the Me
 
 When Clients submit Messages with `type` value of `grant_request`, Servers MUST review `grants_requested` values and create a new Message replying to the Client with `type` value of `grant_request`, `previous_uri` value of the Clients grant request Message `uri`, and `status` of `pending` (if the Server has not yet determined whether to create the requested grants), `complete` (if the request is approved and Grants have been created), or `rejected` (if the request is rejected for any reason).
 
-### 6.9. Retrieving Individual Messages <a id="messages-get" href="#messages-get" class="permalink">🔗</a>
+### 6.10. Retrieving Individual Messages <a id="messages-get" href="#messages-get" class="permalink">🔗</a>
 
 The URL to be used to send `GET` requests for retrieving individual Message objects MUST be the Message `uri` provided in the [Message object](#message-format).
 
-### 6.10. Modifying Messages <a id="messages-modify" href="#messages-modify" class="permalink">🔗</a>
+### 6.11. Modifying Messages <a id="messages-modify" href="#messages-modify" class="permalink">🔗</a>
 
 Clients may modify fields in a Messages object by sending an authenticated HTTPS `PATCH` request to the Message `uri` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to modify with the submitted fields' values.
