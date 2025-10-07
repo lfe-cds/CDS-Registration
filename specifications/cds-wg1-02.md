@@ -72,6 +72,11 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
     * [9.3. Retrieving Individual Server-Provided Files](#server-provided-files-get)  
 * [10. Extensions](#extensions)  
 * [11. Examples](#examples)  
+    * [11.1. CDS Server Metadata](#example-cds-server-metadata)  
+    * [11.2. Authorization Server Metadata](#example-auth-server-metadata)  
+    * [11.3. Client Registration Request](#example-client-registration)  
+    * [11.4. Client List](#example-client-list)  
+    * [11.5. Creating a Message](#example-message-create)  
 * [12. Security Considerations](#security)  
     * [12.1. Scopes and Client Management](#scopes-client-management)  
     * [12.2. Restricted Access](#restricted-access)  
@@ -522,7 +527,7 @@ Servers MUST NOT create Clients that have both `production` and `sandbox` values
 For situations where Servers do not initially create a Client with `production` as a `cds_status_option`, such as when the Server has a manual review step, Servers MUST create a Client object with `sandbox` as a `cds_status_option` so that Clients MAY being to test their applications immediately after registration.
 Then, later if and when the Server decides to allow the Client access to the production environment, the Server MUST create a new Client object with `production` as a `cds_status_option`.
 
-While Servers MAY support OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)] by including the `registration_client_uri` and `registration_access_token` values in their registration response, this specification requires that Servers MUST support the [Clients API](clients-api) by including the `cds_clients_api` value in the [Authorization Server Metadata](#auth-server-metadata-format) as a way for Clients to manage their registrations.
+While Servers MAY support OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)] by including the `registration_client_uri` and `registration_access_token` values in their registration response, this specification requires that Servers MUST support the [Clients API](#clients-api) by including the `cds_clients_api` value in the [Authorization Server Metadata](#auth-server-metadata-format) as a way for Clients to manage their registrations.
 The Clients API is needed beyond the OAuth Dynamic Client Registration Management Protocol because as part of registration, Servers create multiple Clients that group the various registered scopes, and OAuth's Dynamic Client Registration Management Protocol does not support APIs for listing multiple clients or credentials that are created from a single registration request.
 
 ## 5. Clients API <a id="clients-api" href="#clients-api" class="permalink">🔗</a>
@@ -559,7 +564,7 @@ The following fields MUST NOT be included, since it is moved to the [Credentials
 
 * `client_secret_expires_at`
 
-Other fields defined in the OAuth's Client Metadata [[RFC 7591 Section 2](#ref-rfc7591-client-metadata)] and its extensions, such as OAuth's Client Information Response [[RFC 7592 Section 3](#ref-rfc7592-client-metadata), remain unmodified in their requirement and behavior.
+Other fields defined in the OAuth's Client Metadata [[RFC 7591 Section 2](#ref-rfc7591-client-metadata)] and its extensions, such as OAuth's Client Information Response [[RFC 7592 Section 3](#ref-rfc7592-client-metadata)], remain unmodified in their requirement and behavior.
 
 In addition to the fields defined by OAuth's Client Metadata [[RFC 7591 Section 2](#ref-rfc7591-client-metadata)] and its extensions, the following fields are additionally defined:
 
@@ -1164,11 +1169,322 @@ When extending enumerated list, other specifications or Server documentation MUS
 The additional string MUST be specified with a description of what that string means when it is included in the relevant array.
 
 To facilitate forwards compatibility, Clients MUST ignore unknown or undocumented object fields and enumerated strings.
-If a Client cannot provide adequate functionality based on too many unknown or undocumented object fields or enumerated strings, the Client SHOULD refer to the Server's technical documentation (the `documentation` value in the metadata object) or contact the Server's technical support (via the `support` value in the metadata object).
+If a Client cannot provide adequate functionality based on too many unknown or undocumented object fields or enumerated strings, the Client SHOULD refer to the Server's technical documentation linked in the `documentation` value of the CDS Server Metadata object [[CDS-WG1-01 Section 3.2(#ref-cds-wg1-01-metadata-object)] or contact the Server's technical support (via the `support` value in the metadata object).
 
 ## 11. Examples <a id="examples" href="#examples" class="permalink">🔗</a>
 
-<span style="background-color:yellow">TODO</span>
+### 11.1. CDS Server Metadata <a id="example-cds-server-metadata" href="#example-cds-server-metadata" class="permalink">🔗</a>
+
+The following is a non-normative example of requesting a CDS Server Metadata object that includes this specification's [`oauth` capability](#auth-server-metadata-url).
+
+```
+==Request==
+GET /.well-known/cds-server-metadata.json HTTP/1.1
+Host: example.com
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "cds_metadata_version": "v1",
+    "cds_metadata_url": "https://example.com/.well-known/cds-server-metadata.json",
+    "created": "2022-01-01T00:00:00Z",
+    "updated": "2022-06-01T00:00:00Z",
+    "name": "Example Data Hub",
+    "description": "A fictional regional data hub that offers information about the region's utilities.",
+    "website": "https://example.com/data-access",
+    "documentation": "https://example.com/docs",
+    "support": "https://example.com/developers/contact",
+    "capabilities": [
+        "coverage",
+        "oauth"
+    ],
+    "coverage": "https://example.com/cds-coverage.json",
+    "oauth_metadata": "https://example.com/.well-known/oauth-authorization-server"
+}
+```
+
+### 11.2. Authorization Server Metadata <a id="example-auth-server-metadata" href="#example-auth-server-metadata" class="permalink">🔗</a>
+
+The following is a non-normative example of requesting the [Authorization Server Metadata object](#auth-server-metadata-format).
+
+```
+==Request==
+GET /.well-known/oauth-authorization-server HTTP/1.1
+Host: example.com
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "issuer": "https://example.com",
+    "service_documentation": "https://example.com/docs/oauth",
+    "op_policy_uri": "https://example.com/legal/oauth-policy",
+    "op_tos_uri": "https://example.com/legal/oauth-terms",
+    "registration_endpoint": "https://example.com/oauth/register",
+    "authorization_endpoint": "https://example.com/oauth/authorize",
+    "token_endpoint": "https://example.com/oauth/token",
+    "revocation_endpoint": "https://example.com/oauth/token/revoke",
+    "introspection_endpoint": "https://example.com/oauth/token/info",
+    "pushed_authorization_request_endpoint": "https://example.com/oauth/par",
+    "code_challenge_methods_supported": ["S256"],
+    "response_types_supported": ["code"],
+    "grant_types_supported": ["client_credentials", "authorization_code", "refresh_token"],
+    "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+    "scopes_supported": ["client_admin", "grant_admin", "server_provided_files", "example_custom"],
+    "authorization_details_types_supported": ["client_admin", "grant_admin", "server_provided_files", "example_custom"],
+    "cds_oauth_version": "v1",
+    "cds_human_registration": "https://example.com/clients/register",
+    "cds_test_accounts": "https://example.com/docs/testing",
+    "cds_clients_api": "https://example.com/api/clients",
+    "cds_messages_api": "https://example.com/api/messages",
+    "cds_credentials_api": "https://example.com/api/credentials",
+    "cds_grants_api": "https://example.com/api/grants",
+    "cds_server_provided_files_api": "https://example.com/api/server-provided-files"
+    "cds_scope_descriptions": {
+        "client_admin": {
+            "id": "client_admin",
+            "name": "Client Admin",
+            "description": "This scope grants administrative access to the Client management APIs.",
+            "documentation": "https://example.com/docs/oauth/scopes#client_admin",
+            "registration_requirements": [],
+            "response_types_supported": [],
+            "grant_types_supported": ["client_credentials"],
+            "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+            "code_challenge_methods_supported": [],
+            "coverages_supported": [],
+            "authorization_details_fields": []
+        },
+        "grant_admin": {
+            "id": "grant_admin",
+            "name": "Grant Admin",
+            "description": "This scope grants administrative access to previously created Grants.",
+            "documentation": "https://example.com/docs/oauth/scopes#grant_admin",
+            "registration_requirements": [],
+            "response_types_supported": [],
+            "grant_types_supported": ["client_credentials"],
+            "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+            "code_challenge_methods_supported": [],
+            "coverages_supported": [],
+            "authorization_details_fields": [
+                {
+                    "id": "client_id",
+                    "name": "Client object identifier",
+                    "description": "The Client object identifier for which the Grant is issued.",
+                    "documentation": "https://example.com/docs/oauth/scopes#grant_admin-client_id",
+                    "format": "string",
+                    "is_required": true,
+                },
+                {
+                    "id": "grant_id",
+                    "name": "Grant identifier",
+                    "description": "The Grant identifier for which the returned access_token will be given access.",
+                    "documentation": "https://example.com/docs/oauth/scopes#grant_admin-grant_id",
+                    "format": "string",
+                    "is_required": true,
+                }
+            ]
+        },
+        "server_provided_files": {
+            "id": "server_provided_files",
+            "name": "Server-Provided Files",
+            "description": "This scope grants access to specific files that the Server wants make available to the Client.",
+            "documentation": "https://example.com/docs/oauth/scopes#grant_admin",
+            "registration_requirements": [],
+            "response_types_supported": [],
+            "grant_types_supported": ["client_credentials"],
+            "token_endpoint_auth_methods_supported": [],
+            "code_challenge_methods_supported": [],
+            "coverages_supported": [],
+            "authorization_details_fields": [
+                {
+                    "id": "file_id",
+                    "name": "File identifier",
+                    "description": "A file provided by the Server that may be accessed by the Client as part of the Grant.",
+                    "documentation": "https://example.com/docs/oauth/scopes#server_provided_files-file_id",
+                    "format": "string",
+                    "is_required": true,
+                }
+            ]
+        },
+        "server_provided_files": {
+            "id": "example_custom",
+            "name": "Custom Scope",
+            "description": "This scope is an example for a Server-defined custom authorization scope.",
+            "documentation": "https://example.com/docs/oauth/scopes#example_custom",
+            "registration_requirements": ["company_name"],
+            "response_types_supported": ["code"],
+            "grant_types_supported": ["authorization_code", "refresh_token"],
+            "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+            "code_challenge_methods_supported": ["S256"],
+            "coverages_supported": ["coverage123"],
+            "authorization_details_fields": []
+        }
+    },
+    "cds_registration_fields": {
+        "company_name": {
+            "id": "company_name",
+            "type": "registration_field",
+            "field_name": "cds_company_name",
+            "description": "The company name to display on the authorization request form",
+            "documentation": "https://example.com/docs/oauth/registration#company_name",
+            "format": "string",
+            "max_length": 1024
+        },
+    },
+}
+```
+
+### 11.3. Client Registration Request <a id="example-client-registration" href="#example-client-registration" class="permalink">🔗</a>
+
+The following is a non-normative example of a Client submitting a [Client Registration Request](#registration-request).
+
+```
+==Request==
+POST /oauth/register HTTP/1.1
+Host: example.com
+
+{
+    "scope": "client_admin grant_admin example_custom",
+    "client_name": "My App Name",
+    "cds_company_name": "My Company Name"
+}
+
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "client_id": "aaf026921707f5d5",
+    "client_id_issued_at": 2893256800,
+    "scope": "client_admin",
+    "redirect_uris": [],
+    "response_types": [],
+    "grant_types": ["client_credentials"],
+    "token_endpoint_auth_method": ["client_secret_basic"],
+    "client_secret": "Q3VpGy7k6Mj9Yc-F1wtujttAq2HiEel8O1Ie5zEw00AslNsoUU3SMzKPeRPZgqA6dMW3jSvZQ_O0iWpQRa1NaQ",
+    "client_name": "My App Name",
+    "cds_company_name": "My Company Name",
+    "authorization_details_types": ["client_admin"],
+    "cds_created": "2022-01-01T00:00:00Z",
+    "cds_modified": "2022-01-01T00:00:00Z",
+    "cds_client_uri": "https://example.com/api/clients/aaf026921707f5d5",
+    "cds_status": "production",
+    "cds_status_options": ["production"],
+    "cds_server_metadata": "https://example.com/api/clients/aaf026921707f5d5/cds-server-metadata",
+}
+```
+
+### 11.4. Client List <a id="example-client-list" href="#example-client-list" class="permalink">🔗</a>
+
+The following is a non-normative example of a Client loading their list of Client objects via the [Clients API](#clients-api).
+
+```
+==Request==
+GET /api/clients HTTP/1.1
+Host: example.com
+Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "clients": [
+        {
+            "client_id": "aaf026921707f5d5",
+            "client_id_issued_at": 2893256800,
+            "scope": "client_admin",
+            "redirect_uris": [],
+            "response_types": [],
+            "grant_types": ["client_credentials"],
+            "token_endpoint_auth_method": ["client_secret_basic"],
+            "client_name": "My App Name",
+            "cds_company_name": "My Company Name",
+            "authorization_details_types": ["client_admin"],
+            "cds_created": "2022-01-01T00:00:00Z",
+            "cds_modified": "2022-01-01T00:00:00Z",
+            "cds_client_uri": "https://example.com/api/clients/aaf026921707f5d5",
+            "cds_status": "production",
+            "cds_status_options": ["production"],
+            "cds_server_metadata": "https://example.com/api/clients/aaf026921707f5d5/cds-server-metadata",
+        },
+        {
+            "client_id": "22bb40b5b823fa8c",
+            "client_id_issued_at": 2893256800,
+            "scope": "grant_admin",
+            "redirect_uris": [],
+            "response_types": [],
+            "grant_types": ["client_credentials"],
+            "token_endpoint_auth_method": ["client_secret_basic"],
+            "authorization_details_types": ["grant_admin"],
+            "cds_created": "2022-01-01T00:00:00Z",
+            "cds_modified": "2022-01-01T00:00:00Z",
+            "cds_client_uri": "https://example.com/api/clients/22bb40b5b823fa8c",
+            "cds_status": "production",
+            "cds_status_options": ["production"],
+            "cds_server_metadata": "https://example.com/api/clients/22bb40b5b823fa8c/cds-server-metadata",
+        },
+        {
+            "client_id": "af653d57fa364da5",
+            "client_id_issued_at": 2893256800,
+            "scope": "example_custom",
+            "redirect_uris": ["https://example.com/oauth/default-redirect"],
+            "response_types": ["code"],
+            "grant_types": ["client_credentials"],
+            "token_endpoint_auth_method": ["client_secret_basic"],
+            "authorization_details_types": ["example_custom"],
+            "cds_created": "2022-01-01T00:00:00Z",
+            "cds_modified": "2022-01-01T00:00:00Z",
+            "cds_client_uri": "https://example.com/api/clients/af653d57fa364da5",
+            "cds_status": "sandbox",
+            "cds_status_options": ["sandbox", "disabled"],
+            "cds_server_metadata": "https://example.com/api/clients/af653d57fa364da5/cds-server-metadata",
+        }
+    ],
+    "next": null,
+    "previous": null
+}
+```
+
+### 11.5. Creating a Message <a id="example-message-create" href="#example-message-create" class="permalink">🔗</a>
+
+The following is a non-normative example of a Client creating a Message via the [Messages API](#messages-api).
+
+```
+==Request==
+POST /api/messages HTTP/1.1
+Host: example.com
+Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+
+{
+    "type": "private_message",
+    "name": "My Subject",
+    "description": "Hello World!"
+}
+
+
+==Response==
+HTTP/1.1 201 Created
+Content-Type: application/json;charset=UTF-8
+
+{
+    "message_id": "00d1852055088ae7",
+    "uri": "https://example.com/api/messages/00d1852055088ae7",
+    "previous_uri": null,
+    "type": "private_message",
+    "read": true,
+    "creator": "aaf026921707f5d5",
+    "created": "2022-01-01T00:00:00Z",
+    "modified": "2022-01-01T00:00:00Z",
+    "status": "complete",
+    "name": "My Subject",
+    "description": "Hello World!"
+}
+```
 
 ## 12. Security Considerations <a id="security" href="#security" class="permalink">🔗</a>
 
