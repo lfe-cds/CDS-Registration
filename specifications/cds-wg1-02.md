@@ -73,8 +73,9 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
 * [10. Extensions](#extensions)  
 * [11. Examples](#examples)  
 * [12. Security Considerations](#security)  
-    * [11.1. Restricted Access](#restricted-access)  
-    * [11.2. Rate Limiting](#rate-limiting)  
+    * [12.1. Scopes and Client Management](#scopes-client-management)  
+    * [12.2. Restricted Access](#restricted-access)  
+    * [12.3. Rate Limiting](#rate-limiting)  
 * [13. References](#references)  
 * [14. Acknowledgments](#acknowledgments)  
 * [15. Authors' Addresses](#authors-addresses)  
@@ -465,7 +466,7 @@ The following list of strings are an enumerated set of authorization details fie
 * `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Authorization Details Field Choice](#auth-details-field-choice-format) objects.
 * `jwk_or_null` - A [JWK Public Encryption Key](#jwk-enc) object or `null`.
 
-### 3.10. Authorization Details Field Choice Object Format <a id="auth-details-field-choice-format" href="#auth-details-field-formats" class="permalink">🔗</a>
+### 3.10. Authorization Details Field Choice Object Format <a id="auth-details-field-choice-format" href="#auth-details-field-choice-format" class="permalink">🔗</a>
 
 Authorization Details Field Choice objects are formatted as JSON objects and contain named values.
 The following values are included in the default list available in Authorization Details Field Choice objects.
@@ -907,15 +908,11 @@ Credentials objects are formatted as JSON objects and contain the following name
   If the Client object refrenced by the `client_id` has a status of `disabled`, this value MUST be set to the time when the Client object was most recently disabled.
   This field MUST be included if the `type` is `client_secret`.
 
-Other specifications MAY extend this set of fields to add additional Credential fields.
-
 ### 7.2. Credentials Types <a id="credentials-types" href="#credentials-types" class="permalink">🔗</a>
 
 Credential object `type` values MUST be one of the following:
 
 * `client_secret` - The Credential is a shared secret string string in the `client_secret` value on the Credential object.
-
-Other specifications MAY extend this list to add additional Credential types.
 
 ### 7.3. Listing Credentials <a id="credentials-list" href="#credentials-list" class="permalink">🔗</a>
 
@@ -1151,23 +1148,44 @@ Listings of Server-Provided File objects MUST be ordered in reverse chronologica
 
 The URL to be used to send [GET](#get) requests for retrieving individual Server-Provided File objects MUST be the Server-Provided File `uri` provided in the [Message object](#message-format).
 
-## 11. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a>
+## 10. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a>
+
+Other specifications and Servers MAY extend this specification to as necessary to address their use cases.
+Other specifications and Servers MUST NOT remove required parts of this specification in their specifications or implementations.
+
+[Scopes Supported](#scopes) MAY be extended to add additional scope values and definitions, according to the requirements listed in [Section 3.3](#scopes).
+
+[Metadata Object](#auth-server-metadata-format), [Scope Descriptions Object](#scope-descriptions-format), [Registration Field Object](#registration-field-format), [Authorization Details Field Object](#auth-details-fields-format), [Authorization Details Field Choice Object](#auth-details-field-choice-format), [Client Object](#client-format), [Client Listing](#clients-list), [Message Object](#message-format), [Client Update Request Object](#client-update-request-format), [Client Grant Request Object](#client-grant-request-format), [Message Attachment Object](#message-attachment-format), [Message Listing](#messages-list), [Credential Object](#credentials-format), [Credential Listing](#credentials-list), [Grant Object](#grant-format), [Grant Listing](#grant-list), [Server-Provided Files Object](#server-provided-files-format), and [Server-Provided Files Listing](#server-provided-files-list) MAY be extended to allow for additional fields to be possible in their objects.
+When extending the object format, other specifications or Server documentation MUST reference the relevant section in this specification and denote that they are extending the object to add a new named field.
+The additional field MUST be specified with a general description, the field value's format, and whether the field is REQUIRED or OPTIONAL.
+
+The enumerated lists for valid [Registration Field Types](#registration-field-types), [Registration Field Formats](#registration-field-formats), [Authorization Details Field Formats](#auth-details-field-formats), [Client Statuses](#client-statuses), [Message Types](#message-types), [Message Statuses](#message-statuses), [Message Related Types](#message-related-types), [Credentials Types](#credentials-types), and [Grant Statuses](#grant-statuses) MAY be extended to allow for additional strings to be valid.
+When extending enumerated list, other specifications or Server documentation MUST reference the relevant section in this specification and denote that they are extending the list to add a new string.
+The additional string MUST be specified with a description of what that string means when it is included in the relevant array.
+
+To facilitate forwards compatibility, Clients MUST ignore unknown or undocumented object fields and enumerated strings.
+If a Client cannot provide adequate functionality based on too many unknown or undocumented object fields or enumerated strings, the Client SHOULD refer to the Server's technical documentation (the `documentation` value in the metadata object) or contact the Server's technical support (via the `support` value in the metadata object).
+
+## 11. Examples <a id="examples" href="#examples" class="permalink">🔗</a>
 
 <span style="background-color:yellow">TODO</span>
 
-## 12. Examples <a id="examples" href="#examples" class="permalink">🔗</a>
+## 12. Security Considerations <a id="security" href="#security" class="permalink">🔗</a>
 
-<span style="background-color:yellow">TODO</span>
-
-## 13. Security Considerations <a id="security" href="#security" class="permalink">🔗</a>
-
-This specification describes a protocol by which a utility or other entity (a Server) can allow third parties (Clients) to register and obtain privileged access to the Server's offered capabilities and data.
+This specification describes a protocol by which a utility or other central entity (a Server) can allow external entities (Clients) to register and obtain privileged access to the Server's offered capabilities and data.
 Because the functionality described in this specification enables access to private Server functionality and data, Servers MUST follow industry cybersecurity best practices when securing their implementations of this specification to prevent unintended or inadvertent access to privileged functionality or data to Clients who are not authorized.
 These best practices include requiring [HTTPS](#https) for API endpoints using the latest widely adopted encryption standards, undergoing regular security audits and penetration tests, and internally requiring security-focused process controls and data handling procedures.
 
-<span style="background-color:yellow">TODO: Other security considerations</span>
+### 12.1. Scopes and Client Management <a id="scopes-client-management" href="#scopes-client-management" class="permalink">🔗</a>
 
-### 13.1. Restricted Access <a id="restricted-access" href="#restricted-access" class="permalink">🔗</a>
+Because legal and regulatory requirements are highly diverse across the energy sector, Servers MUST be responsible for only offering scopes allowed by their jurisdictions.
+
+Servers MUST include the appropriate `registration_requirements` values in their [Scope Descriptions](#scope-descriptions-format) for each scope's use case and capabilities to ensure that Clients submit all required disclosures (e.g. contact information) and be appropriately informed about any required steps (e.g. manual review) or payments (e.g. registration fees).
+Servers MUST NOT impose overly burdensome registration requirements beyond what is deemed necessary by the Server's jurisdiction requirements for the type of capabilities or data made available by an offered scope.
+
+Severs MUST be responsible for appropriately monitoring and reviewing the use of registered Clients as necessary for their legal and regulatory jurisdictions.
+
+### 12.2. Restricted Access <a id="restricted-access" href="#restricted-access" class="permalink">🔗</a>
 
 For unauthenticated endpoints ([Authorization Server Metadata](#auth-server-metadata), [Client Registration Process](#client-registration-process)), while Servers can add [rate limiting](#rate-limiting) configurations to protect their systems from being overwhelmed with requests, Servers MUST NOT add anti-bot blocking measures (e.g. captchas) that prevent automated requests from other systems.
 The functionality described in this specification is intended to be able to be integrated in other platforms to allow those platforms to automate interactions with Servers on their users' behalf.
@@ -1178,16 +1196,16 @@ Servers that wish to restrict access of by-default unauthenticated endpoints to 
 This specification does not describe specifically how Servers will authenticate Clients for by-default unauthenticated endpoints, as these restricted access protocols are context dependent.
 For example, if a Server providing a private Client Registration endpoint as part of an existing logged in portal, then they can use that logged in portal's session cookie to authenticate Client requests to the registration endpoint.
 
-For authenticated endpoints ([Clients API](#clients-api), [Messages API](#messages-api), [Credentials API](#credentials-api), [Grants API](#grants-api)), Servers MUST authenticate requests using OAuth's Authorization Request Header Field [[RFC 6750 Section 2.1](#ref-rfc6750-auth-header)] with access tokens obtained using the OAuth 2.0's Issuing an Access Token process [[RFC 6749 Section 5](#ref-rfc6749-access-tokens)].
+For authenticated endpoints ([Clients API](#clients-api), [Messages API](#messages-api), [Credentials API](#credentials-api), [Grants API](#grants-api), [Server-Provided Files API](#server-provided-files-api)), Servers MUST authenticate requests using OAuth's Authorization Request Header Field [[RFC 6750 Section 2.1](#ref-rfc6750-auth-header)] with access tokens obtained using the OAuth 2.0's Issuing an Access Token process [[RFC 6749 Section 5](#ref-rfc6749-access-tokens)].
 
-### 13.2. Rate Limiting <a id="rate-limiting" href="#rate-limiting" class="permalink">🔗</a>
+### 12.3. Rate Limiting <a id="rate-limiting" href="#rate-limiting" class="permalink">🔗</a>
 
 For unauthenticated endpoints ([Authorization Server Metadata](#auth-server-metadata), [Client Registration Process](#client-registration-process)), Servers SHOULD configure rate limiting restrictions so that bots and misconfigured scripts will not flood and overwhelm the endpoints with requests, while still allowing legitimate and low-volume automated requests have access to the endpoints.
 
-For authenticated endpoints ([Clients API](#clients-api), [Messages API](#messages-api), [Credentials API](#credentials-api), [Grants API](#grants-api)), Servers SHOULD configure rate limiting by Client and Credential to ensure that individual Clients do not overwhelm Servers with authenticated API requests.
+For authenticated endpoints ([Clients API](#clients-api), [Messages API](#messages-api), [Credentials API](#credentials-api), [Grants API](#grants-api), [Server-Provided Files API](#server-provided-files-api)), Servers SHOULD configure rate limiting by Client and Credential to ensure that individual Clients do not overwhelm Servers with authenticated API requests.
 Additionally, Servers SHOULD configure rate limiting for unauthenticated or failed authentication requests to authenticated API endpoints to prevent brute force attempts to gain access to authenticated APIs.
 
-## 14. References <a id="references" href="#references" class="permalink">🔗</a>
+## 13. References <a id="references" href="#references" class="permalink">🔗</a>
 
 <a id="ref-cds-wg1-01" href="#ref-cds-wg1-01" class="permalink">🔗</a>
 `CDS-WG1-01` - "Server Metadata", CDS-WG1-01, LF Energy Standards and Specifications (LFESS),  
@@ -1377,11 +1395,11 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 `ISO 4217` - "Currency Codes", ISO 4217, International Organization for Standardization (ISO),  
 [https://www.iso.org/iso-4217-currency-codes.html](https://www.iso.org/iso-4217-currency-codes.html)
 
-## 15. Acknowledgments <a id="acknowledgments" href="#acknowledgments" class="permalink">🔗</a>
+## 14. Acknowledgments <a id="acknowledgments" href="#acknowledgments" class="permalink">🔗</a>
 
 The authors would like to thank the late Shuli Goodman, who was the Executive Director of LFEnergy, for her incredible leadership in initially organizing the CDS.
 
-## 16. Authors' Addresses <a id="authors-addresses" href="#authors-addresses" class="permalink">🔗</a>
+## 15. Authors' Addresses <a id="authors-addresses" href="#authors-addresses" class="permalink">🔗</a>
 
 Daniel Roesler (Primary Author, Working Group Maintainer)  
 Daniel Roesler LLC  
