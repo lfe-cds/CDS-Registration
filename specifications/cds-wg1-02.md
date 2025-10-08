@@ -83,7 +83,7 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
     * [12.3. Rate Limiting](#rate-limiting)  
 * [13. References](#references)  
 * [14. Acknowledgments](#acknowledgments)  
-* [15. Authors' Addresses](#authors-addresses)  
+* [15. Authors](#authors)  
 
 ## 1. Introduction <a id="introduction" href="#introduction" class="permalink">🔗</a>
 
@@ -1715,9 +1715,30 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 
 The authors would like to thank the late Shuli Goodman, who was the Executive Director of LFEnergy, for her incredible leadership in initially organizing the CDS.
 
-## 15. Authors' Addresses <a id="authors-addresses" href="#authors-addresses" class="permalink">🔗</a>
+## 15. Authors <a id="authors" href="#authors" class="permalink">🔗</a>
 
 Daniel Roesler (Primary Author, Working Group Maintainer)  
 Daniel Roesler LLC  
 Email: [daniel@danielroesler.com](mailto:daniel@danielroesler.com)  
 URI: [https://danielroesler.com/](https://danielroesler.com/)
+
+Eloi Fábrega Ferrer (Working Group Contributor)  
+Flexidao  
+Email: [e.ferrer@flexidao.com](mailto:e.ferrer@flexidao.com)  
+URI: [https://flexidao.com/](https://flexidao.com/)
+
+Soazig Kaam (Working Group Contributor)  
+Google  
+Email: [soazig@google.com](mailto:soazig@google.com)  
+URI: [https://google.com/](https://google.com/)
+
+Jordan Hughes (Working Group Contributor)  
+Apple  
+Email: [jhughes22@apple.com](mailto:jhughes22@apple.com)  
+URI: [https://apple.com/](https://apple.com/)
+
+Antara Sargam and Po Ki Chui (Reviewers)  
+Google
+
+Dionna Amalie Glaze (Reviewer)  
+Apple
