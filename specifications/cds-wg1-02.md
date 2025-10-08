@@ -63,9 +63,10 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
 * [8. Grants API](#grants-api)  
     * [8.1. Grant Object Format](#grant-format)  
     * [8.2. Grant Statuses](#grant-statuses)  
-    * [8.3. Listing Grants](#grants-list)  
-    * [8.4. Retrieving Individual Grants](#grants-get)  
-    * [8.5. Modifying Grants](#grants-modify) 
+    * [8.3. Grant Authorization Requests](#grant-authorization-requests)  
+    * [8.4. Listing Grants](#grants-list)  
+    * [8.5. Retrieving Individual Grants](#grants-get)  
+    * [8.6. Modifying Grants](#grants-modify) 
 * [9. Server-Provided Files API](#server-provided-files-api)  
     * [9.1. Server-Provided Files Object Format](#server-provided-files-format)  
     * [9.2. Listing Server-Provided Files](#server-provided-files-list)  
@@ -994,10 +995,10 @@ Grant objects are formatted as JSON objects and contain the following named valu
   If this grant is not superseding any other Grants, this value is an empty list (`[]`).
 * `replaced_by` - _Array[[URL](#url)]_ - (REQUIRED) If this Grant has been superseded by other Grants, this is the list of Grant `uri` values of the superseding Grants.
   If no other Grants have superseded this Grant, this value is an empty list (`[]`).
-* `parent` - _[URL](#url) or `null`_ - (REQUIRED) If this Grant represents an individual sub-authorization that is part of another Grant that required multiple authorizations, this is where to find the parent Grant.
-  If this Grant is not a sub-authorization, this value is `null`.
-* `children` - _Array[[URL](#url)]_ - (REQUIRED) If this Grant represents a parent Grant that has multiple sub-authorizations underneath it, this is a list of Grant `uri` values for where to find the sub-authorizations.
-  If this Grant does not have any sub-authorizations, this value is an empty list (`[]`).
+* `parent` - _[string](#string) or `null`_ - (REQUIRED) If this Grant represents an individual sub-Grant that is part of another Grant that required multiple authorizations, this is the parent Grant's `grant_id` value.
+  If this Grant is not a sub-Grant, this value is `null`.
+* `children` - _Array[[string](#string)]_ - (REQUIRED) If this Grant represents a parent Grant that has multiple sub-Grants underneath it, this is a list of Grant `grant_id` values for each sub-Grant.
+  If this Grant does not have any sub-Grants, this value is an empty list (`[]`).
 * `created` - _[datetime](#datetime)_ - (REQUIRED) When the Grant was created.
 * `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Grant was most recently modified.
   If the Grant has not been modified since creation, this is the same value as `created`.
@@ -1011,7 +1012,6 @@ Grant objects are formatted as JSON objects and contain the following named valu
   If the Grant is to continue indefinitely, this value is `null`.
 * `status` - _[GrantStatus](#grant-status)_ - (REQUIRED) The current [Grant Status](#grant-status) of the Grant.
 * `client_id` - _[string](#string)_ - (REQUIRED) Which Client for which this Grant is issued.
-* `cds_client_uri` - _[URL](#url)_ - (REQUIRED) Where to retrieve using the [Clients API](#clients-get) the Client for which the Grant is issued.
 * `scope` - _[string](#string)_ - (REQUIRED) The scopes for which this Grant has issued access.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](#ref-rfc9396-auth-details)]_ - (REQUIRED) An authorization details list as defined by [[RFC 9396 Section 7.1](#ref-rfc9396-auth-details)] which contains scopes that are granted in addition to this object's `scope` value.
   If no authorization details scopes are configured in addition to the `scope` string, this value is an empty array (`[]`).
@@ -1024,7 +1024,6 @@ Grant objects are formatted as JSON objects and contain the following named valu
 * `enabled_authorization_details` - _Array[[OAuth AuthorizationDetail](#ref-rfc9396-auth-details)]_ - (REQUIRED) For Grants where access has been partially granted, but some access is still disabled, this value is an authorization details list as defined by [[RFC 9396 Section 7.1](#ref-rfc9396-auth-details)] that has the scopes which have been enabled by the server.
   For Grants where access has been fully granted, this value is the same as the `authorization_details` value.
   For Grants that have had their access removed (e.g. `disabled`), this value is an empty list (`[]`).
-* `sub_authorization_scopes` - _Array[[string](#string)]_ - (REQUIRED) For Grants that require sub-authorizations where users must provide additional authorization to enable access, this is the outstanding list of `scope` values that have yet to be authorized individually by users.
 
 ### 8.2. Grant Statuses <a id="grant-statuses" href="#grant-statuses" class="permalink">🔗</a>
 
@@ -1037,8 +1036,9 @@ Grants object `status` values MUST be one of the following:
   While a Grant's status is `pending`, Servers MUST provide access to the granted scope's features or data as the Server processes and the features or data becomes available.
 * `partial` - The Grant was submitted originally with the `scope` and `authorization_details` values, but the Server has limited the Client's access a subset of the Grant's `scope`.
   The enabled access is listed in the `enabled_scope` and `enabled_authorization_details` values.
-* `needs_authorization` - The Grant has been created, but access is limited to the `enabled_scope` and `enabled_authorization_details` until a user authorizes the listed `scope` and `authorization_details` values using an authorization URL with a `cds_grant_id` parameter of this `grant_id`.
-* `needs_sub_authorizations` - The Grant has been created, but access is limited to the `enabled_scope` and `enabled_authorization_details` until user sub-authorizations, listed in the `sub_authorization_scopes` value, are granted using an authorization URL with a `cds_parent_id` parameter of this `grant_id`.
+* `needs_authorization` - The Grant has been created, but access is limited to the `enabled_scope` and `enabled_authorization_details` until a user authorizes the listed `scope` and `authorization_details` values using an authorization URL with a `cds_grant_id` parameter of this `grant_id` as described in [Grant Authorization Requests](#grant-authorization-requests).
+* `needs_sub_grants` - The Grant has been created, but access is limited to the `enabled_scope` and `enabled_authorization_details` until listed `children` Grant objects' `status` values change to an appropriate value determined by the Server for the Grant scope's use case.
+  Servers MUST include in their technical documentation which sub-Grant `status` values are sufficient to meet the critera to address this `needs_sub_grants` status for each scope's use case.
 * `disabled` - The Grant has been indefinitely disabled by the Server, and the Client SHOULD NOT expect the Grant's status to be updated in the future.
 * `suspended` - The Grant has been temporarily disabled by the Server or user who authorized access, and the Client SHOULD expect the Grant's status to be updated in the future.
 * `revoked` - For Grants with scopes that can be obtained via user authorization (`grant_types` contains `authorization_code`), this status means the user has revoked access.
@@ -1052,7 +1052,26 @@ Grants object `status` values MUST be one of the following:
 
 Grant `status` values of `future`, `disabled`, `suspended`, `revoked`, `closed`, and `expired` indicate that access to all features and data that were accessible via this Grant are no longer accessible.
 
-### 8.3. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a>
+### 8.3. Grant Authorization Requests <a id="grant-authorization-requests" href="#grant-authorization-requests" class="permalink">🔗</a>
+
+When a Grant `status` has a value of `needs_authorization`, the Grant needs a user authorization for the Grant to be approved.
+Clients achieved user authorization by following OAuth's Authorization Code Grant process [[RFC 6749 Section 4.1](#ref-rfc6749-code-grant)], with the following modifications.
+
+* In the OAuth Authorization Request [[RFC 6749 Section 4.1.1](#ref-rfc6749-auth-request)], Clients MUST include the URL request parameter `cds_grant_id` with a value of the `grant_id` for the Grant for which the Client is requesting user authorization.
+* In the OAuth Authorization Request [[RFC 6749 Section 4.1.1](#ref-rfc6749-auth-request)], Clients MAY include the URL request parameter `prompt` with a value of `login`.
+* Clients MAY include `cds_grant_id` and `prompt` in the Pushed Authorization Request process [[RFC 9126](#ref-rfc9126)] to include them in the `request_uri` parameter.
+  Servers MUST be able to parse `cds_grant_id` and `prompt` parameters from a received `request_uri` parameter in the authorization request.
+* Upon receiving an authorization request, prior to any necessary user authentication, Servers MUST evaluate any provided `cds_grant_id` parameter in relation to the other authorization request parameters and, if the `cds_grant_id` parameter is invalid (e.g. not appropriate for the requested `scope` or `client_id`), MUST reject the authorization request and redirect back to the Client's `redirect_uri` with an `error` parameter value of `cds_grant_id_invalid_value`.
+  Servers MUST evaluate other authorization request parameters first, and reject the authorization request with any appropriate errors before evaluating the `cds_grant_id` parameter.
+  Servers MUST ignore empty `cds_grant_id` parameters as if it were not included in the authorization request.
+  Servers MUST reject authorization requests with more than one non-empty `cds_grant_id` parameter.
+* Upon receiving an authorization request, if the Client included a `prompt=login` parameter, Servers MUST require the user to authenticate, even if the user is already authenticated.
+* Upon receiving an authorization request, after successfully completing any necessary user authentication, Servers MUST evaluate again any provided `cds_grant_id` value in relation to the other authorization request parameters and the user and, if the `cds_grant_id` parameter is invalid (e.g. not intended for the authenticated user), MUST reject the authorization request and redirect back to the Client's `redirect_uri` with an `error` parameter value of `cds_grant_id_invalid_user`.
+* Upon the user authorizing the authorization request, Servers MUST update the Grant with a `grant_id` value matching the `cds_grant_id` parameter to reflect the obtained authorization.
+  For example, a Grant could have its `status` value updated from `needs_authorization` to `active` or `pending`.
+  Servers MUST NOT wait for the Access Token Request [[RFC 6749 Section 4.1.3](#ref-rfc6749-token-request)] to update the Grant.
+
+### 8.4. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a>
 
 Clients may request to list Grant objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_grants_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Grant listing request responses are formatted as JSON objects and contain the following named values.
@@ -1068,9 +1087,9 @@ The Grant listing request responses are formatted as JSON objects and contain th
 Servers MUST support Clients adding any of the following URL parameters to the [GET](#get) request, which will filter the list of Grants to be the intersection of results for each of the URL parameters filters:
 
 * `grant_ids` - A space-separated list of `grant_id` values for which the Servers MUST filter the Grants.
+* `parents` - A space-separated list of `parent` values for which the Servers MUST filter the Grants.
 * `statuses` - A space-separated list of `status` values for which the Servers MUST filter the Grants.
 * `client_ids` - A space-separated list of `client_id` values for which the Servers MUST filter the Grants.
-* `cds_client_uris` - A space-separated list of `cds_client_uri` values for which the Servers MUST filter the Grants.
 * `scopes` - A space-separated list of `scope` values for which the Server MUST filter the Grants, where the included `scope` values are values within the Grant `scope` (space separated) or as a `type` value in the `authorization_details` list.
 * `receipt_confirmations` - A space-separated list of receipt confirmation codes for which the Server MUST filter the Grants.
 * `after` - A [datetime](#datetime) for which the Server MUST filter Grants that were created after or on the datetime.
@@ -1078,11 +1097,11 @@ Servers MUST support Clients adding any of the following URL parameters to the [
 
 Listings of Grant objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently updated relevant Grant MUST be first in each listing.
 
-### 8.4. Retrieving Individual Grants <a id="grants-get" href="#grants-get" class="permalink">🔗</a>
+### 8.5. Retrieving Individual Grants <a id="grants-get" href="#grants-get" class="permalink">🔗</a>
 
 The URL to be used to send [GET](#get) requests for retrieving individual Grant objects MUST be the Grant `uri` provided in the [Grant object](#grant-format).
 
-### 8.5. Modifying Grants <a id="grants-modify" href="#grants-modify" class="permalink">🔗</a>
+### 8.6. Modifying Grants <a id="grants-modify" href="#grants-modify" class="permalink">🔗</a>
 
 Clients may modify fields in the Grants API by sending an authenticated HTTPS [PATCH](#patch) request to the Grant `uri` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to update with the submitted fields' values.
@@ -1092,11 +1111,11 @@ The following are fields that MAY be included in the [PATCH](#patch) request bod
 
 * `status` - Servers MUST only accept a value of `closed` from the Client.
 * `scope` - Servers MUST evaluate the updated scope for whether another user authorization is required.
-  Servers MUST not require another user authorization if the updated scope is a reduction in scope of access (e.g. removal of a scope value from the scope string).
-  If a new user authorization or sub-authorizations are required, the Server MUST update the `status` to one of `needs_authorization` or `needs_sub_authorizations` and update the `enabled_scope` to be the value of the current scope for which the Client is allowed access.
+  Servers MUST NOT require another user authorization if the updated scope is a reduction in scope of access (e.g. removal of a scope value from the scope string).
+  If a new user authorization or sub-Grants are required, the Server MUST update the `status` to one of `needs_authorization` or `needs_sub_grants` and update the `enabled_scope` to be the value of the current scope for which the Client is allowed access.
 * `authorization_details` - Servers MUST evaluate the updated authorization details for whether another user authorization is required.
-  Servers MUST not require another user authorization if the updated scope is a reduction in scope of access (e.g. removal of a scope value from the scope string).
-  If a new user authorization or sub-authorizations are required, the Server MUST update the `status` to one of `needs_authorization` or `needs_sub_authorizations` and update the `enabled_authorization_details` to be the value of the current authorization details for which the Client is allowed access.
+  Servers MUST NOT require another user authorization if the updated scope is a reduction in scope of access (e.g. removal of a scope value from the scope string).
+  If a new user authorization or sub-Grants are required, the Server MUST update the `status` to one of `needs_authorization` or `needs_sub_grants` and update the `enabled_authorization_details` to be the value of the current authorization details for which the Client is allowed access.
 
 Servers MUST reject requests with a `400 Bad Request` response when fields are submitted that are not able to be modified by the Client or the submitted values are invalid.
 For valid [PATCH](#patch) requests from Clients, Servers MUST respond with a `200 OK` Status Code with an updated JSON object of the complete current Grant object.
@@ -1618,6 +1637,18 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 <a id="ref-rfc6749-token-endpoint" href="#ref-rfc6749-token-endpoint" class="permalink">🔗</a>
 `RFC 6749 Section 3.2` - Section 3.2: Token Endpoint, "The OAuth 2.0 Authorization Framework", RFC 6749, Internet Engineering Task Force (IETF),  
 [https://www.rfc-editor.org/rfc/rfc6749#section-3.2](https://www.rfc-editor.org/rfc/rfc6749#section-3.2)
+
+<a id="ref-rfc6749-code-grant" href="#ref-rfc6749-code-grant" class="permalink">🔗</a>
+`RFC 6749 Section 4.1` - Section 4.1. Authorization Code Grant, "The OAuth 2.0 Authorization Framework", RFC 6749, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc6749#section-4.1](https://www.rfc-editor.org/rfc/rfc6749#section-4.1)
+
+<a id="ref-rfc6749-auth-request" href="#ref-rfc6749-auth-request" class="permalink">🔗</a>
+`RFC 6749 Section 4.1.1` - Section 4.1.1. Authorization Request, "The OAuth 2.0 Authorization Framework", RFC 6749, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1)
+
+<a id="ref-rfc6749-token-request" href="#ref-rfc6749-token-request" class="permalink">🔗</a>
+`RFC 6749 Section 4.1.3` - Section 4.1.3. Access Token Request, "The OAuth 2.0 Authorization Framework", RFC 6749, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc6749#section-4.1.3](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.3)
 
 <a id="ref-rfc6749-client-credentials" href="#ref-rfc6749-client-credentials" class="permalink">🔗</a>
 `RFC 6749 Section 4.4` - Section 4.4. Client Credentials Grant, "The OAuth 2.0 Authorization Framework", RFC 6749, Internet Engineering Task Force (IETF),  
