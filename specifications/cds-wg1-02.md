@@ -1328,7 +1328,7 @@ Content-Type: application/json;charset=UTF-8
                 }
             ]
         },
-        "server_provided_files": {
+        "example_custom": {
             "id": "example_custom",
             "name": "Custom Scope",
             "description": "This scope is an example for a Server-defined custom authorization scope.",
@@ -1542,6 +1542,10 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 
 ## 13. References <a id="references" href="#references" class="permalink">🔗</a>
 
+<a id="ref-bcp14" href="#ref-bcp14" class="permalink">🔗</a>
+`BCP 14` - "Best Current Practice 14", Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/info/bcp14](https://www.rfc-editor.org/info/bcp14)
+
 <a id="ref-cds-wg1-01" href="#ref-cds-wg1-01" class="permalink">🔗</a>
 `CDS-WG1-01` - "Server Metadata", CDS-WG1-01, LF Energy Standards and Specifications (LFESS),  
 [https://cds-registration.lfenergy.org/specs/cds-wg1-01/](https://cds-registration.lfenergy.org/specs/cds-wg1-01/)
@@ -1562,49 +1566,9 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 `CDS-WG1-01 Section 4.3` - Section 4.3. Coverage Entry Format, "Server Metadata", CDS-WG1-01, LF Energy Standards and Specifications (LFESS),  
 [https://cds-registration.lfenergy.org/specs/cds-wg1-01/#coverage-entry-format](https://cds-registration.lfenergy.org/specs/cds-wg1-01/#coverage-entry-format)
 
-<a id="ref-rfc9110-https" href="#ref-rfc9110-https" class="permalink">🔗</a>
-`RFC 9110 Section 4.2.2` - Section 4.2.2. https URI Scheme, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc9110#section-4.2.2](https://www.rfc-editor.org/rfc/rfc9110#section-4.2.2)
-
-<a id="ref-rfc9110-methods" href="#ref-rfc9110-methods" class="permalink">🔗</a>
-`RFC 9110 Section 9` - Section 9. Methods, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc9110#section-9](https://www.rfc-editor.org/rfc/rfc9110#section-9)
-
-<a id="ref-rfc9110-codes" href="#ref-rfc9110-codes" class="permalink">🔗</a>
-`RFC 9110 Section 15` - Section 15. Status Codes, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc9110#section-15](https://www.rfc-editor.org/rfc/rfc9110#section-15)
-
-<a id="ref-rfc5789" href="#ref-rfc5789" class="permalink">🔗</a>
-`RFC 5789` - "PATCH Method for HTTP", RFC 5789, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc5789](https://www.rfc-editor.org/rfc/rfc5789)
-
-<a id="ref-rfc4648" href="#ref-rfc4648" class="permalink">🔗</a>
-`RFC 4648` - "The Base16, Base32, and Base64 Data Encodings", RFC 4648, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc4648](https://www.rfc-editor.org/rfc/rfc4648)
-
-<a id="ref-rfc8259" href="#ref-rfc8259" class="permalink">🔗</a>
-`RFC 8259` - "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc8259](https://www.rfc-editor.org/rfc/rfc8259)
-
-<a id="ref-rfc8259-values" href="#ref-rfc8259-values" class="permalink">🔗</a>
-`RFC 8259 Section 3` - Section 3. Values, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc8259#section-3](https://www.rfc-editor.org/rfc/rfc8259#section-3)
-
-<a id="ref-rfc8259-objects" href="#ref-rfc8259-objects" class="permalink">🔗</a>
-`RFC 8259 Section 4` - Section 4. Objects, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc8259#section-4](https://www.rfc-editor.org/rfc/rfc8259#section-4)
-
-<a id="ref-rfc8259-arrays" href="#ref-rfc8259-arrays" class="permalink">🔗</a>
-`RFC 8259 Section 5` - Section 5. Arrays, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc8259#section-5](https://www.rfc-editor.org/rfc/rfc8259#section-5)
-
-<a id="ref-rfc8259-numbers" href="#ref-rfc8259-numbers" class="permalink">🔗</a>
-`RFC 8259 Section 6` - Section 6. Numbers, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc8259#section-6](https://www.rfc-editor.org/rfc/rfc8259#section-6)
-
-<a id="ref-rfc8259-strings" href="#ref-rfc8259-strings" class="permalink">🔗</a>
-`RFC 8259 Section 7` - Section 7. Strings, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc8259#section-7](https://www.rfc-editor.org/rfc/rfc8259#section-7)
+<a id="ref-iso4217" href="#ref-iso4217" class="permalink">🔗</a>
+`ISO 4217` - "Currency Codes", ISO 4217, International Organization for Standardization (ISO),  
+[https://www.iso.org/iso-4217-currency-codes.html](https://www.iso.org/iso-4217-currency-codes.html)
 
 <a id="ref-rfc3339-datetime" href="#ref-rfc3339-datetime" class="permalink">🔗</a>
 `RFC 3339 Section 5.6` - Section 5.6. Internet Date/Time Format, "Date and Time on the Internet: Timestamps", RFC 3339, Internet Engineering Task Force (IETF),  
@@ -1618,17 +1582,13 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 `RFC 3986 Section 1.1.3` - Section 1.1.3. URI, URL, and URN, "Uniform Resource Identifier (URI): Generic Syntax", RFC 3986, Internet Engineering Task Force (IETF),  
 [https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3](https://www.rfc-editor.org/rfc/rfc3986.html#section-1.1.3)
 
-<a id="ref-rfc7517-pk" href="#ref-rfc7517-pk" class="permalink">🔗</a>
-`RFC 7517 Section 4` - Section 4. JSON Web Key (JWK) Format, "JSON Web Key (JWK)", RFC 7517, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc7517.html#section-4](https://www.rfc-editor.org/rfc/rfc7517.html#section-4)
+<a id="ref-rfc4648" href="#ref-rfc4648" class="permalink">🔗</a>
+`RFC 4648` - "The Base16, Base32, and Base64 Data Encodings", RFC 4648, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc4648](https://www.rfc-editor.org/rfc/rfc4648)
 
-<a id="ref-rfc6838" href="#ref-rfc6838" class="permalink">🔗</a>
-`RFC 6838` - "Media Type Specifications and Registration Procedures", RFC 6838, Internet Engineering Task Force (IETF),  
-[https://datatracker.ietf.org/doc/html/rfc6838](https://datatracker.ietf.org/doc/html/rfc6838)
-
-<a id="ref-bcp14" href="#ref-bcp14" class="permalink">🔗</a>
-`BCP 14` - "Best Current Practice 14", Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/info/bcp14](https://www.rfc-editor.org/info/bcp14)
+<a id="ref-rfc5789" href="#ref-rfc5789" class="permalink">🔗</a>
+`RFC 5789` - "PATCH Method for HTTP", RFC 5789, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc5789](https://www.rfc-editor.org/rfc/rfc5789)
 
 <a id="ref-rfc6749" href="#ref-rfc6749" class="permalink">🔗</a>
 `RFC 6749` - "The OAuth 2.0 Authorization Framework", RFC 6749, Internet Engineering Task Force (IETF),  
@@ -1662,6 +1622,18 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 `RFC 6750 Section 2.1` - Section 2.1. Authorization Request Header Field, "The OAuth 2.0 Authorization Framework: Bearer Token Usage", RFC 6750, Internet Engineering Task Force (IETF),  
 [https://www.rfc-editor.org/rfc/rfc6750#section-2.1](https://www.rfc-editor.org/rfc/rfc6750#section-2.1)
 
+<a id="ref-rfc6838" href="#ref-rfc6838" class="permalink">🔗</a>
+`RFC 6838` - "Media Type Specifications and Registration Procedures", RFC 6838, Internet Engineering Task Force (IETF),  
+[https://datatracker.ietf.org/doc/html/rfc6838](https://datatracker.ietf.org/doc/html/rfc6838)
+
+<a id="ref-rfc7009" href="#ref-rfc7009" class="permalink">🔗</a>
+`RFC 7009` - "OAuth 2.0 Token Revocation", RFC 7009, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc7009](https://www.rfc-editor.org/rfc/rfc7009)
+
+<a id="ref-rfc7517-pk" href="#ref-rfc7517-pk" class="permalink">🔗</a>
+`RFC 7517 Section 4` - Section 4. JSON Web Key (JWK) Format, "JSON Web Key (JWK)", RFC 7517, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc7517.html#section-4](https://www.rfc-editor.org/rfc/rfc7517.html#section-4)
+
 <a id="ref-rfc7591" href="#ref-rfc7591" class="permalink">🔗</a>
 `RFC 7591` - "OAuth 2.0 Dynamic Client Registration Protocol", RFC 7591, Internet Engineering Task Force (IETF),  
 [https://www.rfc-editor.org/rfc/rfc7591](https://www.rfc-editor.org/rfc/rfc7591)
@@ -1682,6 +1654,50 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 `RFC 7591 Section 3.2.1` - Section 3.2.1. Client Information Response, "OAuth 2.0 Dynamic Client Registration Protocol", RFC 7591, Internet Engineering Task Force (IETF),  
 [https://www.rfc-editor.org/rfc/rfc7591#section-3.2.1](https://www.rfc-editor.org/rfc/rfc7591#section-3.2.1)
 
+<a id="ref-rfc7592" href="#ref-rfc7592" class="permalink">🔗</a>
+`RFC 7592` - "OAuth 2.0 Dynamic Client Registration Management Protocol", RFC 7592, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc7592](https://www.rfc-editor.org/rfc/rfc7592)
+
+<a id="ref-rfc7592-client-updates" href="#ref-rfc7592-client-updates" class="permalink">🔗</a>
+`RFC 7592 Section 2.2` - Section 2.2. Client Update Request, "OAuth 2.0 Dynamic Client Registration Management Protocol", RFC 7592, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc7592#section-2.2](https://www.rfc-editor.org/rfc/rfc7592#section-2.2)
+
+<a id="ref-rfc7592-client-metadata" href="#ref-rfc7592-client-metadata" class="permalink">🔗</a>
+`RFC 7592 Section 3` - Section 3. Client Information Response, "OAuth 2.0 Dynamic Client Registration Management Protocol", RFC 7592, Internet Engineering Task Force (IETF),
+[https://www.rfc-editor.org/rfc/rfc7592#section-3](https://www.rfc-editor.org/rfc/rfc7592#section-3)
+
+<a id="ref-rfc7636" href="#ref-rfc7636" class="permalink">🔗</a>
+`RFC 7636` - "Proof Key for Code Exchange by OAuth Public Clients", RFC 7636, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc7636](https://www.rfc-editor.org/rfc/rfc7636)
+
+<a id="ref-rfc7662" href="#ref-rfc7662" class="permalink">🔗</a>
+`RFC 7662` - "OAuth 2.0 Token Introspection", RFC 7662, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc7662](https://www.rfc-editor.org/rfc/rfc7662)
+
+<a id="ref-rfc8259" href="#ref-rfc8259" class="permalink">🔗</a>
+`RFC 8259` - "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc8259](https://www.rfc-editor.org/rfc/rfc8259)
+
+<a id="ref-rfc8259-values" href="#ref-rfc8259-values" class="permalink">🔗</a>
+`RFC 8259 Section 3` - Section 3. Values, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc8259#section-3](https://www.rfc-editor.org/rfc/rfc8259#section-3)
+
+<a id="ref-rfc8259-objects" href="#ref-rfc8259-objects" class="permalink">🔗</a>
+`RFC 8259 Section 4` - Section 4. Objects, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc8259#section-4](https://www.rfc-editor.org/rfc/rfc8259#section-4)
+
+<a id="ref-rfc8259-arrays" href="#ref-rfc8259-arrays" class="permalink">🔗</a>
+`RFC 8259 Section 5` - Section 5. Arrays, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc8259#section-5](https://www.rfc-editor.org/rfc/rfc8259#section-5)
+
+<a id="ref-rfc8259-numbers" href="#ref-rfc8259-numbers" class="permalink">🔗</a>
+`RFC 8259 Section 6` - Section 6. Numbers, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc8259#section-6](https://www.rfc-editor.org/rfc/rfc8259#section-6)
+
+<a id="ref-rfc8259-strings" href="#ref-rfc8259-strings" class="permalink">🔗</a>
+`RFC 8259 Section 7` - Section 7. Strings, "The JavaScript Object Notation (JSON) Data Interchange Format", RFC 8259, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc8259#section-7](https://www.rfc-editor.org/rfc/rfc8259#section-7)
+
 <a id="ref-rfc8414-server-metadata" href="#ref-rfc8414-server-metadata" class="permalink">🔗</a>
 `RFC 8414` - "OAuth 2.0 Authorization Server Metadata", RFC 8414, Internet Engineering Task Force (IETF),  
 [https://www.rfc-editor.org/rfc/rfc8414](https://www.rfc-editor.org/rfc/rfc8414)
@@ -1698,9 +1714,21 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 `RFC 8414 Section 7.3` - Section 7.3. Well-Known URI Registry, "OAuth 2.0 Authorization Server Metadata", RFC 8414, Internet Engineering Task Force (IETF),  
 [https://www.rfc-editor.org/rfc/rfc8414#section-7.3](https://www.rfc-editor.org/rfc/rfc8414#section-7.3)
 
-<a id="ref-rfc7009" href="#ref-rfc7009" class="permalink">🔗</a>
-`RFC 7009` - "OAuth 2.0 Token Revocation", RFC 7009, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc7009](https://www.rfc-editor.org/rfc/rfc7009)
+<a id="ref-rfc9110-https" href="#ref-rfc9110-https" class="permalink">🔗</a>
+`RFC 9110 Section 4.2.2` - Section 4.2.2. https URI Scheme, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc9110#section-4.2.2](https://www.rfc-editor.org/rfc/rfc9110#section-4.2.2)
+
+<a id="ref-rfc9110-methods" href="#ref-rfc9110-methods" class="permalink">🔗</a>
+`RFC 9110 Section 9` - Section 9. Methods, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc9110#section-9](https://www.rfc-editor.org/rfc/rfc9110#section-9)
+
+<a id="ref-rfc9110-codes" href="#ref-rfc9110-codes" class="permalink">🔗</a>
+`RFC 9110 Section 15` - Section 15. Status Codes, "HTTP Semantics", RFC 9110, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc9110#section-15](https://www.rfc-editor.org/rfc/rfc9110#section-15)
+
+<a id="ref-rfc9126" href="#ref-oauth2-par" class="permalink">🔗</a>
+`RFC 9126` - "OAuth 2.0 Pushed Authorization Requests", RFC 9126, Internet Engineering Task Force (IETF),  
+[https://www.rfc-editor.org/rfc/rfc9126](https://www.rfc-editor.org/rfc/rfc9126)
 
 <a id="ref-rfc9396" href="#ref-rfc9396" class="permalink">🔗</a>
 `RFC 9396` - "OAuth 2.0 Rich Authorization Requests", RFC 9396, Internet Engineering Task Force (IETF),  
@@ -1713,34 +1741,6 @@ Additionally, Servers SHOULD configure rate limiting for unauthenticated or fail
 <a id="ref-rfc9396-rar-metadata" href="#ref-rfc9396-rar-metadata" class="permalink">🔗</a>
 `RFC 9396 Section 10` - Section 10. Metadata, "OAuth 2.0 Rich Authorization Requests", RFC 9396, Internet Engineering Task Force (IETF),  
 [https://www.rfc-editor.org/rfc/rfc9396#section-10](https://www.rfc-editor.org/rfc/rfc9396#section-10)
-
-<a id="ref-rfc7592" href="#ref-rfc7592" class="permalink">🔗</a>
-`RFC 7592` - "OAuth 2.0 Dynamic Client Registration Management Protocol", RFC 7592, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc7592](https://www.rfc-editor.org/rfc/rfc7592)
-
-<a id="ref-rfc7592-client-updates" href="#ref-rfc7592-client-updates" class="permalink">🔗</a>
-`RFC 7592 Section 2.2` - Section 2.2. Client Update Request, "OAuth 2.0 Dynamic Client Registration Management Protocol", RFC 7592, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc7592#section-2.2](https://www.rfc-editor.org/rfc/rfc7592#section-2.2)
-
-<a id="ref-rfc7592-client-metadata" href="#ref-rfc7592-client-metadata" class="permalink">🔗</a>
-`RFC 7592 Section 3` - Section 3. Client Information Response, "OAuth 2.0 Dynamic Client Registration Management Protocol", RFC 7592, Internet Engineering Task Force (IETF),
-[https://www.rfc-editor.org/rfc/rfc7592#section-3](https://www.rfc-editor.org/rfc/rfc7592#section-3)
-
-<a id="ref-rfc7662" href="#ref-rfc7662" class="permalink">🔗</a>
-`RFC 7662` - "OAuth 2.0 Token Introspection", RFC 7662, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc7662](https://www.rfc-editor.org/rfc/rfc7662)
-
-<a id="ref-rfc9126" href="#ref-oauth2-par" class="permalink">🔗</a>
-`RFC 9126` - "OAuth 2.0 Pushed Authorization Requests", RFC 9126, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc9126](https://www.rfc-editor.org/rfc/rfc9126)
-
-<a id="ref-rfc7636" href="#ref-rfc7636" class="permalink">🔗</a>
-`RFC 7636` - "Proof Key for Code Exchange by OAuth Public Clients", RFC 7636, Internet Engineering Task Force (IETF),  
-[https://www.rfc-editor.org/rfc/rfc7636](https://www.rfc-editor.org/rfc/rfc7636)
-
-<a id="ref-iso4217" href="#ref-iso4217" class="permalink">🔗</a>
-`ISO 4217` - "Currency Codes", ISO 4217, International Organization for Standardization (ISO),  
-[https://www.iso.org/iso-4217-currency-codes.html](https://www.iso.org/iso-4217-currency-codes.html)
 
 ## 14. Acknowledgments <a id="acknowledgments" href="#acknowledgments" class="permalink">🔗</a>
 
