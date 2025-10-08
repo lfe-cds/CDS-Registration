@@ -78,7 +78,11 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
     * [11.3. Client Registration Request](#example-client-registration)  
     * [11.4. Client Admin Access Token](#example-admin-access-token)  
     * [11.5. Client List](#example-client-list)  
-    * [11.6. Creating a Message](#example-message-create)  
+    * [11.6. Message List](#example-message-list)  
+    * [11.7. Creating a Message](#example-message-create)  
+    * [11.8. Credentials List](#example-credentials-list)  
+    * [11.9. Grants List](#example-grants-list)  
+    * [11.10. Server-Provided Files](#example-server-provided-files)  
 * [12. Security Considerations](#security)  
     * [12.1. Scopes and Client Management](#scopes-client-management)  
     * [12.2. Restricted Access](#restricted-access)  
@@ -716,11 +720,12 @@ Message objects are formatted as JSON objects and contain the following named va
   Message attachments are not intended to provide a means for repeatedly transferring structured data or large amounts of data.
   It is RECOMMNEDED that Servers prefer to share files via the [Server-Provided Files API](#server-provided-files-api) or other relevant APIs and only use Message attachments when the attachment is relatively small in size and only relevant to the Message.
 * `related_uri` - _[URL](#url) or `null`_ - (OPTIONAL) If the Message `type` is `notification` or `private_message`, this value is where the Client can find more information, if available.
+  If the Message `type` is `production_request`, this value is a relevant Client object `cds_client_uri` that has the `sandbox` value in its `cds_status_options` list for which the Client is requesting an equivalent Client object be created with `production` in the `cds_status_options` list.
   If the Message `type` is `support_request`, this value is a relevant URL for which the Client is requesting technical support.
   If the Message `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
   If the Message `type` is `payment_request`, this is where the Client can submit their payment to the Server or if paid, a link to the payment receipt.
   If the Message `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
-  If the Message `type` is `grant_request` and `creator` is not `null`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assinged to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
+  If the Message `type` is `grant_request` and `creator` is not `null`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assigned to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
 * `related_type` - _[ClientMessageRelatedType](#message-related-types)_ - (OPTIONAL) The type of object or resource linked to by the `related_uri`.
   If `related_uri` is included, this field is REQUIRED.
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Message `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
@@ -734,6 +739,7 @@ Message object `type` values MUST be one of the following:
   This message is considered to be not individually tailored to the Client specifically, but instead directed to all relevant Clients.
 * `private_message` - The Server or Client is sending a private message to the opposite party.
   This message is considered to be individually tailored and relevant only to that Client or Server.
+* `production_request` - The Client is requesting a Client object be created that has the `production` value in the Client's `cds_status_options` list.
 * `support_request` - The Client is submitting a technical support request to the Server.
 * `grant_request` - The Client is submitting a request for the Server to create Grants with the parameters provided in the `grants_requested` list.
 * `field_changes` - This Message represents that the Client has submitted changes to field values in other API objects, listed in the `updates_requested` list, but these changes were not synchronously approved by the Server and need to be reviewed asynchronously by the Server.
@@ -748,11 +754,12 @@ Message object `type` values MUST be one of the following:
 Message object `status` values MUST be one of the following:
 
 * `complete` - For Messages with `type` values of `notification`, `private_message`, or `client_submission`, the `status` MUST be set as `complete`.
-  For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
+  For Messages with `type` values of `production_request`, `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
+  For Messages with a `type` value of `production_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `client` and `related_uri` to link to the [individual Client object](#clients-get) that has `production` in its `cds_status_options` list.
   For Messages with a `type` value of `grant_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `grant_list` and `related_uri` to link to Grants API [listing](#grants-list) with URL parameters that filter to only the relevant Grants.
 * `open` - For Messages with `type` values of `server_request` or `payment_request`, this represents that the Client has not yet submitted a response to the Server's submission or payment request.
-* `pending` - For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's technical support request, field changes, submission, or payment.
-* `rejected` - For Messages with `type` values of `field_changes`, `server_request`, `grant_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested field changes, submission, grant, or payment.
+* `pending` - For Messages with `type` values of `production_request`, `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's production or technical support request, field changes, submission, or payment.
+* `rejected` - For Messages with `type` values of `field_changes`, `server_request`, `production_request`, `grant_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested production access request, field changes, submission, grant, or payment.
   When Servers create a rejected Message, the Server's created Message MUST contain information in the `description` field on why the Message that was created by the Client, typically linked by the `previous_uri` field, was rejected.
 * `errored` - For Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
   The Client is RECOMMENDED to submit a `support_request` Messages with the `related_uri` as the relevant errored Message's `uri`.
@@ -845,7 +852,7 @@ The fields included in JSON object MUST include the following:
 * `previous_uri` - _[URL](#url) or `null`_ - If submitting a Message with a `type` value of `client_submission`, this value MUST be the Message `uri` that this Message is being submitted in response to (i.e. must have a `type` value of `server_request`).
   If submitting a Message with a `type` value of `support_request` or `private_message`, if the Client is responding to a previous Message, this value MUST be the Message `uri` of that Message.
   If submitting a Message with a `type` value of `support_request` or `private_message` that is not responding to another specific Message, this value MUST be `null`.
-* `type` - _[ClientMessageType](#message-types)_ - This value MUST be one of `private_message`, `support_request`, `grant_request`, or `client_submission`.
+* `type` - _[ClientMessageType](#message-types)_ - This value MUST be one of `private_message`, `production_request`, `support_request`, `grant_request`, or `client_submission`.
 * `name` - _[string](#string)_ - If submitting a Message with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
   If submitting a Message with a `type` value of `support_request` or `private_message`, this value MUST be the subject line of the message.
 * `description` - _[string](#string)_ - If submitting a Message with a `type` value of `client_submission`, this value MUST be an empty string (`""`).
@@ -856,6 +863,8 @@ The fields included in JSON object MAY include the following:
 * `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - If submitting a Client Update with a `type` value of `client_submission`, this is required and MUST be a list of [Client Update Request](#client-update-request-format) objects with `field` values matching the `field` values in the corresponding `server_request` Client Update Request objects, and `description` or `submitted_uri` values being the Client's submission response to the Server's request for that `field`.
 * `grants_requested` - _Array[[ClientGrantRequest](#client-grant-request-format)]_ - If submitting a Client Update with a `type` value of `grant_request`, this is required and MUST be a list of [Client Grant Request](#client-grant-request-format) objects.
 * `related_uri` - _[URL](#url) or `null`_ - If submitting a Message with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
+  If submitting a Message with a `type` value of `production_request`, this value is a relevant Client object `cds_client_uri` that has the `sandbox` value in its `cds_status_options` list for which the Client is requesting an equivalent Client object be created with `production` in the `cds_status_options` list.
+  If submitting a Message with a `type` value of `grant_request`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assigned to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
   If there is no relevant API endpoint, the Client MUST not include this field.
 
 Servers MUST reject requests with a `400 Bad Request` Status Code when a Client submits an incomplete request, the submitted values are invalid.
@@ -869,11 +878,19 @@ When committing Messages created by Clients, Servers MUST populate the following
 * `created` - _[datetime](#datetime)_ - Always set to the Server's timestamp for when the Message was created.
 * `modified` - _[datetime](#datetime)_ - Always the same as `created`.
 * `status` - _[ClientMessageStatus](#message-statuses)_ - For `type` values of `private_message` or `client_submission`, this value MUST be `complete`.
-  For `type` values of `support_request` and `grant_request`, this value MUST be `pending`.
+  For `type` values of `production_request`, `support_request`, or `grant_request`, this value MUST be `pending`.
 
 When Clients submit Messages with `type` value of `client_submission`, if the Message referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Message to `pending`, which indicates that the Client has submitted a response for Server review.
 
-When Clients submit Messages with `type` value of `grant_request`, Servers MUST review `grants_requested` values and create a new Message replying to the Client with `type` value of `grant_request`, `previous_uri` value of the Clients grant request Message `uri`, and `status` of `pending` (if the Server has not yet determined whether to create the requested grants), `complete` (if the request is approved and Grants have been created), or `rejected` (if the request is rejected for any reason).
+When Clients submit Messages with `type` value of `production_request`, Servers MUST review the Client object linked in the `related_uri` and determine if an equivalent Client object with `production` in the `cds_status_options` list is appropriate.
+Servers MAY create Messages replying to the Client with any questions or information about the production request, so long as the `type` value is `pending` and the `previous_uri` value links to the prior Message.
+Clients MAY create Messages replying to the Server, so long as the `previous_uri` value links to the prior Message.
+After determining whether a production Client object should be created, Servers MUST create a new Message with the `previous_uri` value linked to the Client's `production_request` Message and has the `type` value as `complete` (if the Server has approved and created a production Client object and any relevant Credentials objects) or `rejected` (if the request is rejected for any reason).
+
+When Clients submit Messages with `type` value of `grant_request`, Servers MUST review `grants_requested` values and determine if it is appropriate to create Grant objects for the requested scope.
+Servers MAY create Messages replying to the Client with any questions or information about the grant request, so long as the `type` value is `pending` and the `previous_uri` value links to the prior Message.
+Clients MAY create Messages replying to the Server, so long as the `previous_uri` value links to the prior Message.
+After determining whether the grant request should be approved, Servers MUST create a new Message replying to the Client with `type` value of `grant_request`, `previous_uri` value of the Client's grant request Message `uri`, and `status` of `complete` (if the request is approved and Grants have been created), or `rejected` (if the request is rejected for any reason).
 
 ### 6.10. Retrieving Individual Messages <a id="messages-get" href="#messages-get" class="permalink">🔗</a>
 
@@ -1014,7 +1031,7 @@ Grant objects are formatted as JSON objects and contain the following named valu
   If the Grant's `status` is not `pending` this value is `null`.
 * `expires` - _[datetime](#datetime) or `null`_ - (REQUIRED) When the Grant will expire and access will be removed by the Server.
   If the Grant is to continue indefinitely, this value is `null`.
-* `status` - _[GrantStatus](#grant-status)_ - (REQUIRED) The current [Grant Status](#grant-status) of the Grant.
+* `status` - _[GrantStatus](#grant-statuses)_ - (REQUIRED) The current [Grant Status](#grant-statuses) of the Grant.
 * `client_id` - _[string](#string)_ - (REQUIRED) Which Client for which this Grant is issued.
 * `scope` - _[string](#string)_ - (REQUIRED) The scopes for which this Grant has issued access.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](#ref-rfc9396-auth-details)]_ - (REQUIRED) An authorization details list as defined by [[RFC 9396 Section 7.1](#ref-rfc9396-auth-details)] which contains scopes that are granted in addition to this object's `scope` value.
@@ -1317,7 +1334,7 @@ Content-Type: application/json;charset=UTF-8
             "documentation": "https://example.com/docs/oauth/scopes#grant_admin",
             "registration_requirements": [],
             "response_types_supported": [],
-            "grant_types_supported": ["client_credentials"],
+            "grant_types_supported": [],
             "token_endpoint_auth_methods_supported": [],
             "code_challenge_methods_supported": [],
             "coverages_supported": [],
@@ -1370,7 +1387,7 @@ POST /oauth/register HTTP/1.1
 Host: example.com
 
 {
-    "scope": "client_admin grant_admin example_custom",
+    "scope": "client_admin grant_admin server_provided_files example_custom",
     "client_name": "My App Name",
     "cds_company_name": "My Company Name"
 }
@@ -1390,7 +1407,6 @@ Content-Type: application/json;charset=UTF-8
     "token_endpoint_auth_method": ["client_secret_basic"],
     "client_secret": "Q3VpGy7k6Mj9Yc-F1wtujttAq2HiEel8O1Ie5zEw00AslNsoUU3SMzKPeRPZgqA6dMW3jSvZQ_O0iWpQRa1NaQ",
     "client_name": "My App Name",
-    "cds_company_name": "My Company Name",
     "authorization_details_types": ["client_admin"],
     "cds_created": "2022-01-01T00:00:00Z",
     "cds_modified": "2022-01-01T00:00:00Z",
@@ -1450,9 +1466,8 @@ Content-Type: application/json;charset=UTF-8
             "redirect_uris": [],
             "response_types": [],
             "grant_types": ["client_credentials"],
-            "token_endpoint_auth_method": ["client_secret_basic"],
+            "token_endpoint_auth_method": "client_secret_basic",
             "client_name": "My App Name",
-            "cds_company_name": "My Company Name",
             "authorization_details_types": ["client_admin"],
             "cds_created": "2022-01-01T00:00:00Z",
             "cds_modified": "2022-01-01T00:00:00Z",
@@ -1468,7 +1483,7 @@ Content-Type: application/json;charset=UTF-8
             "redirect_uris": [],
             "response_types": [],
             "grant_types": ["client_credentials"],
-            "token_endpoint_auth_method": ["client_secret_basic"],
+            "token_endpoint_auth_method": "client_secret_basic",
             "authorization_details_types": ["grant_admin"],
             "cds_created": "2022-01-01T00:00:00Z",
             "cds_modified": "2022-01-01T00:00:00Z",
@@ -1478,13 +1493,29 @@ Content-Type: application/json;charset=UTF-8
             "cds_server_metadata": "https://example.com/api/clients/22bb40b5b823fa8c/cds-server-metadata",
         },
         {
+            "client_id": "7e22b5568893c547",
+            "client_id_issued_at": 2893256800,
+            "scope": "server_provided_files",
+            "redirect_uris": [],
+            "response_types": [],
+            "grant_types": [],
+            "token_endpoint_auth_method": null,
+            "authorization_details_types": ["server_provided_files"],
+            "cds_created": "2022-01-01T00:00:00Z",
+            "cds_modified": "2022-01-01T00:00:00Z",
+            "cds_client_uri": "https://example.com/api/clients/7e22b5568893c547",
+            "cds_status": "production",
+            "cds_status_options": ["production"],
+            "cds_server_metadata": "https://example.com/api/clients/7e22b5568893c547/cds-server-metadata",
+        },
+        {
             "client_id": "af653d57fa364da5",
             "client_id_issued_at": 2893256800,
             "scope": "example_custom",
             "redirect_uris": ["https://example.com/oauth/default-redirect"],
             "response_types": ["code"],
-            "grant_types": ["client_credentials"],
-            "token_endpoint_auth_method": ["client_secret_basic"],
+            "grant_types": ["authorization_code", "refresh_token"],
+            "token_endpoint_auth_method": "client_secret_basic",
             "authorization_details_types": ["example_custom"],
             "cds_created": "2022-01-01T00:00:00Z",
             "cds_modified": "2022-01-01T00:00:00Z",
@@ -1492,6 +1523,10 @@ Content-Type: application/json;charset=UTF-8
             "cds_status": "sandbox",
             "cds_status_options": ["sandbox", "disabled"],
             "cds_server_metadata": "https://example.com/api/clients/af653d57fa364da5/cds-server-metadata",
+            "cds_default_scope": "example_custom",
+            "cds_default_redirect_uri": "https://example.com/oauth/default-redirect",
+            "cds_default_authorization_details": [],
+            "cds_company_name": "My Company Name"
         }
     ],
     "next": null,
@@ -1499,7 +1534,81 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.6. Creating a Message <a id="example-message-create" href="#example-message-create" class="permalink">🔗</a>
+### 11.6. Message List <a id="example-message-list" href="#example-message-list" class="permalink">🔗</a>
+
+The following is a non-normative example of a Client loading their list of Message objects via the [Messages API](#messages-api).
+
+```
+==Request==
+GET /api/clients HTTP/1.1
+Host: example.com
+Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "outstanding": [
+        {
+            "message_id": "9047a057519c0ea4",
+            "uri": "https://example.com/api/messages/9047a057519c0ea4",
+            "previous_uri": null,
+            "type": "production_request",
+            "read": true,
+            "creator": null,
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "status": "pending",
+            "name": "Production access request",
+            "description": "We have automatically initiated a review for production access for your registration",
+            "related_uri": "https://example.com/api/clients/af653d57fa364da5",
+            "related_type": "client"
+        }
+    ],
+    "outstanding_next": null,
+    "outstanding_previous": null,
+    "read": [],
+    "read_next": null,
+    "read_previous": null,
+    "unread": [
+        {
+            "message_id": "9047a057519c0ea4",
+            "uri": "https://example.com/api/messages/9047a057519c0ea4",
+            "previous_uri": null,
+            "type": "notification",
+            "read": false,
+            "creator": null,
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "status": "complete",
+            "name": "Welcome!",
+            "description": "If you have any questions about our CDS Server implementation, please see our documentation or create a support request message. Thanks!",
+            "related_uri": "https://example.com/docs",
+            "related_type": "documentation"
+        },
+        {
+            "message_id": "9047a057519c0ea4",
+            "uri": "https://example.com/api/messages/9047a057519c0ea4",
+            "previous_uri": null,
+            "type": "production_request",
+            "read": false,
+            "creator": null,
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "status": "pending",
+            "name": "Production access request",
+            "description": "We have automatically initiated a review for production access for your registration",
+            "related_uri": "https://example.com/api/clients/af653d57fa364da5",
+            "related_type": "client"
+        }
+    ],
+    "unread_next": null,
+    "unread_previous": null,
+}
+```
+
+### 11.7. Creating a Message <a id="example-message-create" href="#example-message-create" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client creating a Message via the [Messages API](#messages-api).
 
@@ -1533,6 +1642,211 @@ Content-Type: application/json;charset=UTF-8
     "name": "My Subject",
     "description": "Hello World!"
 }
+```
+
+### 11.8. Credentials List <a id="example-credentials-list" href="#example-credentials-list" class="permalink">🔗</a>
+
+The following is a non-normative example of a Client loading their list of Credential objects via the [Credentials API](#credentials-api).
+
+```
+==Request==
+GET /api/credentials HTTP/1.1
+Host: example.com
+Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "credentials": [
+        {
+            "credential_id": "3d0ac1c8513ba94d",
+            "uri": "https://example.com/api/credentials/3d0ac1c8513ba94d",
+            "client_id": "aaf026921707f5d5",
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "type": "client_secret",
+            "client_secret": "Q3VpGy7k6Mj9Yc-F1wtujttAq2HiEel8O1Ie5zEw00AslNsoUU3SMzKPeRPZgqA6dMW3jSvZQ_O0iWpQRa1NaQ",
+            "client_secret_expires_at": 0
+        },
+        {
+            "credential_id": "034e94179b67db20",
+            "uri": "https://example.com/api/credentials/034e94179b67db20",
+            "client_id": "22bb40b5b823fa8c",
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "type": "client_secret",
+            "client_secret": "vhFcq19p5R0qNYylibA5UavPS8sZNFmBMtDb7ZIBedFtCnZWqf2PkAs2Tx5AQpbgVrzOkfwE6GRhZhKjR59WGQ",
+            "client_secret_expires_at": 0
+        },
+        {
+            "credential_id": "8406a1fd23d73417",
+            "uri": "https://example.com/api/credentials/8406a1fd23d73417",
+            "client_id": "af653d57fa364da5",
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "type": "client_secret",
+            "client_secret": "VmWa4VMBIL4rfkl_K14fjKgV9_hSpMV2brDmr2-YA-mRgRPcAfQW3WPBQxf09MPYcavCsZSwnJdmMuA9WM7RMw",
+            "client_secret_expires_at": 2893256800
+        }
+    ],
+    "next": null,
+    "previous": null
+}
+```
+
+### 11.9. Grants List <a id="example-grants-list" href="#example-grants-list" class="permalink">🔗</a>
+
+The following is a non-normative example of a Client loading their list of Grant objects via the [Credentials API](#credentials-api).
+
+```
+==Request==
+GET /api/grants HTTP/1.1
+Host: example.com
+Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "grants": [
+        {
+            "grant_id": "d62bdc99ff26e0b4",
+            "uri": "https://example.com/api/grants/d62bdc99ff26e0b4",
+            "replacing": [],
+            "replaced_by": [],
+            "parent": null,
+            "children": [],
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "not_before": null,
+            "not_after": null,
+            "eta": null,
+            "expires": null,
+            "status": "active",
+            "client_id": "aaf026921707f5d5",
+            "scope": "client_admin",
+            "authorization_details": [],
+            "receipt_confirmations": [],
+            "enabled_scope": "client_admin",
+            "enabled_authorization_details": []
+        },
+        {
+            "grant_id": "c644a5da13f379db",
+            "uri": "https://example.com/api/grants/c644a5da13f379db",
+            "replacing": [],
+            "replaced_by": [],
+            "parent": null,
+            "children": [],
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "not_before": null,
+            "not_after": null,
+            "eta": null,
+            "expires": null,
+            "status": "active",
+            "client_id": "7e22b5568893c547",
+            "scope": "server_provided_files",
+            "authorization_details": [
+                {
+                    "type": "server_provided_files",
+                    "file_id": "4fcf6831957a243c"
+                }
+            ],
+            "receipt_confirmations": [],
+            "enabled_scope": "server_provided_files",
+            "enabled_authorization_details": [
+                {
+                    "type": "server_provided_files",
+                    "file_id": "4fcf6831957a243c"
+                }
+            ]
+        }
+    ],
+    "next": null,
+    "previous": null
+}
+```
+
+### 11.10. Server-Provided Files <a id="example-server-provided-files" href="#example-server-provided-files" class="permalink">🔗</a>
+
+The following is a non-normative example of a Client using their `grant_admin` Client object to obtain an `access_token` for a Server-Provided Files Grant.
+
+```
+==Request==
+POST /oauth/token HTTP/1.1
+Host: example.com
+Authorization: Basic MjJiYjQwYjViODIzZmE4Yzp2aEZjcTE5cDVSMHFOWXlsaWJBNVVhdlBTOHNaTkZtQk10RGI3WklCZWRGdENuWldxZjJQa0FzMlR4NUFRcGJnVnJ6T2tmd0U2R1JoWmhLalI1OVdHUQ==
+
+grant_type=client_credentials&scope=grant_admin&authorization_details=%5B%7B%22type%22%3A%22grant_admin%22%2C%22client_id%22%3A%227e22b5568893c547%22%2C%22grant_id%22%3A%22c644a5da13f379db%22%7D%5D
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "access_token": "oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA",
+    "token_type": "bearer",
+    "expires_in": 3600,
+    "scope": "grant_admin",
+    "authorization_details": [
+        {
+            "type": "grant_admin",
+            "client_id": "7e22b5568893c547",
+            "grant_id": "c644a5da13f379db"
+        }
+    ]
+}
+```
+
+The following is a non-normative example of a Client loading Server-Provided File objects via the [Server-Provided Files API](#server-provided-files-api).
+
+```
+==Request==
+GET /api/server-provided-files HTTP/1.1
+Host: example.com
+Authorizatin: Bearer oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "files": [
+        {
+            "file_id": "4fcf6831957a243c",
+            "uri": "https://example.com/api/server-provided-files/4fcf6831957a243c",
+            "created": "2022-01-01T00:00:00Z",
+            "modified": "2022-01-01T00:00:00Z",
+            "mime_type": "application/pdf",
+            "size": 1111111,
+            "name": "DR_API_docs_v1.0.pdf",
+            "description": "Proprietary demand response API documentation",
+            "download_uri": "https://example.com/api/server-provided-files/4fcf6831957a243c/download"
+        }
+    ],
+    "next": null,
+    "previous": null
+}
+```
+
+The following is a non-normative example of a Client downloading a Server-Provided File.
+
+```
+==Request==
+GET /api/server-provided-files/4fcf6831957a243c/download HTTP/1.1
+Host: example.com
+Authorizatin: Bearer oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/pdf
+Content-Length: 1111111
+Content-Disposition: attachment; filename="DR_API_docs_v1.0.pdf"
+
+...the PDF data as response body...
 ```
 
 ## 12. Security Considerations <a id="security" href="#security" class="permalink">🔗</a>
