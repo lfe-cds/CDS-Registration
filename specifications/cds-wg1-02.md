@@ -76,8 +76,9 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
     * [11.1. CDS Server Metadata](#example-cds-server-metadata)  
     * [11.2. Authorization Server Metadata](#example-auth-server-metadata)  
     * [11.3. Client Registration Request](#example-client-registration)  
-    * [11.4. Client List](#example-client-list)  
-    * [11.5. Creating a Message](#example-message-create)  
+    * [11.4. Client Admin Access Token](#example-admin-access-token)  
+    * [11.5. Client List](#example-client-list)  
+    * [11.6. Creating a Message](#example-message-create)  
 * [12. Security Considerations](#security)  
     * [12.1. Scopes and Client Management](#scopes-client-management)  
     * [12.2. Restricted Access](#restricted-access)  
@@ -590,6 +591,9 @@ In addition to the fields defined by OAuth's Client Metadata [[RFC 7591 Section 
 * `cds_default_authorization_details` - _Array[[OAuth AuthorizationDetail](#ref-rfc9396-auth-details)]_ - (OPTIONAL) The default authorization details list used when no `authorization_details` parameter is provided as part of an authorization request.
   This MUST be included if `response_types` is not an empty list (i.e. authorization requests are enabled).
   For the initial registration response, Servers MUST set this to an empty list (`[]`).
+
+Servers MAY include other fields, such as required registration fields or informational fields, that the Server deems necessary for the Client to receive.
+Servers MUST describe any additional fields that may be included in their technical documentation.
 
 ### 5.2. Client Statuses <a id="client-statuses" href="#client-statuses" class="permalink">🔗</a>
 
@@ -1397,7 +1401,33 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.4. Client List <a id="example-client-list" href="#example-client-list" class="permalink">🔗</a>
+### 11.4. Client Admin Access Token <a id="example-admin-access-token" href="#example-admin-access-token" class="permalink">🔗</a>
+
+The following is a non-normative example of a Client obtaining an access token to use for authenticated API requests.
+
+**NOTE:** The Authorization header Basic value is a [Base64](#base64) encoded value of the Client's `client_id` and `client_secret`, joined by a colon (i.e. `base64("{client_id}:{client_secret}")`).
+
+```
+==Request==
+POST /oauth/token HTTP/1.1
+Host: example.com
+Authorization: Basic YWFmMDI2OTIxNzA3ZjVkNWg6UTNWcEd5N2s2TWo5WWMtRjF3dHVqdHRBcTJIaUVlbDhPMUllNXpFdzAwQXNsTnNvVVUzU016S1BlUlBaZ3FBNmRNVzNqU3ZaUV9PMGlXcFFSYTFOYVE=
+
+grant_type=client_credentials&scope=client_admin
+
+==Response==
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+
+{
+    "access_token": "vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ",
+    "token_type": "bearer",
+    "expires_in": 3600,
+    "scope": "client_admin"
+}
+```
+
+### 11.5. Client List <a id="example-client-list" href="#example-client-list" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading their list of Client objects via the [Clients API](#clients-api).
 
@@ -1469,7 +1499,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.5. Creating a Message <a id="example-message-create" href="#example-message-create" class="permalink">🔗</a>
+### 11.6. Creating a Message <a id="example-message-create" href="#example-message-create" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client creating a Message via the [Messages API](#messages-api).
 
