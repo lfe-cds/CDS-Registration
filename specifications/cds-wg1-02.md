@@ -1172,7 +1172,7 @@ Server-Provided File objects are metadata for arbitrary files made accessible by
 
 ### 9.2. Listing Server-Provided Files <a id="server-provided-files-list" href="#server-provided-files-list" class="permalink">🔗</a>
 
-Clients may request to list Server-Provided File objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_server_provided_files_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
+Clients may request to list Server-Provided File objects that they have access to by making an HTTPS [GET](#get) request to the `cds_server_provided_files_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format) and authenticated with a valid Bearer `access_token` scoped to the `grant_admin` scope with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the `server_provided_files` scope.
 The Server-Provided File listing request responses are formatted as JSON objects and contain the following named values.
 
 * `files` - _Array[[ServerProvidedFile](#server-provided-files-format)]_ - (REQUIRED) A list of Server-Provided File objects to which the requesting `access_token` is scoped to have access.
@@ -1183,6 +1183,8 @@ The Server-Provided File listing request responses are formatted as JSON objects
 * `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Server-Provided File objects.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
+Servers MUST only list Server-Provided File objects that are accessible under the `access_token`, which is always limited to specific set of Grants.
+
 Servers MUST support Clients adding any of the following URL parameters to the [GET](#get) request, which will filter the list of Server-Provided Files to be the intersection of results for each of the URL parameters filters:
 
 * `file_ids` - A space-separated list of `file_id` values for which the Servers MUST filter the Server-Provided Files.
@@ -1191,7 +1193,7 @@ Listings of Server-Provided File objects MUST be ordered in reverse chronologica
 
 ### 9.3. Retrieving Individual Server-Provided Files <a id="server-provided-files-get" href="#server-provided-files-get" class="permalink">🔗</a>
 
-The URL to be used to send [GET](#get) requests for retrieving individual Server-Provided File objects MUST be the Server-Provided File `uri` provided in the [Message object](#message-format).
+The URL to be used to send [GET](#get) requests for retrieving individual Server-Provided File objects MUST be the Server-Provided File `uri` provided in the [Message object](#message-format) and authenticated with a valid Bearer `access_token` scoped to the `grant_admin` scope with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the `server_provided_files` scope.
 
 ## 10. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a>
 
