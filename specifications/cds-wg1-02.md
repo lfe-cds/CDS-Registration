@@ -12,7 +12,7 @@ This specification defines how utilities and other central entities ("Servers") 
 
 Copyright Joint Development Foundation Projects, LLC, LF Energy Standards and Specifications Series and its contributors ("LFESS").
 All rights reserved.
-For more information, visit [https://lfess.energy/](https://lfess.energy/).
+For more information, visit [https://lfess.energy/](https://lfess.energy/). 
 
 ## Table of Contents <a id="table-of-contents" href="#table-of-contents" class="permalink">🔗</a>
 
@@ -73,33 +73,34 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
     * [9.3. Retrieving Individual Server-Provided Files](#server-provided-files-get)  
     * [9.4. Downloading Server-Provided File Data](#server-provided-files-download)  
 * [10. Extensions](#extensions)  
-* [11. Examples](#examples)  
-    * [11.1. Retrieving CDS Server Metadata](#example-cds-server-metadata)  
-    * [11.2. Retrieving Authorization Server Metadata](#example-auth-server-metadata)  
-    * [11.3. Submitting a Client Registration Request](#example-client-registration)  
-    * [11.4. Obtaining a Client Admin Access Token](#example-admin-access-token)  
-    * [11.5. Retrieving a Client List](#example-clients-list)  
-    * [11.6. Retrieving an Individual Client](#example-client-get)  
-    * [11.7. Modifying a Client](#example-client-modify)  
-    * [11.8. Retrieving a Message List](#example-messages-list)  
-    * [11.9. Creating a Message](#example-message-create)  
-    * [11.10. Retrieving an Individual Message](#example-message-get)  
-    * [11.11. Modifying a Message](#example-message-modify)  
-    * [11.12. Retrieving a Credentials List](#example-credentials-list)  
-    * [11.13. Creating a Credential](#example-credentials-create)  
-    * [11.14. Retrieving an Individual Credential](#example-credentials-get)  
-    * [11.15. Modifying a Credential](#example-credentials-modify)  
-    * [11.16. Grants List](#example-grants-list)  
-    * [11.17. Retrieving an Individual Grant](#example-grants-get)  
-    * [11.18. Modifying a Grant](#example-grants-modify)  
-    * [11.19. Obtaining Server-Provided File Access via the Grant Admin Scope](#example-server-provided-files-access-token)  
-    * [11.20. Retrieving a Server-Provided Files List](#example-server-provided-files-list)  
-    * [11.21. Retrieving an Individual Server-Provided File](#example-server-provided-files-get)  
-    * [11.22. Downloading Data for a Server-Provided File](#example-server-provided-files-download)  
-* [12. Security Considerations](#security)  
-    * [12.1. Scopes and Client Management](#scopes-client-management)  
-    * [12.2. Restricted Access](#restricted-access)  
-    * [12.3. Rate Limiting](#rate-limiting)  
+* [11. Security Considerations](#security)  
+    * [11.1. Scopes and Client Management](#scopes-client-management)  
+    * [11.2. Restricted Access](#restricted-access)  
+    * [11.3. Rate Limiting](#rate-limiting)  
+    * [11.4. Captchas](#captchas)  
+* [12. Examples](#examples)  
+    * [12.1. Retrieving CDS Server Metadata](#example-cds-server-metadata)  
+    * [12.2. Retrieving Authorization Server Metadata](#example-auth-server-metadata)  
+    * [12.3. Submitting a Client Registration Request](#example-client-registration)  
+    * [12.4. Obtaining a Client Admin Access Token](#example-admin-access-token)  
+    * [12.5. Retrieving a Client List](#example-clients-list)  
+    * [12.6. Retrieving an Individual Client](#example-client-get)  
+    * [12.7. Modifying a Client](#example-client-modify)  
+    * [12.8. Retrieving a Message List](#example-messages-list)  
+    * [12.9. Creating a Message](#example-message-create)  
+    * [12.10. Retrieving an Individual Message](#example-message-get)  
+    * [12.11. Modifying a Message](#example-message-modify)  
+    * [12.12. Retrieving a Credentials List](#example-credentials-list)  
+    * [12.13. Creating a Credential](#example-credentials-create)  
+    * [12.14. Retrieving an Individual Credential](#example-credentials-get)  
+    * [12.15. Modifying a Credential](#example-credentials-modify)  
+    * [12.16. Grants List](#example-grants-list)  
+    * [12.17. Retrieving an Individual Grant](#example-grants-get)  
+    * [12.18. Modifying a Grant](#example-grants-modify)  
+    * [12.19. Obtaining Server-Provided File Access via the Grant Admin Scope](#example-server-provided-files-access-token)  
+    * [12.20. Retrieving a Server-Provided Files List](#example-server-provided-files-list)  
+    * [12.21. Retrieving an Individual Server-Provided File](#example-server-provided-files-get)  
+    * [12.22. Downloading Data for a Server-Provided File](#example-server-provided-files-download)  
 * [13. References](#references)  
 * [14. Acknowledgments](#acknowledgments)  
 * [15. Authors](#authors)  
@@ -355,7 +356,8 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
     * `limit` is not included.
     * `choices` is not included.
 
-Since Grants with the scope are only created by Servers, Client do not receive an authorization code or access token for that Grant with which they may access the files. Instead, to access the files, Clients MUST submit a `client_credentials` grant with the scope of `grant_admin` and an `authorization_details` containing the `client_id` and `grant_id` for the Grant the Client found via the [Grants API](#grants-api).
+Since Grants with the scope are only created by Servers, Client do not receive an authorization code or access token for that Grant with which they may access the files.
+Instead, to access the files, Clients MUST submit a `client_credentials` grant with the scope of `grant_admin` and an `authorization_details` containing the `client_id` and `grant_id` for the Grant the Client found via the [Grants API](#grants-api).
 
 ### 3.4. Scope Descriptions Object Format <a id="scope-descriptions-format" href="#scope-descriptions-format" class="permalink">🔗</a>
 
@@ -1230,11 +1232,52 @@ The additional string MUST be specified with a description of what that string m
 To facilitate forwards compatibility, Clients MUST ignore unknown or undocumented object fields and enumerated strings.
 If a Client cannot provide adequate functionality based on too many unknown or undocumented object fields or enumerated strings, the Client SHOULD refer to the Server's technical documentation linked in the `documentation` value of the CDS Server Metadata object [[CDS-WG1-01 Section 3.2](#ref-cds-wg1-01-metadata-object)] or contact the Server's technical support linked by the `support` value in the metadata object.
 
-## 11. Examples <a id="examples" href="#examples" class="permalink">🔗</a>
+## 11. Security Considerations <a id="security" href="#security" class="permalink">🔗</a>
+
+This specification describes a protocol by which a utility or other central entity (a Server) can allow external entities (Clients) to register and obtain privileged access to the Server's offered capabilities and data.
+Because the functionality described in this specification enables access to private Server functionality and data, Servers MUST follow industry cybersecurity best practices when securing their implementations of this specification to prevent unintended or inadvertent access to privileged functionality or data to Clients who are not authorized.
+These best practices include requiring [HTTPS](#https) for API endpoints using the latest widely adopted encryption standards, undergoing regular security audits and penetration tests, and internally requiring security-focused process controls and data handling procedures.
+
+### 11.1. Scopes and Client Management <a id="scopes-client-management" href="#scopes-client-management" class="permalink">🔗</a>
+
+Because legal and regulatory requirements are highly diverse across the energy sector, Servers MUST be responsible for only offering scopes allowed by their jurisdictions.
+
+Servers MUST include the appropriate `registration_requirements` values in their [Scope Descriptions](#scope-descriptions-format) for each scope's use case and capabilities to ensure that Clients submit all required disclosures (e.g. contact information) and be appropriately informed about any required steps (e.g. manual review) or payments (e.g. registration fees).
+Servers MUST NOT impose overly burdensome registration requirements beyond what is deemed necessary by the Server's jurisdiction requirements for the type of capabilities or data made available by an offered scope.
+
+Severs MUST be responsible for appropriately monitoring and reviewing the use of registered Clients as necessary for their legal and regulatory jurisdictions.
+
+### 11.2. Restricted Access <a id="restricted-access" href="#restricted-access" class="permalink">🔗</a>
+
+For unauthenticated endpoints ([Authorization Server Metadata](#auth-server-metadata), [Client Registration Process](#client-registration-process)), while Servers can add [rate limiting](#rate-limiting) configurations to protect their systems from being overwhelmed with requests, Servers MUST NOT add anti-bot blocking measures (e.g. captchas) that prevent automated requests from other systems.
+The functionality described in this specification is intended to be able to be integrated in other platforms to allow those platforms to automate interactions with Servers on their users' behalf.
+
+If [Authorization Server Metadata](#auth-server-metadata) is referenced in a public CDS Server Metadata Endpoint [[CDS-WG1-01 Section 3](#ref-cds-wg1-01-metadata-endpoint)], then the [Authorization Server Metadata](#auth-server-metadata) and [Client Registration Process](#client-registration-process) must also be public.
+
+Servers that wish to restrict access of by-default unauthenticated endpoints to certain Clients MUST configure well established authentication processes for Clients to ensure that only the approved Clients may access the restricted endpoint.
+This specification does not describe specifically how Servers will authenticate Clients for by-default unauthenticated endpoints, as these restricted access protocols are context dependent.
+For example, if a Server providing a private Client Registration endpoint as part of an existing logged in portal, then they can use that logged in portal's session cookie to authenticate Client requests to the registration endpoint.
+
+For authenticated endpoints ([Clients API](#clients-api), [Messages API](#messages-api), [Credentials API](#credentials-api), [Grants API](#grants-api), [Server-Provided Files API](#server-provided-files-api)), Servers MUST authenticate requests using OAuth's Authorization Request Header Field [[RFC 6750 Section 2.1](#ref-rfc6750-auth-header)] with access tokens obtained using the OAuth 2.0's Issuing an Access Token process [[RFC 6749 Section 5](#ref-rfc6749-access-tokens)].
+
+### 11.3. Rate Limiting <a id="rate-limiting" href="#rate-limiting" class="permalink">🔗</a>
+
+For unauthenticated endpoints ([Authorization Server Metadata](#auth-server-metadata), [Client Registration Process](#client-registration-process)), Servers SHOULD configure rate limiting restrictions so that bots and misconfigured scripts will not flood and overwhelm the endpoints with requests, while still allowing legitimate and low-volume automated requests have access to the endpoints.
+
+For authenticated endpoints ([Clients API](#clients-api), [Messages API](#messages-api), [Credentials API](#credentials-api), [Grants API](#grants-api), [Server-Provided Files API](#server-provided-files-api)), Servers SHOULD configure rate limiting by Client and Credential to ensure that individual Clients do not overwhelm Servers with authenticated API requests.
+Additionally, Servers SHOULD configure rate limiting for unauthenticated or failed authentication requests to authenticated API endpoints to prevent brute force attempts to gain access to authenticated APIs.
+
+### 11.4. Captchas <a id="captchas" href="#captchas" class="permalink">🔗</a>
+
+Because endpoints defined and referenced in this specification are intended to be used via automated tooling by Clients, Servers MUST NOT restrict endpoints (authenticated or unauthenticated) with human-only tests, such as captchas.
+
+Servers MAY implement human-only tests on content linked via URL if the content is only intended for consumption by humans. For example, a Server MAY implement a captcha on the manual registration interface linked via the `cds_human_registration` value in the [Metadata object](#auth-server-metadata-format).
+
+## 12. Examples <a id="examples" href="#examples" class="permalink">🔗</a>
 
 The following are non-normative examples of requests and responses of various APIs defined in this specification.
 
-### 11.1. Retrieving CDS Server Metadata <a id="example-cds-server-metadata" href="#example-cds-server-metadata" class="permalink">🔗</a>
+### 12.1. Retrieving CDS Server Metadata <a id="example-cds-server-metadata" href="#example-cds-server-metadata" class="permalink">🔗</a>
 
 The following is a non-normative example of requesting a CDS Server Metadata object that includes this specification's [`oauth` capability](#auth-server-metadata-url).
 
@@ -1266,7 +1309,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.2. Retrieving Authorization Server Metadata <a id="example-auth-server-metadata" href="#example-auth-server-metadata" class="permalink">🔗</a>
+### 12.2. Retrieving Authorization Server Metadata <a id="example-auth-server-metadata" href="#example-auth-server-metadata" class="permalink">🔗</a>
 
 The following is a non-normative example of requesting the [Authorization Server Metadata object](#auth-server-metadata-format).
 
@@ -1398,7 +1441,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.3. Submitting a Client Registration Request <a id="example-client-registration" href="#example-client-registration" class="permalink">🔗</a>
+### 12.3. Submitting a Client Registration Request <a id="example-client-registration" href="#example-client-registration" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client submitting a [Client Registration Request](#registration-request).
 
@@ -1438,7 +1481,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.4. Obtaining a Client Admin Access Token <a id="example-admin-access-token" href="#example-admin-access-token" class="permalink">🔗</a>
+### 12.4. Obtaining a Client Admin Access Token <a id="example-admin-access-token" href="#example-admin-access-token" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client obtaining an access token to use for authenticated API requests.
 
@@ -1464,7 +1507,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.5. Retrieving a Client List <a id="example-clients-list" href="#example-clients-list" class="permalink">🔗</a>
+### 12.5. Retrieving a Client List <a id="example-clients-list" href="#example-clients-list" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading their list of Client objects via the [Clients API](#clients-api).
 
@@ -1555,7 +1598,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.6. Retrieving an Individual Client <a id="example-client-get" href="#example-client-get" class="permalink">🔗</a>
+### 12.6. Retrieving an Individual Client <a id="example-client-get" href="#example-client-get" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading an individual Client object via the [Clients API](#clients-api).
 
@@ -1588,7 +1631,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.7. Modifying a Client <a id="example-client-modify" href="#example-client-modify" class="permalink">🔗</a>
+### 12.7. Modifying a Client <a id="example-client-modify" href="#example-client-modify" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client updating their list of `redirect_uris` for a Client via the [Clients API](#clients-api).
 
@@ -1636,7 +1679,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.8. Retrieving a Message List <a id="example-messages-list" href="#example-messages-list" class="permalink">🔗</a>
+### 12.8. Retrieving a Message List <a id="example-messages-list" href="#example-messages-list" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading their list of Message objects via the [Messages API](#messages-api).
 
@@ -1710,7 +1753,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.9. Creating a Message <a id="example-message-create" href="#example-message-create" class="permalink">🔗</a>
+### 12.9. Creating a Message <a id="example-message-create" href="#example-message-create" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client creating a Message via the [Messages API](#messages-api).
 
@@ -1746,7 +1789,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.10. Retrieving an Individual Message <a id="example-message-get" href="#example-message-get" class="permalink">🔗</a>
+### 12.10. Retrieving an Individual Message <a id="example-message-get" href="#example-message-get" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading a specific Message object via the [Messages API](#messages-api).
 
@@ -1777,7 +1820,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.11. Modifying a Message <a id="example-message-modify" href="#example-message-modify" class="permalink">🔗</a>
+### 12.11. Modifying a Message <a id="example-message-modify" href="#example-message-modify" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client marking a specific Message as read via the [Messages API](#messages-api).
 
@@ -1813,7 +1856,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.12. Retrieving a Credentials List <a id="example-credentials-list" href="#example-credentials-list" class="permalink">🔗</a>
+### 12.12. Retrieving a Credentials List <a id="example-credentials-list" href="#example-credentials-list" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading their list of Credential objects via the [Credentials API](#credentials-api).
 
@@ -1865,7 +1908,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.13. Creating a Credential <a id="example-credentials-create" href="#example-credentials-create" class="permalink">🔗</a>
+### 12.13. Creating a Credential <a id="example-credentials-create" href="#example-credentials-create" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client creating a new Credential object via the [Credentials API](#credentials-api).
 
@@ -1896,7 +1939,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.14. Retrieving an Individual Credential <a id="example-credentials-get" href="#example-credentials-get" class="permalink">🔗</a>
+### 12.14. Retrieving an Individual Credential <a id="example-credentials-get" href="#example-credentials-get" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading an individual Credential object via the [Credentials API](#credentials-api).
 
@@ -1922,7 +1965,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.15. Modifying a Credential <a id="example-credentials-modify" href="#example-credentials-modify" class="permalink">🔗</a>
+### 12.15. Modifying a Credential <a id="example-credentials-modify" href="#example-credentials-modify" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client disabling a specific Credential via the [Credentials API](#credentials-api).
 
@@ -1953,7 +1996,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.16. Grants List <a id="example-grants-list" href="#example-grants-list" class="permalink">🔗</a>
+### 12.16. Grants List <a id="example-grants-list" href="#example-grants-list" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading their list of Grant objects via the [Grants API](#grants-api).
 
@@ -2027,7 +2070,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.17. Retrieving an Individual Grant <a id="example-grants-get" href="#example-grants-get" class="permalink">🔗</a>
+### 12.17. Retrieving an Individual Grant <a id="example-grants-get" href="#example-grants-get" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading an individual Grant object via the [Grants API](#grants-api).
 
@@ -2074,7 +2117,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.18. Modifying a Grant <a id="example-grants-modify" href="#example-grants-modify" class="permalink">🔗</a>
+### 12.18. Modifying a Grant <a id="example-grants-modify" href="#example-grants-modify" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client revoking a specific Grant via the [Grants API](#grants-api).
 
@@ -2125,7 +2168,7 @@ Content-Type: application/json;charset=UTF-8
     ]
 }
 
-### 11.19. Obtaining Server-Provided File Access via the Grant Admin Scope <a id="example-server-provided-files-access-token" href="#example-server-provided-files-access-token" class="permalink">🔗</a>
+### 12.19. Obtaining Server-Provided File Access via the Grant Admin Scope <a id="example-server-provided-files-access-token" href="#example-server-provided-files-access-token" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client using their `grant_admin` Client object to obtain an `access_token` for a Server-Provided Files Grant.
 
@@ -2156,7 +2199,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.20. Retrieving a Server-Provided Files List <a id="example-server-provided-files-list" href="#example-server-provided-files-list" class="permalink">🔗</a>
+### 12.20. Retrieving a Server-Provided Files List <a id="example-server-provided-files-list" href="#example-server-provided-files-list" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading Server-Provided File objects via the [Server-Provided Files API](#server-provided-files-api).
 
@@ -2189,7 +2232,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.21. Retrieving an Individual Server-Provided File <a id="example-server-provided-files-get" href="#example-server-provided-files-get" class="permalink">🔗</a>
+### 12.21. Retrieving an Individual Server-Provided File <a id="example-server-provided-files-get" href="#example-server-provided-files-get" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client loading an individual Server-Provided File object via the [Server-Provided Files API](#server-provided-files-api).
 
@@ -2216,7 +2259,7 @@ Content-Type: application/json;charset=UTF-8
 }
 ```
 
-### 11.22. Downloading Data for a Server-Provided File <a id="example-server-provided-files-download" href="#example-server-provided-files-download" class="permalink">🔗</a>
+### 12.22. Downloading Data for a Server-Provided File <a id="example-server-provided-files-download" href="#example-server-provided-files-download" class="permalink">🔗</a>
 
 The following is a non-normative example of a Client downloading the raw data for a Server-Provided File via the [Server-Provided Files API](#server-provided-files-api)..
 
@@ -2234,41 +2277,6 @@ Content-Disposition: attachment; filename="DR_API_docs_v1.0.pdf"
 
 ...the PDF data as response body...
 ```
-
-## 12. Security Considerations <a id="security" href="#security" class="permalink">🔗</a>
-
-This specification describes a protocol by which a utility or other central entity (a Server) can allow external entities (Clients) to register and obtain privileged access to the Server's offered capabilities and data.
-Because the functionality described in this specification enables access to private Server functionality and data, Servers MUST follow industry cybersecurity best practices when securing their implementations of this specification to prevent unintended or inadvertent access to privileged functionality or data to Clients who are not authorized.
-These best practices include requiring [HTTPS](#https) for API endpoints using the latest widely adopted encryption standards, undergoing regular security audits and penetration tests, and internally requiring security-focused process controls and data handling procedures.
-
-### 12.1. Scopes and Client Management <a id="scopes-client-management" href="#scopes-client-management" class="permalink">🔗</a>
-
-Because legal and regulatory requirements are highly diverse across the energy sector, Servers MUST be responsible for only offering scopes allowed by their jurisdictions.
-
-Servers MUST include the appropriate `registration_requirements` values in their [Scope Descriptions](#scope-descriptions-format) for each scope's use case and capabilities to ensure that Clients submit all required disclosures (e.g. contact information) and be appropriately informed about any required steps (e.g. manual review) or payments (e.g. registration fees).
-Servers MUST NOT impose overly burdensome registration requirements beyond what is deemed necessary by the Server's jurisdiction requirements for the type of capabilities or data made available by an offered scope.
-
-Severs MUST be responsible for appropriately monitoring and reviewing the use of registered Clients as necessary for their legal and regulatory jurisdictions.
-
-### 12.2. Restricted Access <a id="restricted-access" href="#restricted-access" class="permalink">🔗</a>
-
-For unauthenticated endpoints ([Authorization Server Metadata](#auth-server-metadata), [Client Registration Process](#client-registration-process)), while Servers can add [rate limiting](#rate-limiting) configurations to protect their systems from being overwhelmed with requests, Servers MUST NOT add anti-bot blocking measures (e.g. captchas) that prevent automated requests from other systems.
-The functionality described in this specification is intended to be able to be integrated in other platforms to allow those platforms to automate interactions with Servers on their users' behalf.
-
-If [Authorization Server Metadata](#auth-server-metadata) is referenced in a public CDS Server Metadata Endpoint [[CDS-WG1-01 Section 3](#ref-cds-wg1-01-metadata-endpoint)], then the [Authorization Server Metadata](#auth-server-metadata) and [Client Registration Process](#client-registration-process) must also be public.
-
-Servers that wish to restrict access of by-default unauthenticated endpoints to certain Clients MUST configure well established authentication processes for Clients to ensure that only the approved Clients may access the restricted endpoint.
-This specification does not describe specifically how Servers will authenticate Clients for by-default unauthenticated endpoints, as these restricted access protocols are context dependent.
-For example, if a Server providing a private Client Registration endpoint as part of an existing logged in portal, then they can use that logged in portal's session cookie to authenticate Client requests to the registration endpoint.
-
-For authenticated endpoints ([Clients API](#clients-api), [Messages API](#messages-api), [Credentials API](#credentials-api), [Grants API](#grants-api), [Server-Provided Files API](#server-provided-files-api)), Servers MUST authenticate requests using OAuth's Authorization Request Header Field [[RFC 6750 Section 2.1](#ref-rfc6750-auth-header)] with access tokens obtained using the OAuth 2.0's Issuing an Access Token process [[RFC 6749 Section 5](#ref-rfc6749-access-tokens)].
-
-### 12.3. Rate Limiting <a id="rate-limiting" href="#rate-limiting" class="permalink">🔗</a>
-
-For unauthenticated endpoints ([Authorization Server Metadata](#auth-server-metadata), [Client Registration Process](#client-registration-process)), Servers SHOULD configure rate limiting restrictions so that bots and misconfigured scripts will not flood and overwhelm the endpoints with requests, while still allowing legitimate and low-volume automated requests have access to the endpoints.
-
-For authenticated endpoints ([Clients API](#clients-api), [Messages API](#messages-api), [Credentials API](#credentials-api), [Grants API](#grants-api), [Server-Provided Files API](#server-provided-files-api)), Servers SHOULD configure rate limiting by Client and Credential to ensure that individual Clients do not overwhelm Servers with authenticated API requests.
-Additionally, Servers SHOULD configure rate limiting for unauthenticated or failed authentication requests to authenticated API endpoints to prevent brute force attempts to gain access to authenticated APIs.
 
 ## 13. References <a id="references" href="#references" class="permalink">🔗</a>
 
