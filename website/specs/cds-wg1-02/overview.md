@@ -8,566 +8,188 @@ meta_description: Linux Foundation Energy - Connected Data Specification (CDS) -
 
 # Client Registration - Overview
 
-This is a summary overview of [`cds-wg1-02`]({{ "/specs/cds-wg1-02" | relative_url }}), which describes how companies and technical users ("Clients") can register, onboard, and perform authenticated actions with utilities and other centralized entities ("Servers").
-This specification builds upon [`cds-wg1-01`]({{ "/specs/cds-wg1-01" | relative_url }}), which allows Clients to discover a Server's metadata and capabilities. This specification adds a capability to the Server's metadata that specifies to a Client how to register with that Server.
+This is a summary overview of the [`cds-wg1-02`]({{ "/specs/cds-wg1-02" | relative_url }}) specification, which defines how utilities and other central grid entities ("Servers") can provide secure, managed connectivity with external entities ("Clients").
+External entities could be anyone, including enterprise customers, vendors, energy service providers, tech companies, and more.
+The goal of this specification is to define a standardized way for utilities and other central grid entities to offer secure, streamlined, and automated connections to the external organizations with which they are working.
 
-For example, this specification describes how an energy efficiency app can register with a utility so that the app can request access from a utility customer's to see their last year of energy usage.
+This specification defines protocols for registration, communication, secrets management, and secure data exchange, which makes it an ideal "off-the-shelf" solution for utilities and other central entities to use to initially establish secure connections to external entities.
+Then, once a secure connection is established, other protocols (e.g. demand response signals, energy data exchange, etc.) can use that secure connection as needed for the specific use case.
+
+For example, a utility could deploy a Server that implements this specification where demand response providers can register, submit documents, be reviewed, approved, and get issued access tokens in a standardized and scalable manner.
+
+Additionally, this specification can be used and referenced by other specifications as the mean by which their protocols can initially setup a secure connection.
 
 ## Background <a id="background" href="#background" class="permalink">🔗</a>
 
-Utilities and other central entities offer many different ways of providing authenticated access to information, including how to obtain customer authorization when customers need to authorize access to their utility data.
-For [use case]({{ "/use-cases" | relative_url }}) companies needing to obtain customer data, an efficient means of registering, onboarding, and configuring authenticated access with these utilities and other central entities is needed.
+Utilities and other central grid entities are increasingly needing to digitally interact with their vendors, service providers, customers, and other external organizations.
+Many of these digital interactions (communication, data exchange, control systems, etc.) are sensitive and require secure connections to work.
+However, initially setting up those secure connections in many cases is currently done using ad-hoc and manual processes that do not scale.
 
-## OAuth Capability <a id="oauth-capability" href="#oauth-capability" class="permalink">🔗</a>
+Therefore, to enable scaling the number of external secure connections needed by utilities and other central grid entities, an automated process for registering, onboarding, and maintaining these secure connections must be standardized.
+This specification's goal is to define that standard.
 
-```
-==Request==
-GET /.well-known/cds-server-metadata.json HTTP/1.1
-Host: demoutility.com
+## Technical Summary <a id="technical-summary" href="#technical-summary" class="permalink">🔗</a>
 
-==Response==
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+The [`cds-wg1-02`]({{ "/specs/cds-wg1-02" | relative_url }}) specification is fundamentally an extension of the [OAuth](https://oauth.net) specifications, which have been used to great success in many other industries for secure connectivity.
+In addition to building on OAuth's protocols, the specification also defines additional protocols for Servers to manage Client registrations, messaging, credentials, and secure file transfers.
 
-{
-    "cds_metadata_version": "v1",
-    ...
+First, the specification defines how a utility or other central entity (called a "Server") can [publish metadata]({{ "/specs/cds-wg1-02" | relative_url }}#auth-server-metadata) about how an external entity (called a "Client") can register with the server.
+The process for publishing Server metadata builds on both CDS's [`cds-wg1-01`]({{ "/specs/cds-wg1-02" | relative_url }}) ("Server Metadata") and OAuth's [RFC 8414](https://www.rfc-editor.org/rfc/rfc8414) ("Authorization Server Metadata").
+It also defines how Servers can describe the functionality they offer (called "Scope Descriptions") and disclose any requirements or steps for Client registration and onboarding (called "Registration Requirements").
 
-    "capabilities": [
-        "oauth",
-        ...
-    ],
-    ...
+Next, the specification defines protocol for [Client registration]({{ "/specs/cds-wg1-02" | relative_url }}#client-registration-process) and [Client management]({{ "/specs/cds-wg1-02" | relative_url }}#clients-api).
+Client registration is based on OAuth's [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591) ("Dynamic Client Registration Protocol").
+The Client management protocol also defines how Servers can allow Client administrators to manage and use multiple Client objects via the [Client Admin Scope]({{ "/specs/cds-wg1-02" | relative_url }}#scopes-client-admin) and [Grant Admin Scope]({{ "/specs/cds-wg1-02" | relative_url }}#scopes-grant-admin).
+These sections allow for Servers to automate and scale the management of potentially high numbers of connected Clients for a diverse set of use cases.
 
-    "oauth_metadata": "https://demoutility.com/.well-known/oauth-authorization-server",
-}
-```
+Next, the specification defines a protocol for [messaging]({{ "/specs/cds-wg1-02" | relative_url }}#messages-api) between Servers and Clients.
+This allows for Servers to securely communicate with their connected Clients in a standardized manner, as opposed to using insure and unstructured methods (e.g. e-mail) or proprietary methods (e.g. a third-party hosted vendor solution).
 
-## OAuth Metadata Endpoint <a id="oauth-metadata" href="#oauth-metadata" class="permalink">🔗</a>
+Next, the specification defines a protocol for [credential handling]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-api), not only intended for managing and rotating Client secrets that can be used for the various APIs defined in the specification, but also potentially for managing credentials for other protocols that use or reference this specification.
+This allows for Servers to securely issue and manage access tokens, secrets, and other highly sensitive credentials for their connected Clients.
+Clients are also able to revoke and re-issue credentials, allowing for seamless and automated secret token rotation.
 
-```
-==Request==
-GET /.well-known/oauth-authorization-server HTTP/1.1
-Host: demoutility.com
+Next, the specification defines a protocol for [managing access grants]({{ "/specs/cds-wg1-02" | relative_url }}#grants-api), so that Clients can see what authorizations or access they've been granted.
+This allows Servers to provide visibility of access to Clients, so that Clients may organize and self-manage the various grants they've been given in an automated manner.
 
-==Response==
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+Next, the specification defines a protocol for [managing access grants]({{ "/specs/cds-wg1-02" | relative_url }}#grants-api), so that Clients can see what authorizations or access they've been granted.
+This allows Servers to provide visibility of access to Clients, so that Clients may organize and self-manage the various grants they've been given in an automated manner.
 
-{
-    # OAuth Metadata (inheritied from OAuth specs)
-    "issuer": "https://demoutility.com",
-    "service_documentation": "https://demoutility.com/docs/oauth",
-    "op_policy_uri": "https://demoutility.com/legal/oauth-policy",
-    "op_tos_uri": "https://demoutility.com/legal/oauth-terms",
-    "registration_endpoint": "https://demoutility.com/oauth/register",
-    "authorization_endpoint": "https://demoutility.com/oauth/authorize",
-    "token_endpoint": "https://demoutility.com/oauth/token",
-    "revocation_endpoint": "https://demoutility.com/oauth/token/revoke",
-    "introspection_endpoint": "https://demoutility.com/oauth/token/info",
-    "pushed_authorization_request_endpoint": "https://demoutility.com/oauth/par",
-    "code_challenge_methods_supported": [
-        "S256"
-    ],
-    "response_types_supported": [
-        "code"
-    ],
-    "grant_types_supported": [
-        "client_credentials",
-        "authorization_code",
-        "refresh_token"
-    ],
-    "token_endpoint_auth_methods_supported": [
-        "client_secret_basic"
-    ],
-    "scopes_supported": [
-        "client_admin",
-        "grant_admin",
-        "server_provided_files",
-        ...
-    ],
-    "authorization_details_types_supported": [
-        "client_admin",
-        "grant_admin",
-        "server_provided_files",
-        ... (same as "scopes_supported")
-    ]
+Finally, the specification defines a protocol for securely sharing [server-provided files]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-api), so that Servers can securely share arbitrary use-case specific files with Clients.
+This protocol is intended to be used for ad-hoc or one-time files (e.g. sharing a certificate during the onboarding process).
+For structured datasets or regularly scheduled transfers of bulk data, Servers are recommended to use other protocols (potentially as extensions of this specification) that are more fit for purpose, since this secure file sharing protocol does not have complex bulk data features, such as versioning, folder structures, deltas, etc.
 
-    # CDS Extension (added by this specification)
-    "cds_oauth_version": "v1",
-    "cds_human_registration": "https://demoutility.com/clients/register",
-    "cds_test_accounts": "https://demoutility.com/docs/testing",
-    "cds_clients_api": "https://demoutility.com/api/clients",
-    "cds_messages_api": "https://demoutility.com/api/messages",
-    "cds_credentials_api": "https://demoutility.com/api/credentials",
-    "cds_grants_api": "https://demoutility.com/api/grants",
-    "cds_server_provided_files_api": "https://demoutility.com/api/server-provided-files"
-    "cds_scope_descriptions": {
+Overall, the combination of protocols defined in this specification provides an "off-the-shelf" technical solution that can be freely referenced and implemented by utilities and other central entities to meet their needs for establishing and managing secure connectivity with external entities.
 
-        "client_admin": {
-            "id": "client_admin",
-            "name": "Client Admin",
-            "description": "This scope grants administrative access to the Client management APIs.",
-            "documentation": "https://demoutility.com/docs/oauth/scopes#client_admin",
-            "registration_requirements": [],
-            "response_types_supported": [],
-            "grant_types_supported": ["client_credentials"],
-            "token_endpoint_auth_methods_supported": ["client_secret_basic"],
-            "code_challenge_methods_supported": [],
-            "coverages_supported": [],
-            "authorization_details_fields": []
-        },
+## API Overview <a id="api-overview" href="#api-overview" class="permalink">🔗</a>
 
-        "grant_admin": {
-            "id": "grant_admin",
-            "name": "Grant Admin",
-            "description": "This scope grants administrative access to previously created Grants.",
-            "documentation": "https://demoutility.com/docs/oauth/scopes#grant_admin",
-            "registration_requirements": [],
-            "response_types_supported": [],
-            "grant_types_supported": ["client_credentials"],
-            "token_endpoint_auth_methods_supported": ["client_secret_basic"],
-            "code_challenge_methods_supported": [],
-            "coverages_supported": [],
-            "authorization_details_fields": [
-                {
-                    "id": "client_id",
-                    "name": "Client object identifier",
-                    "description": "The Client object identifier for which the Grant is issued.",
-                    "documentation": "https://demoutility.com/docs/oauth/scopes#grant_admin-client_id",
-                    "format": "string",
-                    "is_required": true,
-                },
-                {
-                    "id": "grant_id",
-                    "name": "Grant identifier",
-                    "description": "The Grant identifier for which the returned access_token will be given access.",
-                    "documentation": "https://demoutility.com/docs/oauth/scopes#grant_admin-grant_id",
-                    "format": "string",
-                    "is_required": true,
-                }
-            ]
-        },
+Below are the various web Application Programming Interface ("API") endpoints defined in [`cds-wg1-02`]({{ "/specs/cds-wg1-02" | relative_url }}).
 
-        "server_provided_files": {
-            "id": "server_provided_files",
-            "name": "Server-Provided Files",
-            "description": "This scope grants access to specific files that the Server wants make available to the Client.",
-            "documentation": "https://demoutility.com/docs/oauth/scopes#grant_admin",
-            "registration_requirements": [
-                "company_name"
-            ],
-            "response_types_supported": [],
-            "grant_types_supported": ["client_credentials"],
-            "token_endpoint_auth_methods_supported": [],
-            "code_challenge_methods_supported": [],
-            "coverages_supported": [],
-            "authorization_details_fields": [
-                {
-                    "id": "file_id",
-                    "name": "File identifier",
-                    "description": "A file provided by the Server that may be accessed by the Client as part of the Grant.",
-                    "documentation": "https://demoutility.com/docs/oauth/scopes#server_provided_files-file_id",
-                    "format": "string",
-                    "is_required": true,
-                }
-            ]
-        },
-        ...
-    },
-    "cds_registration_fields": {
-        "company_name": {
-            "id": "company_name",
-            "type": "registration_field",
-            "field_name": "cds_company_name",
-            "description": "The company name to be receiving files.",
-            "documentation": "https://demoutility.com/docs/oauth/registration#company_name",
-            "format": "string",
-            "max_length": 1024
-        },
-        ...
-    },
-}
-```
-
-## Dynamic Client Registration <a id="client-registration" href="#client-registration" class="permalink">🔗</a>
-
-```
-==Request==
-POST /oauth/register HTTP/1.1
-Content-Type: application/json
-Host: demoutility.com
-
-{
-    # Normal OAuth registration fields
-    "client_name": "Example EV Company",
-    "client_uri": "https://example.com",
-    "logo_uri": "https://example.com/logo.png",
-    "tos_uri": "https://example.com/terms",
-    "policy_uri": "https://example.com/privacy",
-    "contacts": [
-        "mailto:aaa@bbb.com",
-        "tel:+15554443333",
-    ],
-    "scope": "client_admin grant_admin server_provided_files",
-
-    # CDS Extension - additional registration fields
-    "cds_company_name": "Example Company"
-}
+**NOTE:** The below URLs are examples only, and each Server may define their own URLs, which are provided in their [Metadata object]({{ "/specs/cds-wg1-02" | relative_url }}#auth-server-metadata-format).
 
 
-==Response==
-HTTP/1.1 201 Created
-Content-Type: application/json;charset=UTF-8
+#### Metadata APIs <a id="api-metadata" href="#api-metadata" class="permalink">🔗</a>
 
-{
-    # Client Metadata (inheritied from OAuth specs)
-    "client_id": "aaaa11111122222",
-    "client_id_issued_at": 1740669836,
-    "client_name": "aaaa11111122222",
-    "contacts": [
-        "mailto:aaa@bbb.com",
-        "tel:+15554443333",
-    ],
-    "logo_uri": "https://example.com/logo.png",
-    "tos_uri": "https://example.com/terms",
-    "policy_uri": "https://example.com/privacy",
-    "contacts": [
-        "mailto:aaa@bbb.com",
-        "tel:+15554443333",
-    ],
-    "response_types": [],
-    "grant_types": [
-        "client_credentials"
-    ],
-    "token_endpoint_auth_method": "client_secret_basic",
-    "redirect_uris": [],
-    "scope": "client_admin",
-    "authorization_details_types": [
-        "client_admin"
-    ],
+<span class="badge bg-success">GET</span>
+[/.well-known/cds-server-metadata.json]({{ "/specs/cds-wg1-02" | relative_url }}#auth-server-metadata-url)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-cds-server-metadata)] -
+The CDS Server Metadata endpoint (from [`cds-wg1-01`]({{ "/specs/cds-wg1-01" | relative_url }})) that is extended to include the `oauth` capability
 
-    "client_secret": "!09546ut8ijo6.g90ujimrtegobf89uhjnwefs0vifojkpsdlfd.",
+<span class="badge bg-success">GET</span>
+[/.well-known/oauth-authorization-server]({{ "/specs/cds-wg1-02" | relative_url }}#auth-server-metadata-format)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-auth-server-metadata)] -
+The OAuth Authorization Server Metadata endpoint that is extended to include various CDS data fields
 
-    # CDS Extension (added by this specification)
-    "cds_created": "2025-01-01T00:00:00Z",
-    "cds_modified": "2025-01-01T00:00:00Z",
-    "cds_client_uri": "https://demoutility.com/oauth/clients/aaaa11111122222",
-    "cds_status": "production",
-    "cds_status_options": [
-        "production"
-    ]
-    "cds_server_metadata": "https://demoutility.com/oauth/clients/aaaa11111122222/cds-server-metadata.json",
-}
-```
+#### Client APIs <a id="api-clients" href="#api-clients" class="permalink">🔗</a>
 
+<span class="badge bg-warning text-dark">POST</span>
+[/oauth/client-registration]({{ "/specs/cds-wg1-02" | relative_url }}#registration-request)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-client-registration)] -
+Registration endpoint for Clients based on OAuth's [Dynamic Client Registration Protocol](https://www.rfc-editor.org/rfc/rfc7591)
 
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/clients]({{ "/specs/cds-wg1-02" | relative_url }}#clients-list)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-clients-list)] -
+Lists [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) objects that have been registered
 
-## Client Endpoint <a id="client-endpoint" href="#client-endpoint" class="permalink">🔗</a>
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/clients/*&lt;clientId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#clients-get)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-client-get)] -
+Returns an individual [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) object
 
-```
-==Request==
-GET /api/clients HTTP/1.1
-Host: demoutility.com
-Authorization: Bearer <access_token>
+<span class="badge bg-warning text-dark">PUT</span>
+[/cds-api/v1/clients/*&lt;clientId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#clients-modify)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-client-modify)] -
+Modifies an individual [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) object
 
+#### Messages APIs <a id="api-messages" href="#api-messages" class="permalink">🔗</a>
 
-==Response==
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/messages]({{ "/specs/cds-wg1-02" | relative_url }}#messages-list)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-messages-list)] -
+Lists [Messages]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) for a Client
 
-{
-    "clients": [
-        {
-            "client_id": "aaaa11111122222",
-            "client_id_issued_at": 1740669836,
-            "client_name": "aaaa11111122222",
-            "contacts": [
-                "mailto:aaa@bbb.com",
-                "tel:+15554443333",
-            ],
-            "logo_uri": "https://example.com/logo.png",
-            "tos_uri": "https://example.com/terms",
-            "policy_uri": "https://example.com/privacy",
-            "contacts": [
-                "mailto:aaa@bbb.com",
-                "tel:+15554443333",
-            ],
-            "response_types": [],
-            "grant_types": [
-                "client_credentials"
-            ],
-            "token_endpoint_auth_method": "client_secret_basic",
-            "redirect_uris": [],
-            "scope": "client_admin",
-            "authorization_details_types": [
-                "client_admin"
-            ],
-            "cds_created": "2025-01-01T00:00:00Z",
-            "cds_modified": "2025-01-01T00:00:00Z",
-            "cds_client_uri": "https://demoutility.com/oauth/clients/aaaa11111122222",
-            "cds_status": "production",
-            "cds_status_options": [
-                "production"
-            ],
-            "cds_server_metadata": "https://demoutility.com/oauth/clients/aaaa11111122222/cds-server-metadata.json",
-        },
-        {
-            "client_id": "aaaa333333444444",
-            "client_id_issued_at": 1740669836,
-            "client_name": "aaaa333333444444",
-            "contacts": [],
-            "response_types": [],
-            "grant_types": [
-                "client_credentials"
-            ],
-            "token_endpoint_auth_method": "client_secret_basic",
-            "redirect_uris": [],
-            "scope": "grant_admin",
-            "authorization_details_types": [
-                "grant_admin"
-            ],
-            "cds_created": "2025-01-01T00:00:00Z",
-            "cds_modified": "2025-01-01T00:00:00Z",
-            "cds_client_uri": "https://demoutility.com/oauth/clients/aaaa333333444444",
-            "cds_status": "production",
-            "cds_status_options": [
-                "production"
-            ],
-            "cds_server_metadata": "https://demoutility.com/oauth/clients/aaaa333333444444/cds-server-metadata.json",
-        },
-        {
-            "client_id": "aaaa4444444555555",
-            "client_id_issued_at": 1740669836,
-            "client_name": "aaaa4444444555555",
-            "contacts": [],
-            "response_types": [],
-            "grant_types": [
-                "client_credentials"
-            ],
-            "token_endpoint_auth_method": null,
-            "redirect_uris": [],
-            "scope": "server_provided_files",
-            "authorization_details_types": [
-                "server_provided_files"
-            ],
-            "cds_created": "2025-01-01T00:00:00Z",
-            "cds_modified": "2025-01-01T00:00:00Z",
-            "cds_client_uri": "https://demoutility.com/oauth/clients/aaaa4444444555555",
-            "cds_status": "production",
-            "cds_status_options": [
-                "production"
-            ],
-            "cds_server_metadata": "https://demoutility.com/oauth/clients/aaaa4444444555555/cds-server-metadata.json",
-        },
-    ],
-    "next": null,
-    "previous": null
-}
-```
+<span class="badge bg-warning text-dark">POST</span>
+[/cds-api/v1/messages]({{ "/specs/cds-wg1-02" | relative_url }}#messages-create)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-message-create)] -
+Creates a new [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) from the Client to the Server
 
-## Client Messages Endpoint <a id="client-messages-endpoint" href="#client-messages-endpoint" class="permalink">🔗</a>
-```
-==Request==
-GET /api/messages HTTP/1.1
-Host: demoutility.com
-Authorization: Bearer <access_token>
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/messages/*&lt;messageId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#messages-get)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-message-get)] -
+Returns an individual [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) object
 
+<span class="badge bg-warning text-dark">PATCH</span>
+[/cds-api/v1/messages/*&lt;messageId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#messages-modify)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-message-modify)] -
+Modifies an individual [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) object
 
-==Response==
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+#### Credentials APIs <a id="api-credentials" href="#api-credentials" class="permalink">🔗</a>
 
-{
-    "outstanding": [
-        {
-            "uri": "https://demoutility.com/api/clients/aaaaaaaaaa-01/updates/5555555555555",
-            "previous_uri": null,
-            "type": "update_request",
-            "read": true,
-            "creator": null,
-            "created": "2025-01-01T00:00:00Z",
-            "modified": "2025-01-01T00:00:00Z",
-            "status": "pending",
-            "name": "",
-            "description": "",
-            "updates_requested": [
-                {
-                    "name": "client_name",
-                    "previous_value": "My Example Client",
-                    "new_value": "My New Name",
-                },
-            ],
-        },
-    ],
-    "outstanding_next": null,
-    "outstanding_previous": null,
-    "unread": [
-        {
-            "uri": "https://demoutility.com/api/clients/aaaaaaaaaa-01/updates/66666666666666",
-            "previous_uri": "https://demoutility.com/api/clients/aaaaaaaaaa-01/updates/444444444444444",
-            "type": "notification",
-            "read": false,
-            "creator": null,
-            "created": "2025-01-01T00:00:00Z",
-            "modified": "2025-01-01T00:00:00Z",
-            "related_uri": "https://demoutility.com/blog/post/123123",
-            "name": "Upcoming Maintenance Reminder",
-            "description": "As a reminder, on 2024-01-01 from 12:00 UTC to 14:00 UTC, we will be down for scheduled maintenance",
-        },
-    ],
-    "unread_next": null,
-    "unread_previous": null,
-    "read": [
-        {
-            "uri": "https://demoutility.com/api/clients/aaaaaaaaaa-01/updates/444444444444444",
-            "previous_uri": null,
-            "type": "notification",
-            "read": true,
-            "creator": null,
-            "created": "2025-01-01T00:00:00Z",
-            "modified": "2025-01-01T00:00:00Z",
-            "related_uri": "https://demoutility.com/blog/post/123123",
-            "name": "Upcoming Maintenance",
-            "description": "On 2024-01-01 from 12:00 UTC to 14:00 UTC, we will be down for scheduled maintenance",
-        },
-    ],
-    "read_next": null,
-    "read_previous": null,
-}
-```
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/credentials]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-list)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-credentials-list)] -
+Lists [Credentials]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) for a Client
 
-## Credentials Endpoint <a id="credentials-endpoint" href="#credentials-endpoint" class="permalink">🔗</a>
-```
-==Request==
-GET /api/credentials HTTP/1.1
-Host: demoutility.com
-Authorization: Bearer <access_token>
+<span class="badge bg-warning text-dark">POST</span>
+[/cds-api/v1/credentials]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-create)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-credentials-create)] -
+Creates a new [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object
 
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/credentials/*&lt;credentialId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-get)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-credentials-get)] -
+Returns an individual [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object
 
-==Response==
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+<span class="badge bg-warning text-dark">PATCH</span>
+[/cds-api/v1/credentials/*&lt;credentialId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-modify)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-credentials-modify)] -
+Modifies an individual [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object
 
-{
-    "credentials": [
-        {
-            "credential_id": "555555555",
-            "uri": "https://demoutility.com/api/credentials/555555555",
-            "client_id": "aaaa11111122222",
-            "created": "2025-01-01T00:00:00Z",
-            "modified": "2025-01-01T00:00:00Z",
-            "type": "client_secret",
-            "client_secret": "!09546ut8ijo6.g90ujimrtegobf89uhjnwefs0vifojkpsdlfd.",
-            "client_secret_expires_at": null,
-        },
-        {
-            "credential_id": "666666666666",
-            "uri": "https://demoutility.com/api/credentials/666666666666",
-            "client_id": "aaaa333333444444",
-            "created": "2025-01-01T00:00:00Z",
-            "modified": "2025-01-01T00:00:00Z",
-            "type": "client_secret",
-            "client_secret": "09u7!yjhhkmlkriud#w8yeuhnjmjg$rvu9uy8h4un4gt58934uri",
-            "client_secret_expires_at": null,
-        },
-    ],
-    "next": null,
-    "previous": null,
-}
-```
+#### Grants APIs <a id="api-grants" href="#api-grants" class="permalink">🔗</a>
 
-## Grants Endpoint <a id="grants-endpoint" href="#grants-endpoint" class="permalink">🔗</a>
-```
-==Request==
-GET /api/grants HTTP/1.1
-Host: demoutility.com
-Authorization: Bearer <access_token>
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/grants]({{ "/specs/cds-wg1-02" | relative_url }}#grants-list)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-grants-list)] -
+Lists [Grants]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) for a Client
 
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/grants/*&lt;grantId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#grants-get)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-grants-get)] -
+Returns an individual [Grant]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) object
 
-==Response==
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+<span class="badge bg-warning text-dark">PATCH</span>
+[/cds-api/v1/grants/*&lt;grantId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#grants-modify)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-grants-modify)] -
+Modifies an individual [Grant]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) object
 
-{
-    "grants": [
-        {
-            "grant_id": "8888888888",
-            "uri": "https://demoutility.com/api/grants/8888888888",
-            "replacing": [],
-            "replaced_by": [],
-            "parent": null,
-            "children": [],
-            "created": "2025-01-01T00:00:00Z",
-            "modified": "2025-01-01T00:00:00Z",
-            "not_before": null,
-            "not_after": null,
-            "eta": null,
-            "expires": null,
-            "status": "active",
-            "client_id": "aaaa4444444555555",
-            "cds_client_uri": "https://demoutility.com/api/clients/aaaa4444444555555",
-            "scope": "server_provided_files",
-            "authorization_details": [
-                {
-                    "type": "server_provided_files",
-                    "file_id": "9999999999999999"
-                }
-            ],
-            "receipt_confirmations": [],
-            "enabled_scope": "server_provided_files",
-            "enabled_authorization_details": [
-                {
-                    "type": "server_provided_files",
-                    "file_id": "9999999999999999"
-                }
-            ],
-            "sub_authorization_scopes": [],
-        },
-    ],
-    "next": "https://demoutility.com/api/clients/11111111/grants?after=aaaaaaaaa",
-    "previous": null,
-}
-```
+#### Server-Provided Files APIs <a id="api-server-provided-files" href="#api-server-provided-files" class="permalink">🔗</a>
 
-## Server-Provided Files Endpoint <a id="server-provided-files-endpoint" href="#server-provided-files-endpoint" class="permalink">🔗</a>
-```
-==Request==
-GET /api/server-provided-files HTTP/1.1
-Host: demoutility.com
-Authorization: Bearer <access_token>
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/server-provided-files]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-list)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-server-provided-files-list)] -
+Lists [Server-Provided Files]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) for a Client
 
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/server-provided-files/*&lt;fileId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-get)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-server-provided-files-get)] -
+Returns an individual [Server-Provided File]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) object (metadata and file details for the Server-Provided File)
 
-==Response==
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+<span class="badge bg-success">GET</span>
+[/cds-api/v1/server-provided-files/*&lt;fileId&gt;*/download]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-download)
+[[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-server-provided-files-download)] -
+Returns the raw data for an individual [Server-Provided File]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) object
 
-{
-    "files": [
-        {
-            "file_id": "9999999999999999",
-            "created": "2025-01-01T00:00:00Z",
-            "modified": "2025-01-01T00:00:00Z",
-            "mime_type": "application/yaml",
-            "size": 9999,
-            "name": "setup_config.yaml",
-            "description": "Configuration settings for connecting to our proprietary API.",
-            "download_uri": "https://demoutility.com/api/server-provided-files/9999999999999999"
-        },
-    ],
-    "next": null,
-    "previous": null,
-}
-```
+## Examples <a id="examples" href="#examples" class="permalink">🔗</a>
 
-## Examples (using CURL and jq) <a id="examples" href="#examples" class="permalink">🔗</a>
+Here are some examples of how to programmatically interact with a Server's APIs using `curl` and `jq` from the command line.
 
 #### Example: Registering a Client <a id="example-registering" href="#example-registering" class="permalink">🔗</a>
-<details>
-<summary>Show example</summary>
-<p>
+
 How to register with a CDS Server for a variety of scopes.
-</p>
+
+<details style="margin-bottom:2em;">
+<summary>Show example</summary>
 <pre class="highlight">
 <code>
 # Start with your CDS Server Metadata's well-known URL
@@ -624,11 +246,11 @@ CLIENT_SECRET="bbbbbbbbbbbbbbb"
 
 
 #### Example: Loading the list of Client objects <a id="example-load-clients" href="#example-load-clients" class="permalink">🔗</a>
-<details>
-<summary>Show example</summary>
-<p>
+
 After registering, you can load the list of Client objects created from your registration request.
-</p>
+
+<details style="margin-bottom:2em;">
+<summary>Show example</summary>
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL, as well as your client_id and client_secret from the initial registration
@@ -713,11 +335,11 @@ curl -v \
 
 
 #### Example: Adding a Redirect URI to a Client object <a id="example-modify-redirect-uris" href="#example-modify-redirect-uris" class="permalink">🔗</a>
-<details>
+
+For Client objects that require user authorization (e.g. `"response_type": ["code"]`), you can set your own list of `redirect_uris` by modifying the relevant Client object.
+
+<details style="margin-bottom:2em;">
 <summary>Show example</summary>
-<p>
-For Client objects that require user authorization (e.g. <code>"response_type": ["code"]</code>), you can set your own list of <code>redirect_uris</code> by modifying the relevant Client object.
-</p>
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL
@@ -778,14 +400,13 @@ curl -v -X PUT \
 
 
 #### Example: Obtaining a user authorization <a id="example-user-authorization" href="#example-user-authorization" class="permalink">🔗</a>
-<details>
+
+For Client objects that require user authorization (e.g. `"response_type": ["code"]`), use the `authorization_endpoint` to obtain an authorization code.
+
+This example assumes you've already added your custom `redirect_uri` to the relevant Client object's `redirect_uris`.
+
+<details style="margin-bottom:2em;">
 <summary>Show example</summary>
-<p>
-For Client objects that require user authorization (e.g. <code>"response_type": ["code"]</code>), use the <code>authorization_endpoint</code> to obtain an authorization code.
-</p>
-<p>
-This example assumes you've already added your custom <code>redirect_uri</code> to the relevant Client object's <code>redirect_uris</code>.
-</p>
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL
@@ -875,14 +496,13 @@ curl -v \
 
 
 #### Example: Using the Grant Admin scope to load data for another Grant <a id="example-grant-admin" href="#example-grant-admin" class="permalink">🔗</a>
-<details>
+
+You can use the `grant_admin` Client object to generate an `access_token` that can access data for another Client object's Grants.
+
+This is useful for gaining access to data and functionality when Servers create Grants on their side (e.g. the Server-Provided Files API) or when user authorization requests use the Server's default `redirect_uri` (thus you never get a redirect back with a `code`).
+
+<details style="margin-bottom:2em;">
 <summary>Show example</summary>
-<p>
-You can use the <code>grant_admin</code> Client object to generate an <code>access_token</code> that can access data for another Client object's Grants.
-</p>
-<p>
-This is useful for gaining access to data and functionality when Servers create Grants on their side (e.g. the Server-Provided Files API) or when user authorization requests use the Server's default `redirect_uri</code> (thus you never get a redirect back with a <code>code</code>).
-</p>
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL
@@ -998,14 +618,13 @@ curl -v \
 
 
 #### Example: Providing a JWK in authorization_details for encrypted responses <a id="example-auth-details-jwk" href="#example-auth-details-jwk" class="permalink">🔗</a>
-<details>
-<summary>Show example</summary>
-<p>
-When supported, you can provide a JWK public key in the <code>authorization_details</code> of authorization requests, which triggers encrypting API responses for access granted to be encrypted with that public key.
-</p>
-<p>
+
+When supported, you can provide a JWK public key in the `authorization_details` of authorization requests, which triggers encrypting API responses for access granted to be encrypted with that public key.
+
 This is useful for enabling device-level encryption of authorized data, where a device can provide a public key, the user of that device can authorize access, and the data can be encrypted with that device's individual public key.
-</p>
+
+<details style="margin-bottom:2em;">
+<summary>Show example</summary>
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL
