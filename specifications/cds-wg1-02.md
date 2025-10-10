@@ -927,6 +927,10 @@ Severs MUST process newer Messages created by the Client as overriding the Clien
 If a Client wishes to amend a previously created Message of type `private_message` or `support_request` they created, the Client MUST [create a new Message](#messages-create) with the `previous_uri` value set as the Message `uri` for which they are wanting to amend.
 Severs MUST consider newer Messages created by the Client as amending the Client's previous support request or message.
 
+Servers MUST validate the values of the submitted Message fields that are able to be modified and reject with a `400 Bad Response` Status Code if any of those fields are submitted with invalid values.
+Servers MUST ignore any fields submitted that are not able to be modified by the Client.
+If the submission is valid, Servers MUST synchronously modify the Message object and respond with a `200 OK` Status Code where the response body is the updated Message object.
+
 ## 7. Credentials API <a id="credentials-api" href="#credentials-api" class="permalink">🔗</a>
 
 To allow Clients to manage `client_secret` values used for authentication to APIs, this specification requires that Server implement a Credentials API.
@@ -1006,8 +1010,9 @@ The following are fields that MAY be included in the [PATCH](#patch) request, an
 * `client_secret_expires_at` - Servers MUST only accept valid timestamp values greater than or equal to the current time and less than or equal to the current value.
   When the current value is `0`, indicating no expiration time, Severs MUST allow Clients to set a value of `0` or any timestamp greater than or equal to the current time.
 
-Servers MUST reject requests with a `400 Bad Request` Status Code when fields are submitted that are not able to be modified by the Client or the submitted values are invalid.
-If all submitted fields are valid and have been updated, the Server MUST respond with a `200 OK` Status Code.
+Servers MUST validate the values of the submitted Credential fields that are able to be modified and reject with a `400 Bad Response` Status Code if any of those fields are submitted with invalid values.
+Servers MUST ignore any fields submitted that are not able to be modified by the Client.
+If the submission is valid, Servers MUST synchronously modify the Credential object and respond with a `200 OK` Status Code where the response body is the updated Credential object.
 
 If a Client updates the `client_secret_expires_at` of a Credential to be a timestamp equal to or less than the current time, the Server MUST assume the Credential is compromised and synchronously disable the Credential's `client_secret` from being used on the token endpoint and revoke any `access_token` or `refresh_token` values issued by the token endpoint as a result of using the now-disabled Credential.
 
@@ -1153,10 +1158,11 @@ The following are fields that MAY be included in the [PATCH](#patch) request bod
   Servers MUST NOT require another user authorization if the updated scope is a reduction in scope of access (e.g. removal of a scope value from the scope string).
   If a new user authorization or sub-Grants are required, the Server MUST update the `status` to one of `needs_authorization` or `needs_sub_grants` and update the `enabled_authorization_details` to be the value of the current authorization details for which the Client is allowed access.
 
-Servers MUST reject requests with a `400 Bad Request` response when fields are submitted that are not able to be modified by the Client or the submitted values are invalid.
-For valid [PATCH](#patch) requests from Clients, Servers MUST respond with a `200 OK` Status Code with an updated JSON object of the complete current Grant object.
+Servers MUST validate the values of the submitted Grant fields that are able to be modified and reject with a `400 Bad Response` Status Code if any of those fields are submitted with invalid values.
+Servers MUST ignore any fields submitted that are not able to be modified by the Client.
 
-If a Server needs to asynchronously review and approve changes to any submitted Grant object fields that have been submitted by the Client and are different from the current values, for valid modification requests the Server MUST update the Grant's `status` to `pending` in the response.
+If a Server does not need to asynchronously review the changes, the Server MUST synchronously modify the Grant object and respond with a `200 OK` Status Code where the response body is the updated Grant object.
+If a Server needs to asynchronously review and approve changes to any submitted Grant object fields that have been submitted by the Client and are different from the current values, for valid modification requests the Server MUST update the Grant's `status` to `pending` and respond with a `202 Accepted` Status Code where the response body is the updated Grant object.
 Additionally, if the `scope` or `authorization_details` has been updated, the Server MUST update the `enabled_scope` and `enabled_authorization_details` to reflect for what the Client currently has access while the Grant is pending.
 
 ## 9. Server-Provided Files API <a id="server-provided-files-api" href="#server-provided-files-api" class="permalink">🔗</a>
