@@ -17,7 +17,7 @@ Then, once a secure connection is established, other protocols (e.g. demand resp
 
 For example, a utility could deploy a Server that implements this specification where demand response providers can register, submit documents, be reviewed, approved, and get issued access tokens in a standardized and scalable manner.
 
-Additionally, this specification can be used and referenced by other specifications as the mean by which their protocols can initially setup a secure connection.
+Additionally, this specification can be used and referenced by other specifications as the means by which their protocols can initially setup a secure connection.
 
 ## Background <a id="background" href="#background" class="permalink">🔗</a>
 
@@ -37,10 +37,10 @@ First, the specification defines how a utility or other central entity (called a
 The process for publishing Server metadata builds on both CDS's [`cds-wg1-01`]({{ "/specs/cds-wg1-02" | relative_url }}) ("Server Metadata") and OAuth's [RFC 8414](https://www.rfc-editor.org/rfc/rfc8414) ("Authorization Server Metadata").
 It also defines how Servers can describe the functionality they offer (called "Scope Descriptions") and disclose any requirements or steps for Client registration and onboarding (called "Registration Requirements").
 
-Next, the specification defines protocol for [Client registration]({{ "/specs/cds-wg1-02" | relative_url }}#client-registration-process) and [Client management]({{ "/specs/cds-wg1-02" | relative_url }}#clients-api).
+Next, the specification defines protocols for [Client registration]({{ "/specs/cds-wg1-02" | relative_url }}#client-registration-process) and [Client management]({{ "/specs/cds-wg1-02" | relative_url }}#clients-api).
 Client registration is based on OAuth's [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591) ("Dynamic Client Registration Protocol").
 The Client management protocol also defines how Servers can allow Client administrators to manage and use multiple Client objects via the [Client Admin Scope]({{ "/specs/cds-wg1-02" | relative_url }}#scopes-client-admin) and [Grant Admin Scope]({{ "/specs/cds-wg1-02" | relative_url }}#scopes-grant-admin).
-These sections allow for Servers to automate and scale the management of potentially high numbers of connected Clients for a diverse set of use cases.
+These protocols allow for Servers to automate and scale the management of potentially high numbers of connected Clients for a diverse set of use cases.
 
 Next, the specification defines a protocol for [messaging]({{ "/specs/cds-wg1-02" | relative_url }}#messages-api) between Servers and Clients.
 This allows for Servers to securely communicate with their connected Clients in a standardized manner, as opposed to using insure and unstructured methods (e.g. e-mail) or proprietary methods (e.g. a third-party hosted vendor solution).
@@ -52,133 +52,129 @@ Clients are also able to revoke and re-issue credentials, allowing for seamless 
 Next, the specification defines a protocol for [managing access grants]({{ "/specs/cds-wg1-02" | relative_url }}#grants-api), so that Clients can see what authorizations or access they've been granted.
 This allows Servers to provide visibility of access to Clients, so that Clients may organize and self-manage the various grants they've been given in an automated manner.
 
-Next, the specification defines a protocol for [managing access grants]({{ "/specs/cds-wg1-02" | relative_url }}#grants-api), so that Clients can see what authorizations or access they've been granted.
-This allows Servers to provide visibility of access to Clients, so that Clients may organize and self-manage the various grants they've been given in an automated manner.
-
 Finally, the specification defines a protocol for securely sharing [server-provided files]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-api), so that Servers can securely share arbitrary use-case specific files with Clients.
-This protocol is intended to be used for ad-hoc or one-time files (e.g. sharing a certificate during the onboarding process).
-For structured datasets or regularly scheduled transfers of bulk data, Servers are recommended to use other protocols (potentially as extensions of this specification) that are more fit for purpose, since this secure file sharing protocol does not have complex bulk data features, such as versioning, folder structures, deltas, etc.
+This protocol is intended to be used for ad-hoc or one-time files (e.g. sharing a certificate during a Client onboarding process).
+For structured datasets or regularly scheduled transfers of bulk data, Servers are recommended to use other protocols (that could reference this specification for establishing connectivity) that are more fit for purpose, since the included secure file sharing protocol does not have complex bulk data features, such as versioning, folder structures, deltas, etc.
 
 Overall, the combination of protocols defined in this specification provides an "off-the-shelf" technical solution that can be freely referenced and implemented by utilities and other central entities to meet their needs for establishing and managing secure connectivity with external entities.
 
 ## API Overview <a id="api-overview" href="#api-overview" class="permalink">🔗</a>
 
-Below are the various web Application Programming Interface ("API") endpoints defined in [`cds-wg1-02`]({{ "/specs/cds-wg1-02" | relative_url }}).
+Below are the web Application Programming Interface ("API") endpoints defined in [`cds-wg1-02`]({{ "/specs/cds-wg1-02" | relative_url }}).
 
-**NOTE:** The below URLs are examples only, and each Server may define their own URLs, which are provided in their [Metadata object]({{ "/specs/cds-wg1-02" | relative_url }}#auth-server-metadata-format).
-
+**NOTE:** The below URLs are examples only, since each Server sets their own URLs for the specification's required endpoints and includes them in their [Metadata object]({{ "/specs/cds-wg1-02" | relative_url }}#auth-server-metadata-format).
 
 #### Metadata APIs <a id="api-metadata" href="#api-metadata" class="permalink">🔗</a>
 
 <span class="badge bg-success">GET</span>
 [/.well-known/cds-server-metadata.json]({{ "/specs/cds-wg1-02" | relative_url }}#auth-server-metadata-url)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-cds-server-metadata)] -
-The CDS Server Metadata endpoint (from [`cds-wg1-01`]({{ "/specs/cds-wg1-01" | relative_url }})) that is extended to include the `oauth` capability
+The CDS Server Metadata endpoint (from [`cds-wg1-01`]({{ "/specs/cds-wg1-01" | relative_url }})) that is extended to include the `oauth` capability.
 
 <span class="badge bg-success">GET</span>
 [/.well-known/oauth-authorization-server]({{ "/specs/cds-wg1-02" | relative_url }}#auth-server-metadata-format)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-auth-server-metadata)] -
-The OAuth Authorization Server Metadata endpoint that is extended to include various CDS data fields
+The OAuth Authorization Server Metadata endpoint that is extended to include various CDS data fields.
 
 #### Client APIs <a id="api-clients" href="#api-clients" class="permalink">🔗</a>
 
 <span class="badge bg-warning text-dark">POST</span>
 [/oauth/client-registration]({{ "/specs/cds-wg1-02" | relative_url }}#registration-request)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-client-registration)] -
-Registration endpoint for Clients based on OAuth's [Dynamic Client Registration Protocol](https://www.rfc-editor.org/rfc/rfc7591)
+Registration endpoint for Clients based on OAuth's Dynamic Client Registration Protocol.
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/clients]({{ "/specs/cds-wg1-02" | relative_url }}#clients-list)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-clients-list)] -
-Lists [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) objects that have been registered
+Lists [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) objects that have been registered.
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/clients/*&lt;clientId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#clients-get)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-client-get)] -
-Returns an individual [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) object
+Returns an individual [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) object.
 
 <span class="badge bg-warning text-dark">PUT</span>
 [/cds-api/v1/clients/*&lt;clientId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#clients-modify)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-client-modify)] -
-Modifies an individual [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) object
+Modifies an individual [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) object.
 
 #### Messages APIs <a id="api-messages" href="#api-messages" class="permalink">🔗</a>
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/messages]({{ "/specs/cds-wg1-02" | relative_url }}#messages-list)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-messages-list)] -
-Lists [Messages]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) for a Client
+Lists [Messages]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) for a Client.
 
 <span class="badge bg-warning text-dark">POST</span>
 [/cds-api/v1/messages]({{ "/specs/cds-wg1-02" | relative_url }}#messages-create)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-message-create)] -
-Creates a new [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) from the Client to the Server
+Creates a new [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) from the Client to the Server.
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/messages/*&lt;messageId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#messages-get)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-message-get)] -
-Returns an individual [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) object
+Returns an individual [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) object.
 
 <span class="badge bg-warning text-dark">PATCH</span>
 [/cds-api/v1/messages/*&lt;messageId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#messages-modify)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-message-modify)] -
-Modifies an individual [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) object
+Modifies an individual [Message]({{ "/specs/cds-wg1-02" | relative_url }}#message-format) object.
 
 #### Credentials APIs <a id="api-credentials" href="#api-credentials" class="permalink">🔗</a>
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/credentials]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-list)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-credentials-list)] -
-Lists [Credentials]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) for a Client
+Lists [Credentials]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) for a Client.
 
 <span class="badge bg-warning text-dark">POST</span>
 [/cds-api/v1/credentials]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-create)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-credentials-create)] -
-Creates a new [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object
+Creates a new [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object.
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/credentials/*&lt;credentialId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-get)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-credentials-get)] -
-Returns an individual [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object
+Returns an individual [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object.
 
 <span class="badge bg-warning text-dark">PATCH</span>
 [/cds-api/v1/credentials/*&lt;credentialId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-modify)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-credentials-modify)] -
-Modifies an individual [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object
+Modifies an individual [Credential]({{ "/specs/cds-wg1-02" | relative_url }}#credentials-format) object.
 
 #### Grants APIs <a id="api-grants" href="#api-grants" class="permalink">🔗</a>
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/grants]({{ "/specs/cds-wg1-02" | relative_url }}#grants-list)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-grants-list)] -
-Lists [Grants]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) for a Client
+Lists [Grants]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) for a Client.
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/grants/*&lt;grantId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#grants-get)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-grants-get)] -
-Returns an individual [Grant]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) object
+Returns an individual [Grant]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) object.
 
 <span class="badge bg-warning text-dark">PATCH</span>
 [/cds-api/v1/grants/*&lt;grantId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#grants-modify)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-grants-modify)] -
-Modifies an individual [Grant]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) object
+Modifies an individual [Grant]({{ "/specs/cds-wg1-02" | relative_url }}#grant-format) object.
 
 #### Server-Provided Files APIs <a id="api-server-provided-files" href="#api-server-provided-files" class="permalink">🔗</a>
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/server-provided-files]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-list)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-server-provided-files-list)] -
-Lists [Server-Provided Files]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) for a Client
+Lists [Server-Provided Files]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) for a Client.
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/server-provided-files/*&lt;fileId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-get)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-server-provided-files-get)] -
-Returns an individual [Server-Provided File]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) object (metadata and file details for the Server-Provided File)
+Returns an individual [Server-Provided File]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) object (metadata and file details for the Server-Provided File).
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/server-provided-files/*&lt;fileId&gt;*/download]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-download)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-server-provided-files-download)] -
-Returns the raw data for an individual [Server-Provided File]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) object
+Returns the raw data for an individual [Server-Provided File]({{ "/specs/cds-wg1-02" | relative_url }}#server-provided-files-format) object.
 
 ## Examples <a id="examples" href="#examples" class="permalink">🔗</a>
 
