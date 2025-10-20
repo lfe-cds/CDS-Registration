@@ -162,9 +162,26 @@ These entities can include, but are not limited to, carbon tracking applications
 
 <a id="patch" href="#patch" class="permalink">🔗</a> "PATCH" - A request method defined in [[RFC 5789](#ref-rfc5789)].
 
+<a id="relative-date" href="#relative-date" class="permalink">🔗</a> "relative date" - A string representation of a date relative to the current date, formatted as a `duration` from [[RFC 3339 Appendix A](#ref-rfc3339-duration)].
+Relative dates MUST NOT use `H` (hours), `M` (minutes), or `S` (seconds) values.
+For example, `"P3Y"` represents a relative date range of 3 years from the current date.
+Another example is `"P0D"`, which represents the current date.
+
+<a id="relative-datetime" href="#relative-datetime" class="permalink">🔗</a> "relative datetime" - A string representation of a datetime relative to the current datetime, formatted as a `duration` from [[RFC 3339 Appendix A](#ref-rfc3339-duration)].
+For example, `"P30DT2H"` represents a relative datetime range of 30 days and 2 hours from the current datetime.
+Another example is `"P0S"`, which represents the current datetime.
+
+<a id="relative-or-absolute-date" href="#relative-or-absolute-date" class="permalink">🔗</a> "relative or absolute date" - A [date](#date), [relative date](#relative-date), or `"infinite"` string.
+The `"infinite"` string value represents an unlimited duration from the current date.
+
+<a id="relative-or-absolute-datetime" href="#relative-or-absolute-date" class="permalink">🔗</a> "relative or absolute datetime" - A [datetime](#datetime), [relative datetime](#relative-datetime), or `"infinite"` string.
+The `"infinite"` string value represents an unlimited duration from the current datetime.
+
 <a id="status-code" href="#status-code" class="permalink">🔗</a> "Status Code" - A response status code defined in [[RFC 9110 Section 15](#ref-rfc9110-codes)].
 
 <a id="string" href="#string" class="permalink">🔗</a> "string" - A series of unicode characters as defined in [[RFC 8259 Section 7](#ref-rfc8259-strings)].
+
+<a id="timezone" href="#timezone" class="permalink">🔗</a> "timezone" - A timezone name string, as defined by [[IANA TZ](#ref-iana-tz)] (e.g. "America/Chicago", "Europe/Brussels", etc.).
 
 <a id="url" href="#url" class="permalink">🔗</a> "URL" - A string representing resource as defined in [[RFC 3986 Section 1.1.3](#ref-rfc3986-url)] (e.g. "https://example.com/page1").
 
@@ -220,6 +237,7 @@ In addition to OAuth capabilities included in the metadata object, this specific
 
 * `cds_oauth_version` - _[string](#string)_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`
 * `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a user device
+* `cds_timezone` - _[timezone](#timezone)_ - (REQUIRED) The timezone the Server uses as a point of reference for relative dates and datetimes.
 * `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Clients API](#clients-api).
 * `cds_messages_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Messages API](#messages-api).
 * `cds_credentials_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Credentials API](#credentials-api).
@@ -234,7 +252,7 @@ In addition to OAuth capabilities included in the metadata object, this specific
   This object MUST include a key for each Registration Field `id` included in the `registration_requirements` lists in the metadata object with a [Registration Field](#registration-field-format) as that key's value.
   If all `registration_requirements` lists are empty, this reference object is an empty object (`{}`).
 
-Scope functionality described by [Scope Description](#scope-descriptions-format) objects included in the `cds_scope_descriptions` object MUST be available for all of the scope's coverage, as described by the Scope Description's `coverages_supported` list, up to any limits specified in the scopes authorization details, as described by the Scope Description's `authorization_details_fields_supported` [Authorization Details](#auth-details-fields-format) object's `limit` values.
+Scope functionality described by [Scope Description](#scope-descriptions-format) objects included in the `cds_scope_descriptions` object MUST be available for all of the scope's coverage, as described by the Scope Description's `coverages_supported` list, up to any limits specified in the scopes authorization details, as described by the Scope Description's `authorization_details_fields_supported` [Authorization Details](#auth-details-fields-format) object's `maximum` and `minimum` values.
 For situations where the same scope is available for multiple groups of coverages and limits, multiple Scope Description entries with different `id` values MUST be included.
 For example, if a Server offers a scope that grants access to historical customer usage data, offering 24 months of usage history for electricity service contracts and and 12 months of history for natural gas service contracts, the Server MUST include two Scope Descriptions with different `id` values that include only the coverage and limits of that scope's functionality.
 
@@ -302,9 +320,8 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
         * `format` is `string`.
         * `is_required` is `true`.
         * `default` is not included.
-        * `relative_date_limit` is not included.
-        * `absolute_date_limit` is not included.
-        * `limit` is not included.
+        * `maximum` is `1000`.
+        * `minimum` is `1`.
         * `choices` is not included.
     * Grant ID:
         * `id` is `grant_id`.
@@ -315,9 +332,8 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
         * `format` is `string`.
         * `is_required` is `true`.
         * `default` is not included.
-        * `relative_date_limit` is not included.
-        * `absolute_date_limit` is not included.
-        * `limit` is not included.
+        * `maximum` is `1000`.
+        * `minimum` is `1`.
         * `choices` is not included.
 
 Server MUST only approve submissions of this scope to the token endpoint with a single authorization details entry to the token endpoint, ensuring the access token returned is only valid for one `grant_id`.
@@ -351,9 +367,8 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
     * `format` is `string`.
     * `is_required` is `true`.
     * `default` is not included.
-    * `relative_date_limit` is not included.
-    * `absolute_date_limit` is not included.
-    * `limit` is not included.
+    * `maximum` is `1000`.
+    * `minimum` is `1`.
     * `choices` is not included.
 
 Since Grants with the scope are only created by Servers, Client do not receive an authorization code or access token for that Grant with which they may access the files.
@@ -463,13 +478,19 @@ The following values are included in the default list available in authorization
 * `default` - _various_ - (OPTIONAL) If `is_required` is `false`, this is the default value that will be used in lieu of the Client submitting a value themselves.
   This is also the value that will be used if a basic OAuth `scope` string parameter is used instead of an `authorization_details` parameter.
   If `is_required` is `true`, this is not included.
-* `relative_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date` and the value is limited by the Server, this is REQUIRED and MUST be the largest relative date range that may be submitted.
-  Servers MUST validate both submitted absolute dates and relative dates against the relative date limit, where when comparing to a submitted absolute date, the current Server date in the Server's local timezone is used as the relative point of reference.
-  If `format` is not `relative_or_absolute_date`, this is not included.
-* `absolute_date_limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is `relative_or_absolute_date` the value is limited by the Server, this is REQUIRED and MUST be the furthest away date that may be submitted.
-  Servers MUST validate both submitted absolute dates and relative dates against the absolute date limit, where when comparing to a submitted relative date, the current Server date in the Server's local timezone is used as the relative point of reference.
-* `limit` - _[integer](#integer)_ - (OPTIONAL) If `format` is one of `int` or `decimal` and the value is limited by the Server, this is REQUIRED and MUST be the largest value that can be the submitted.
-  If `format` is `string` and the length of the value is limited by the Server, this is REQUIRED and MUST be the maximum string length that can be the submitted.
+* `maximum` - _various_ - (OPTIONAL) The largest value acceptable for this field by the Server.
+  If `format` is one of `int`, `decimal`, `string`, `string_or_null`, `string_list`, `relative_or_absolute_date`, or `relative_or_absolute_datetime`, this field is REQUIRED.
+  If `format` is `int`, this field MUST be an [integer](#integer), representing the field's largest possible value, or the string `"infinite"`, which represents the field's value can be unlimited.
+  If `format` is `decimal`, this field MUST be a [decimal](#decimal), representing the field's largest possible value, or the string `"infinite"`, which represents the field's value can be unlimited.
+  If `format` is one of `string` or `string_or_null`, this field MUST be an [integer](#integer), which represents the maximum string length if the value is a string.
+  If `format` is `string_list`, this field MUST be an [integer](#integer), representing the maximum combined length of all strings in the array of strings.
+  If `format` is `relative_or_absolute_date`, this field MUST be a [relative or absolute date](#relative-or-absolute-date), which represents the furthest date out that may be submitted.
+  If `format` is `relative_or_absolute_datetime`, this field MUST be a [relative or absolute datetime](#relative-or-absolute-datetime), which represents the furthest datetime out that may be submitted.
+  If the authorization details field represents a negative value or historical time period (e.g. how far back of historical data to retrieve), this value represents the most negative or furthest back value that can be set.
+* `minimum` - _various_ - (OPTIONAL) The smallest value acceptable for this field by the Server.
+  This field is REQUIRED if the `maximum` field is included.
+  When included, this field's value MUST be in the same format as the `maximum` value.
+  If the authorization details field represents a negative value or historical time period (e.g. how far back of historical data to retrieve), this value represents the closest to zero or current time value that can be set.
 * `choices` - _Array[[AuthorizationDetailsFieldChoice](#auth-details-field-choice-format)]_ - (OPTIONAL) If `format` is `choice`, this is REQUIRED and MUST be a list of one or more available choice objects.
 
 ### 3.9. Authorization Details Field Formats <a id="auth-details-field-formats" href="#auth-details-field-formats" class="permalink">🔗</a>
@@ -482,13 +503,16 @@ The following list of strings are an enumerated set of authorization details fie
 * `decimal` - A [decimal](#decimal) value, which can have any number of significant units, but MUST NOT be stored or handled as a float value, in order to retain the precision of the value throughout Server and Client processing.
 * `string` - A [string](#string) value.
 * `string_or_null` - A [string](#string) value or `null`.
+* `string_list` - An array of [string](#string) values.
 * `boolean` - A [boolean](#boolean) value.
-* `relative_or_absolute_date` - A relative or absolute date string.
-  Relative dates are formatted as defined by `duration` in [[RFC 3339 Appendix A](#ref-rfc3339-duration)].
-  For example, `P3Y` represents a relative date range of 3 years.
-  Absolute dates are formatted as [date](#date) (`YYYY-MM-DD`).
-  For example, `2024-01-02` represents the 2nd of January, 2024.
-  Dates are defined as the date from the perspective of the Server's local timezone.
+* `relative_or_absolute_date` - A [relative or absolute date](#relative-or-absolute-date) string.
+  Relative dates are relative to the current date in the `cds_timezone` listed in the Server's [Metadata](#auth-server-metadata-format), when the authorization was submitted to the Server.
+  For authorization that use the `authorization_code` grant type, the date used is the current date when the User submitted an approval for the authorization request.
+  For authorization that use the `client_credentials` grant type, the date used is the current date when the Client submitted the initial token request.
+* `relative_or_absolute_datetime` - A [relative or absolute datetime](#relative-or-absolute-datetime) string.
+  Relative datetimes are relative to the current datetime in the `cds_timezone` listed in the Server's [Metadata](#auth-server-metadata-format), when the authorization was submitted to the Server.
+  For authorization that use the `authorization_code` grant type, the datetime used is the current datetime when the User submitted an approval for the authorization request.
+  For authorization that use the `client_credentials` grant type, the datetime used is the current datetime when the Client submitted the initial token request.
 * `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Authorization Details Field Choice](#auth-details-field-choice-format) objects.
 * `jwk_or_null` - A [JWK Public Encryption Key](#jwk-enc) object or `null`.
 
@@ -1386,6 +1410,8 @@ Content-Type: application/json;charset=UTF-8
                     "documentation": "https://example.com/docs/oauth/scopes#grant_admin-client_id",
                     "format": "string",
                     "is_required": true,
+                    "maximum": 1000,
+                    "minimum": 1,
                 },
                 {
                     "id": "grant_id",
@@ -1394,6 +1420,8 @@ Content-Type: application/json;charset=UTF-8
                     "documentation": "https://example.com/docs/oauth/scopes#grant_admin-grant_id",
                     "format": "string",
                     "is_required": true,
+                    "maximum": 1000,
+                    "minimum": 1,
                 }
             ]
         },
@@ -1416,6 +1444,8 @@ Content-Type: application/json;charset=UTF-8
                     "documentation": "https://example.com/docs/oauth/scopes#server_provided_files-file_id",
                     "format": "string",
                     "is_required": true,
+                    "maximum": 1000,
+                    "minimum": 1,
                 }
             ]
         },
@@ -2309,6 +2339,10 @@ Content-Disposition: attachment; filename="DR_API_docs_v1.0.pdf"
 <a id="ref-cds-wg1-01-coverage-entry" href="#ref-cds-wg1-01-coverage-entry" class="permalink">🔗</a>
 `CDS-WG1-01 Section 4.3` - Section 4.3. Coverage Entry Format, "Server Metadata", CDS-WG1-01, LF Energy Standards and Specifications (LFESS),  
 [https://cds-registration.lfenergy.org/specs/cds-wg1-01/#coverage-entry-format](https://cds-registration.lfenergy.org/specs/cds-wg1-01/#coverage-entry-format)
+
+<a id="ref-iana-tz" href="#ref-iana-tz" class="permalink">🔗</a>
+`IANA TZ` - "Time Zone Database", Internet Assigned Numbers Authority (IANA),  
+[https://www.iana.org/time-zones](https://www.iana.org/time-zones)
 
 <a id="ref-iso4217" href="#ref-iso4217" class="permalink">🔗</a>
 `ISO 4217` - "Currency Codes", ISO 4217, International Organization for Standardization (ISO),  
