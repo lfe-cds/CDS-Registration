@@ -2203,6 +2203,7 @@ Content-Type: application/json;charset=UTF-8
         }
     ]
 }
+```
 
 ### 12.19. Obtaining Server-Provided File Access via the Grant Admin Scope <a id="example-server-provided-files-access-token" href="#example-server-provided-files-access-token" class="permalink">🔗</a>
 
