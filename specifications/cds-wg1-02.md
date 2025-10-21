@@ -2,7 +2,8 @@
 
 ## Abstract <a id="abstract" href="#abstract" class="permalink">🔗</a>
 
-This specification defines how utilities and other central entities ("Servers") may allow external entities ("Clients") to register, configure, and maintain connectivity with the utility or other central entity. This specification extends OAuth 2.0 [[RFC 6749](#ref-rfc6749)] and its related specifications (Dynamic Client Registration [[RFC 7591](#ref-rfc7591)], Authorization Server Metadata [[RFC 8414](#ref-rfc8414-server-metadata)], and others) to create a robust framework for offering secure, streamlined, and standardized connectivity between central entities, such as utilities and energy grid operators, and external entities, such as building owners and energy service providers.
+This specification defines how utilities and other central entities ("Servers") may allow external entities ("Clients") to register, configure, and maintain connectivity with the utility or other central entity.
+This specification extends OAuth 2.0 [[RFC 6749](#ref-rfc6749)] and its related specifications (Dynamic Client Registration [[RFC 7591](#ref-rfc7591)], Authorization Server Metadata [[RFC 8414](#ref-rfc8414-server-metadata)], and others) to create a robust framework for offering secure, streamlined, and standardized connectivity between central entities, such as utilities and energy grid operators, and external entities, such as building owners and energy service providers.
 
 ## Status <a id="status" href="#status" class="permalink">🔗</a>
 
@@ -107,12 +108,12 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
 
 ## 1. Introduction <a id="introduction" href="#introduction" class="permalink">🔗</a>
 
-This specification was developed as part of the global effort to combat the climate crisis.
-Specifically, in order to scalably measure carbon emissions of organizations and calculate the impact of deploying and operating clean energy technologies, companies need an efficient means to register and interact with energy utilities and other similar entities.
+This specification was developed as part of the global effort to facilitate grid modernization and the energy transition.
+Specifically, in order to scalably enable connectivity between central grid entities, such as utilities and grid operators, and external entities, such as building energy platforms and energy technology providers, there needs to be an automated and efficient means for those external entities to register and interact with utilities and other central entities.
 
 There are thousands of utilities serving customers across the world, and each have their own way of providing access to privileged functionality and data.
-This specification defines a way for these utilities and other entities ("Servers") to provide a standardized, structured process for external users and companies ("Clients") to register and obtain secure access to privileged functionality and data.
-By offering a standardized Client registration and management protocol, utilities and other entities can enable secure interoperability with other external systems providing climate-change fighting services such as carbon tracking, decarbonization measures, grid flexibility capabilities, and energy benchmarking.
+This specification defines a way for these utilities and other central entities ("Servers") to provide a standardized, structured process for external users and organizations ("Clients") to register and obtain secure access to privileged functionality and data.
+By offering a standardized Client registration and management protocol, utilities and other central entities can enable secure interoperability with other external systems providing vital services such as data analysis, energy efficiency, and grid flexibility.
 
 This specification does NOT describe what specific privileged functionality or data is offered to Clients as part of their registration.
 Instead, relevant stakeholders are encouraged to write [Extensions](#extensions) to this specification that enable various use cases that need access to privileged functionality or data.
@@ -126,7 +127,7 @@ These entities can include, but are not limited to, distribution utilities, grid
 
 <a id="client" href="#client" class="permalink">🔗</a> **"Client"** - The entity requesting Server's metadata endpoints.
 A Client can be any organization or user seeking to register with a Server for a specific scope of access.
-These entities can include, but are not limited to, carbon tracking applications, electric vehicle companies, clean energy technology providers, commercial utility customers, grid management applications, and energy efficiency organizations.
+These entities can include, but are not limited to, utility vendors, enterprise customers, energy managers, energy service providers, distributed technology companies, grid management applications, and energy efficiency organizations.
 
 <a id="array" href="#array" class="permalink">🔗</a> "Array" - A list of objects or values as defined by `Arrays` in [[RFC 8259 Section 5](#ref-rfc8259-arrays)].
 
