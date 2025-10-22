@@ -206,10 +206,10 @@ curl -v "$OAUTH_METADATA_URL" | jq "."
     "registration_endpoint": "...",     # Where to register via API
     ...
     "scopes_supported": [...],          # The list of supported scopes for this CDS Server
-    ...                                 # (e.g. "client_admin grant_admin server_provided_files customer_data")
+    ...                                 # (e.g. "cds_client_admin cds_grant_admin cds_server_provided_files_01 customer_data")
 }
 # (determine which scopes and registration requirements you want for registration)
-SCOPES_TO_REGISTER="client_admin grant_admin server_provided_files customer_data"
+SCOPES_TO_REGISTER="cds_client_admin cds_grant_admin cds_server_provided_files_01 customer_data"
 
 # Submit a OAuth Dynamic Client Registration
 # (add any additional registration fields to the submitted json)
@@ -228,9 +228,9 @@ curl -v \
     ...
     "client_secret": "bbbbbbbbbbbbbbb",
     ...
-    "scope": "client_admin",  # The Server creates multiple Client objects based on your registration
-    ...                       # and only returns the main client_admin Client object as a response.
-                              # Use the Clients API to manage the other Client objects that were created.
+    "scope": "cds_client_admin",   # The Server creates multiple Client objects based on your registration
+    ...                            # and only returns the main cds_client_admin Client object as a response.
+                                   # Use the Clients API to manage the other Client objects that were created.
 }
 
 # You have now registered! Save the client_id and client_secret for use in other examples
@@ -260,11 +260,11 @@ OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
 TOKEN_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
 CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
 
-# Obtain a client_admin access_token
+# Obtain a cds_client_admin access_token
 curl -v \
     -u "$CLIENT_ID:$CLIENT_SECRET" \
     -d "grant_type=client_credentials" \
-    -d "scope=client_admin" \
+    -d "scope=cds_client_admin" \
     "$TOKEN_ENDPOINT" \
     | jq "."
 {
@@ -288,7 +288,7 @@ curl -v \
             ...
             "client_id": "aaaaaaaaaa",
             ...
-            "scope": "client_admin",
+            "scope": "cds_client_admin",
             ...
         },
         {
@@ -297,7 +297,7 @@ curl -v \
             ...
             "client_id": "aaaaaaaaaa-1",
             ...
-            "scope": "grant_admin",
+            "scope": "cds_grant_admin",
             ...
         },
         {
@@ -306,7 +306,7 @@ curl -v \
             ...
             "client_id": "aaaaaaaaaa-2",
             ...
-            "scope": "server_provided_files",
+            "scope": "cds_server_provided_files_01",
             ...
         },
         {
@@ -493,7 +493,7 @@ curl -v \
 
 #### Example: Using the Grant Admin scope to load data for another Grant <a id="example-grant-admin" href="#example-grant-admin" class="permalink">🔗</a>
 
-You can use the `grant_admin` Client object to generate an `access_token` that can access data for another Client object's Grants.
+You can use the `cds_grant_admin` Client object to generate an `access_token` that can access data for another Client object's Grants.
 
 This is useful for gaining access to data and functionality when Servers create Grants on their side (e.g. the Server-Provided Files API) or when user authorization requests use the Server's default `redirect_uri` (thus you never get a redirect back with a `code`).
 
@@ -555,8 +555,8 @@ GRANT_OBJECT=$(curl -v \
     | jq ".grants | .[0]")
 GRANT_ID=$(echo "$GRANT_OBJECT" | jq -r ".grant_id")
 
-# Get the grant_admin Client details
-GRANT_ADMIN_SCOPE="grant_admin"
+# Get the cds_grant_admin Client details
+GRANT_ADMIN_SCOPE="cds_grant_admin"
 GRANT_ADMIN_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
@@ -578,7 +578,7 @@ GRANT_ADMIN_CLIENT_SECRET=$(curl -v \
     "$CDS_CREDENTIALS_API?client_ids=$GRANT_ADMIN_CLIENT_ID" \
     | jq -r ".credentials | .[0] | .client_secret")
 
-# Create an access_token for the grant using the grant_admin
+# Create an access_token for the grant using the cds_grant_admin
 curl -v \
     -u "$GRANT_ADMIN_CLIENT_ID:$GRANT_ADMIN_CLIENT_SECRET" \
     -d "grant_type=client_credentials" \

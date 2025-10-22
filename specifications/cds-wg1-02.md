@@ -214,25 +214,32 @@ A Server's Authorization Server Metadata Object follows OAuth's Authorization Se
 
 * `registration_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's Dynamic Client Registration [[RFC 7591](#ref-rfc7591)] functionality is required to enable the [Client Registration Process](#client-registration-process).
   For Metadata Objects accessed by means of the `cds_server_metadata` field in a [Client object](#client-format) and subsequently the `oauth_metadata` field, the `registration_endpoint` field for the returned Metadata Object is OPTIONAL.
-* `scopes_supported` - _Array[[string](#string)]_ - (REQUIRED) The scopes in this array MUST represent a union of all scope `id` values contained in the `cds_scope_descriptions` objects.
+* `scopes_supported` - _Array[[string](#string)]_ - (REQUIRED) The scopes in this array MUST represent a union of all scope `id` values contained in the `cds_scope_descriptions` objects, plus any additional scopes the Server supports.
+  Clients MUST assume that only scopes that have matching keys in the `cds_scope_descriptions` object are able to be registered using this specification's registration process and any other listed scopes are available for registration via some other process, which is outside the scope of this specification.
+  This allows Servers to offer functionality from both this specification and other specifications that are also based on OAuth's Authorization Server Metadata, such as OpenID Connect.
 * `service_documentation` - _[URL](#url)_ - (REQUIRED) Developer documentation is required by the Server to help streamline Client integration.
 * `op_policy_uri` - _[URL](#url)_ - (REQUIRED) Policies for Clients registering is required.
 * `op_tos_uri` - _[URL](#url)_ - (REQUIRED) Terms of use for Clients registering is required.
 * `revocation_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's Token Revocation [[RFC 7009](#ref-rfc7009)] functionality is required.
 * `introspection_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's Token Introspection [[RFC 7662](#ref-rfc7662)] functionality is required.
-* `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The code challenge methods in this array MUST represent a union of all `code_challenge_methods_supported` values contained in the `cds_scope_descriptions` objects.
+* `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The code challenge methods in this array MUST represent at least a union of all `code_challenge_methods_supported` values contained in the `cds_scope_descriptions` objects.
+  If there are other scopes in the `scopes_supported` list that do not have matching keys in the `cds_scope_descriptions` object, those scopes' code challenge methods MAY also be included in this list.
 
 In addition to the standard set of OAuth Authorization Server Metadata object values [[RFC 8414 Section 2](#ref-rfc8414-server-metadata-obj)], this specification also requires the following OAuth extension capabilities to be included in the metadata object values:
 
 * `authorization_details_types_supported` - _Array[[string](#string)]_ - (REQUIRED) OAuth's Rich Authorization Requests [[RFC 9396](#ref-rfc9396)] functionality is required.
-  This array of values MUST be the same as `scopes_supported`.
+  The authorization details types in this array MUST represent at least a union of all `authorization_details_types_supported` values contained in the `cds_scope_descriptions` objects.
+  If there are other scopes in the `scopes_supported` list that do not have matching keys in the `cds_scope_descriptions` object, those scopes' authorization details types MAY also be included in this list.
 * `pushed_authorization_request_endpoint` - _[URL](#url)_ - (OPTIONAL) OAuth's Pushed Authorization Requests [[RFC 9126](#ref-rfc9126)] functionality is REQUIRED when `response_types_supported` is not an empty list  (i.e. user authorization is supported for some scopes).
 
 In addition to the above additionally required set of OAuth Authorization Server Metadata object values [[RFC 8414 Section 2](#ref-rfc8414-server-metadata-obj)], this specification clarifies use of the following OAuth standard values:
 
-* `response_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `response_types_supported` values contained in the `cds_scope_descriptions` objects.
-* `grant_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `grant_types_supported` values contained in the `cds_scope_descriptions` objects.
-* `token_endpoint_auth_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent a union of all `token_endpoint_auth_methods_supported` values contained in the `cds_scope_descriptions` object.
+* `response_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent at least a union of all `response_types_supported` values contained in the `cds_scope_descriptions` objects.
+  If there are other scopes in the `scopes_supported` list that do not have matching keys in the `cds_scope_descriptions` object, those scopes' response types MAY also be included in this list.
+* `grant_types_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent at least a union of all `grant_types_supported` values contained in the `cds_scope_descriptions` objects.
+  If there are other scopes in the `scopes_supported` list that do not have matching keys in the `cds_scope_descriptions` object, those scopes' grant types MAY also be included in this list.
+* `token_endpoint_auth_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) The response types in this array MUST represent at least a union of all `token_endpoint_auth_methods_supported` values contained in the `cds_scope_descriptions` object.
+  If there are other scopes in the `scopes_supported` list that do not have matching keys in the `cds_scope_descriptions` object, those scopes' token endpoint authorization methods MAY also be included in this list.
 
 In addition to OAuth capabilities included in the metadata object, this specification adds the following Connected Data Specifications (CDS) values:
 
@@ -244,16 +251,16 @@ In addition to OAuth capabilities included in the metadata object, this specific
 * `cds_credentials_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Credentials API](#credentials-api).
 * `cds_grants_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Grants API](#grants-api).
 * `cds_server_provided_files_api` - _[URL](#url)_ - (OPTIONAL) The URL for the [Server-Provided Files API](#server-provided-files-api).
-  This MUST be included if `scopes_supported` includes the `server_provided_files` scope.
+  This MUST be included if `cds_scope_descriptions` includes [Scope Descriptions](#scope-descriptions-format) with a `type` value of `cds_server_provided_files`.
 * `cds_test_accounts` - _[URL](#url)_ - (OPTIONAL) Where Clients can find developer documentation on what test account credentials may be used for testing functionality.
   This MUST be included if `response_types_supported` is not an empty list (i.e. user authorization is supported for some scopes).
 * `cds_scope_descriptions` - _Map[[ScopeDescription](#scope-descriptions-format)]_ - (REQUIRED) An object providing additional information about what Scope values listed in `scopes_supported` mean.
-  This object MUST include a key for each Scope listed in `scopes_supported` with a [Scope Description](#scope-descriptions-format) as that key's value.
+  This object MUST include a key for each scope listed in `scopes_supported` with a [Scope Description](#scope-descriptions-format) as that key's value, if the Server supports this specification's functionality for that scope.
 * `cds_registration_fields` - _Map[[RegistrationField](#registration-field-format)]_ - (REQUIRED) An object providing additional information about Registration Field that are referenced in [Scope Description's](#scope-descriptions-format) `registration_requirements` list.
   This object MUST include a key for each Registration Field `id` included in the `registration_requirements` lists in the metadata object with a [Registration Field](#registration-field-format) as that key's value.
   If all `registration_requirements` lists are empty, this reference object is an empty object (`{}`).
 
-Scope functionality described by [Scope Description](#scope-descriptions-format) objects included in the `cds_scope_descriptions` object MUST be available for all of the scope's coverage, as described by the Scope Description's `coverages_supported` list, up to any limits specified in the scopes authorization details, as described by the Scope Description's `authorization_details_fields_supported` [Authorization Details](#auth-details-fields-format) object's `maximum` and `minimum` values.
+Scope functionality described by [Scope Description](#scope-descriptions-format) objects included in the `cds_scope_descriptions` object MUST be available for all of the scope's coverage, as described by the Scope Description's `coverages_supported` list, up to any limits specified in the scopes authorization details, as described by the Scope Description's `authorization_details_fields_supported` [Authorization Details Field Object's](#auth-details-fields-format) `maximum` and `minimum` values.
 For situations where the same scope is available for multiple groups of coverages and limits, multiple Scope Description entries with different `id` values MUST be included.
 For example, if a Server offers a scope that grants access to historical customer usage data, offering 24 months of usage history for electricity service contracts and and 12 months of history for natural gas service contracts, the Server MUST include two Scope Descriptions with different `id` values that include only the coverage and limits of that scope's functionality.
 
@@ -261,15 +268,14 @@ Other values not mentioned here but listed in specifications for the Authorizati
 
 ### 3.3. Scopes Supported <a id="scopes" href="#scopes" class="permalink">🔗</a>
 
-This section defines scopes that MAY be included in a Server's `scopes_supported` list.
+This section defines scopes that MAY be included in a Server's `cds_scope_descriptions` object.
 
-Servers MUST include at least the `client_admin` and `grant_admin` scopes in the Server's `scopes_supported` list.
+Extensions MAY define and Servers MAY include additional scopes to the below list of defined scopes, so long as they include [Scope Descriptions](#scope-descriptions-format) for the scopes in the `cds_scope_descriptions`.
 
-Extensions MAY define and Servers MAY include additional scopes to the above list of defined scopes, so long as they include [Scope Descriptions](#scope-descriptions-format) for the scopes in the `cds_scope_descriptions`.
+Extensions are RECOMMENDED to define additional scopes with their specification name or abbreviation as a prefix for the `type` and `id` values to prevent namespace collisions with other scopes defined by other extensions and Servers, such as `examplespec_*`.
+Server are RECOMMENDED to include their name or other relevant identifier as a prefix for the `type` and `id` values when adding additional scopes custom to their server, such as `examplepowercompany_*`.
 
-Extensions are RECOMMENDED to define additional scopes with their specification name or abbreviation as a prefix to prevent namespace collisions with other scopes defined by other extensions and Servers, such as `examplespec_*`.
-Server are RECOMMENDED to include their name or other relevant identifier as a prefix when adding additional scopes custom to their server, such as `examplepowercompany_*`.
-
+Clients MUST use the `type` value, rather than `id` value when determining whether they are compatible with a scope, since `id` values can be any string.
 Clients MUST ignore any scopes in a Server's `scopes_supported` list for which the Client is not compatible.
 
 #### 3.3.1 Client Admin Scope <a id="scopes-client-admin" href="#scopes-client-admin" class="permalink">🔗</a>
@@ -278,10 +284,11 @@ This is the main administrative scope that grants access for the Client to manag
 
 The following are how the [Scope Descriptions](#scope-descriptions-format) fields MUST be configured for this scope:
 
-* `id` is `"client_admin"`.
+* `id` is `"cds_client_admin"`.
+* `type` is `"cds_client_admin"`.
 * `name` is `"Client Admin"`.
 * `description` is `"This scope grants administrative access to the Client management APIs."`.
-* `documentation` is a _[URL](#url)_ for the Server's documentation on the `client_admin` scope.
+* `documentation` is a _[URL](#url)_ for the Server's documentation on the `cds_client_admin` scope.
   Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this scope.
 * `registration_requirements` is `[]`.
 * `registration_optional` is `[]`.
@@ -290,6 +297,7 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
 * `token_endpoint_auth_methods_supported` is `["client_secret_basic"]`.
 * `code_challenge_methods_supported` is `[]`.
 * `coverages_supported` is `[]`.
+* `authorization_details_types_supported` is `[]`.
 * `authorization_details_fields_supported` is `[]`.
 
 #### 3.3.2 Grant Admin Scope <a id="scopes-grant-admin" href="#scopes-grant-admin" class="permalink">🔗</a>
@@ -299,10 +307,11 @@ Since Servers MAY arbitrarily create Grant objects included in the [Grants API](
 
 The following are how the [Scope Descriptions](#scope-descriptions-format) fields MUST be configured for this scope:
 
-* `id` is `"grant_admin"`.
+* `id` is `"cds_grant_admin"`.
+* `type` is `"cds_grant_admin"`.
 * `name` is `"Grant Admin"`.
 * `description` is `"This scope grants administrative access to previously created Grants."`.
-* `documentation` is a _[URL](#url)_ for the Server's documentation on the `grant_admin` scope.
+* `documentation` is a _[URL](#url)_ for the Server's documentation on the `cds_grant_admin` scope.
   Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this scope.
 * `registration_requirements` is `[]`.
 * `registration_optional` is `[]`.
@@ -311,6 +320,8 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
 * `token_endpoint_auth_methods_supported` is `["client_secret_basic"]`.
 * `code_challenge_methods_supported` is `[]`.
 * `coverages_supported` is `[]`.
+* `authorization_details_types_supported` is `["cds_grant_admin"]`.
+  Servers MUST treat an authorization details entries with a `type` value of `"cds_grant_admin"` as overriding the `cds_grant_admin` value in the token request's or Grant's `"scope"` string.
 * `authorization_details_fields_supported` is a JSON array with the following two entries of [Authorization Details Field Objects](#auth-details-fields-format).
     * Client ID:
         * `id` is `client_id`.
@@ -318,6 +329,7 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
         * `description` is `"The Client object identifier for which the Grant is issued."`.
         * `documentation` is a _[URL](#url)_ for the Server's documentation on the `client_id` authorization details field.
           Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
+        * `for_types` is `["cds_grant_admin"]`.
         * `format` is `string`.
         * `is_required` is `true`.
         * `default` is not included.
@@ -330,6 +342,7 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
         * `description` is `"The Grant identifier for which the returned access_token will be given access."`.
         * `documentation` is a _[URL](#url)_ for the Server's documentation on the `grant_id` authorization details field.
           Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
+        * `for_types` is `["cds_grant_admin"]`.
         * `format` is `string`.
         * `is_required` is `true`.
         * `default` is not included.
@@ -338,19 +351,24 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
         * `choices` is not included.
 
 Server MUST only approve submissions of this scope to the token endpoint with a single authorization details entry to the token endpoint, ensuring the access token returned is only valid for one `grant_id`.
-Servers MUST only approve submissions of this scope to the token endpoint when the `grant_id` is for a Grant that has a matching `client_id`, has a non-empty `enabled_scope` value (i.e. the Grant is not disabled) and neither `client_admin` or `grant_admin` are part of the `scope`.
+Servers MUST only approve submissions of this scope to the token endpoint when the `grant_id` is for a Grant that has a matching `client_id`, has a non-empty `enabled_scope` value (i.e. the Grant is not disabled) and neither `cds_client_admin` or `cds_grant_admin` are part of the `scope`.
 
 #### 3.3.3 Server-Provided Files Scope <a id="scopes-server-provided-files" href="#scopes-server-provided-files" class="permalink">🔗</a>
 
-A scope for Servers to grant Client access to arbitrary files that the Server wishes to securely share with the Client.
+A scope for Servers to grant Client access to arbitrary files that the Server wishes to securely share with the Client via the [Server-Provided Files API](#server-provided-files-api).
 Grants with this scope MUST be created by the Server and appear on the [Grants API](#grants-api) and include `authorization_details` entries that list the `file_id` values that are being shared for that Grant.
 
 The following are how the [Scope Descriptions](#scope-descriptions-format) fields MUST be configured for this scope:
 
-* `id` is `"server_provided_files"`.
-* `name` is `"Server-Provided Files"`.
-* `description` is `"This scope grants access to specific files that the Server wants make available to the Client."`.
-* `documentation` is a _[URL](#url)_ for the Server's documentation on the `server_provided_files` scope.
+* `id` is a unique string.
+  Servers are RECOMMENDED to prefix the string with `cds_server_provided_files_` and the suffix is a short string that makes the `id` value unique.
+  For example, an `id` value could be `cds_server_provided_files_01a`.
+* `type` is `"cds_server_provided_files"`.
+* `name` is `"Server-Provided Files"` or starts with `"Server-Provided Files: "` and the Server appends a relevant name, in situations where there are multiple scopes with a `type` value of `cds_server_provided_files`.
+  For example, if a Server offers two scopes where `type` value is `cds_server_provided_files`, one for security configurations and one for office paperwork pdfs, the `name` values for each scope could be `"Server-Provided Files: Security Configs"` and `"Server-Provided Files: Office Documents"`.
+* `description` is a short description of which types of files could be shared via this scope.
+  If the Server intends to share any type or arbitrary files via this scope, it is RECOMMENDED to set this value to `"This scope grants access to specific files that the Server wants make available to the Client."`.
+* `documentation` is a _[URL](#url)_ for the Server's documentation on the `cds_server_provided_files` scope.
   Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this scope.
 * `registration_requirements` is `[]`.
 * `registration_optional` is `[]`.
@@ -359,12 +377,15 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
 * `token_endpoint_auth_methods_supported` is `[]`.
 * `code_challenge_methods_supported` is `[]`.
 * `coverages_supported` is `[]`.
+* `authorization_details_types_supported` is `["{id}"]`, where `{id}` is the Scope Description's `id` value.
+  Servers MUST treat an authorization details entries with a `type` value of the Scope Description's `id` value as overriding the Scope Description's `id` value in the Grant's `"scope"` string.
 * `authorization_details_fields_supported` is a JSON array with a single entry [Authorization Details Field Object](#auth-details-fields-format) with the following fields.
     * `id` is `file_id`.
     * `name` is `"File identifier"`.
     * `description` is `"A file provided by the Server that may be accessed by the Client as part of the Grant."`.
     * `documentation` is a _[URL](#url)_ for the Server's documentation on the `file_id` authorization details field.
       Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
+    * `for_types` is `["{id}"]`, where `{id}` is the Scope Description's `id` value.
     * `format` is `string`.
     * `is_required` is `true`.
     * `default` is not included.
@@ -373,7 +394,12 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
     * `choices` is not included.
 
 Since Grants with the scope are only created by Servers, Client do not receive an authorization code or access token for that Grant with which they may access the files.
-Instead, to access the files, Clients MUST submit a `client_credentials` grant with the scope of `grant_admin` and an `authorization_details` containing the `client_id` and `grant_id` for the Grant the Client found via the [Grants API](#grants-api).
+Instead, to access the files, Clients MUST submit a `client_credentials` grant with the scope of `cds_grant_admin` and an `authorization_details` containing the `client_id` and `grant_id` for the Grant the Client found via the [Grants API](#grants-api), which returns an `access_token` that can be used for requests to the [Server-Provided Files API](#server-provided-files-api).
+Therefore, when a Server includes this scope in the `cds_scope_descriptions` object, the Server MUST also include a scope with a `type` value of `"cds_grant_admin"`.
+
+Servers MAY include multiple [Scope Description objects](#scope-descriptions-format) in the `cds_scope_descriptions` that have a `type` value of `cds_server_provided_files`.
+This can be useful when a Server is using different back-end systems for different types of documents, and the Server
+needs to use different Client objects to provide access to each back-end system.
 
 ### 3.4. Scope Descriptions Object Format <a id="scope-descriptions-format" href="#scope-descriptions-format" class="permalink">🔗</a>
 
@@ -382,8 +408,9 @@ The following values are included in the default list available in scope descrip
 
 * `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the scope.
   This MUST be the same value as the object key the Metadata Object's `cds_scope_descriptions` object.
-* `type` - _[ScopeType](#scope-types)_ - (REQUIRED) The functionality type of the scope.
+* `type` - _[string](#string)_ - (REQUIRED) The functionality type of the scope.
   This allows Servers to define multiple scope `id` values for the same Scope Type, for situations where Coverages or Authorization Details fields may be different (e.g. the historical customer data available for one territory has smart meter interval data, and for another it only has monthly meter reading data).
+  NOTE: For OAuth's Rich Authorization Request [[RFC 9396](#ref-rfc9396)] `authorization_details` parameter list objects, the `type` value in those objects are the scope's `id` value, not this `type` value.
 * `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the scope.
 * `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what access or actions the scope will enable.
 * `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find documentation for the scope.
@@ -404,8 +431,9 @@ The following values are included in the default list available in scope descrip
 * `code_challenge_methods_supported` - _Array[[string](#string)]_ - (REQUIRED) For scope descriptions where `grant_types_supported` includes the value `authorization_code`, OAuth's Proof Key for Code Exchange by OAuth Public Clients [[RFC 7636](#ref-rfc7636)] functionality is required, and Servers MUST offer `S256` and MUST NOT offer `plain` code verifier methods.
   For scope descriptions where  `grant_types_supported` does not include `authorization_code`, no authorization request is performed, so no code challenge is required and this field value is an empty list (`[]`).
 * `coverages_supported` - _Array[[string](#string)]_ - (REQUIRED) A list of CDS's Coverage Entry Object [[CDS-WG1-01 Section 4.3](#ref-cds-wg1-01-coverage-entry)] `id` values for which the scope is available by the Server.
-  If the scope provides functionality unrelated to a Server's coverage entries (e.g. the `client_admin` scope), this value is an empty list (`[]`).
-* `authorization_details_fields_supported` - _Array[[AuthorizationDetailsField](#auth-details-fields-format)]_ - (REQUIRED) A list of fields that MAY be included in OAuth's Rich Authorization Requests [[RFC 9396](#ref-rfc9396)] the authorization details object for this scope `type`.
+  If the scope provides functionality unrelated to a Server's coverage entries (e.g. the `cds_client_admin` scope), this value is an empty list (`[]`).
+* `authorization_details_types_supported` - _Array[[string](#string)]_ - (REQUIRED) A list of strings which may be used as the OAuth's Rich Authorization Request authorization details object `type` value [RFC 9396 Section 7.1](#ref-rfc9396-auth-details)].
+* `authorization_details_fields_supported` - _Array[[AuthorizationDetailsField](#auth-details-fields-format)]_ - (REQUIRED) A list of fields that MAY be included in OAuth's Rich Authorization Request [[RFC 9396](#ref-rfc9396)] authorization details object for this scope.
   If no extra authorization details fields are available, this value is an empty list (`[]`).
 
 ### 3.5. Registration Field Object Format <a id="registration-field-format" href="#registration-field-format" class="permalink">🔗</a>
@@ -473,6 +501,8 @@ The following values are included in the default list available in authorization
 * `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the authorization details field.
 * `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what submitting values for this authorization details field means.
 * `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this authorization details field.
+* `for_types` - _Array[[string](#string)]_ - (REQUIRED) Which authorization details types that can include this field in their authorization details object.
+  This list MUST contain at least one value and MUST be a subset of the [Scope Description object's](#scope-descriptions-format) `authorization_details_types_supported` list.
 * `format` - _[AuthorizationDetailsFieldFormats](#auth-details-field-formats)_ - (REQUIRED) The data format that MUST be used in the value of the field when including it as a data field in `authorization_details` objects.
 * `is_required` - _[boolean](#boolean)_ - (REQUIRED) Whether the authorization details field is required or not.
   If required, `authorization_details` MUST be submitted in authorization or token requests with this field included.
@@ -538,6 +568,10 @@ The Server then responds with either an error or a generated Client registration
 
 This specification requires Clients and Servers follow the process described in OAuth's Client Registration Request [[RFC 7591 Section 3.1](#ref-rfc7591-client-reg-request)], with the following modifications.
 
+* Clients MUST submit the `cds_client_admin` scope as part of their `scope` string value, which indicates to the Server that they are registering a Client following this specification.
+  Clients that submit scopes that do not include the `cds_client_admin` scope are assumed to be attempting to register a Client that does not follow this specification.
+* Clients MUST only submit `scope` string values that are included in the the `cds_scope_descriptions` object, which indicates that those scopes are supported with the functionality of this specification.
+  Servers MUST respond to Client registration requests with a `400 Bad Request` Status Code if scopes that are not included in the `cds_scope_descriptions` object are attempting to be registered with scopes that are included.
 * Clients MAY submit additional named values that are defined as part of scope `registration_requirements` and `registration_optional` arrays in `cds_scope_descriptions` objects, using the registration field reference's `field_name` value as the submitted key in the registration request.
 * Servers MUST ignore any submitted `redirect_uris` values.
   Clients MAY later update individual Client object `redirect_uri` values via the [Modifying Clients](#clients-modify) process, when that Client object `response_types` list is non-empty.
@@ -546,18 +580,18 @@ This specification requires Clients and Servers follow the process described in 
 
 This specification requires Servers follow the process described in OAuth's Client Registration Response [[RFC 7591 Section 3.2](#ref-rfc7591-client-reg-resp)], with the following modifications to OAuth's Client Information Response [[RFC 7591 Section 3.2.1](#ref-rfc7591-client-info-resp)] object.
 
-* The reponse object format MUST be the extended [Client object format](#client-format) defined by the Clients API.
-* The `scope` value MUST be `client_admin`, indicating that the Client in the response is only used for `client_admin` access.
+* The response object format MUST be the extended [Client object format](#client-format) defined by the Clients API.
+* The `scope` value MUST be `cds_client_admin`, indicating that the Client in the response is only used for `cds_client_admin` access.
 * The `redirect_uris` value MUST be an empty list (`[]`).
 * The `response_types` value MUST be an empty list (`[]`).
-* The `grant_types` value MUST contain only the `client_credentials` grant, indicating that the Client details in the response may only be used for `client_admin` client credentials grant.
+* The `grant_types` value MUST contain only the `client_credentials` grant, indicating that the Client details in the response may only be used for `cds_client_admin` client credentials grant.
 * The `token_endpoint_auth_method` MUST be set to `client_secret_basic`.
 * The `client_secret` MUST be included, despite it not being included in the Client object format returned by the Clients API, and set to the same value as the `client_secret` in the created [Credential object](#credentials-format) for the Client object in the response.
 
-Upon valid registration, servers MUST create a Client object with the scope defined as `"client_admin"`, even if the `client_admin` scope was not included in the Client Registration Request.
-This Client object scoped to `client_admin` is the one returned as the main Client object as the Client Registration Response.
+Upon valid registration, servers MUST create a Client object with the scope defined as `"cds_client_admin"`.
+This Client object scoped to `cds_client_admin` is the one returned as the main Client object as the Client Registration Response.
 
-Servers MUST also create a Client object with the scope defined as `"grant_admin"`, though it is not returned as part of the Client Registration response and is only available via the [Clients API](#clients-api).
+Servers MUST also create a Client object with the scope defined as `"cds_grant_admin"`, though it is not returned as part of the Client Registration response and is only available via the [Clients API](#clients-api).
 
 Servers MUST also create Client objects that are configured for any other scopes for which the Client submitted registration and the submission was accepted by the Server.
 Servers MAY combine scopes into individual Client objects if the `response_types`, `grant_types`, and `token_endpoint_auth_method` for the scopes are the same.
@@ -579,7 +613,7 @@ The Clients API is needed beyond the OAuth Dynamic Client Registration Managemen
 ## 5. Clients API <a id="clients-api" href="#clients-api" class="permalink">🔗</a>
 
 This specification requires Servers provide a set of Application Programming Interfaces (APIs) allowing Clients to view and edit their Client registrations.
-These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `client_admin` scope.
+These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `cds_client_admin` scope.
 
 ### 5.1. Client Object Format <a id="client-format" href="#client-format" class="permalink">🔗</a>
 
@@ -620,11 +654,11 @@ In addition to the fields defined by OAuth's Client Metadata [[RFC 7591 Section 
   Servers MUST make this URL unique for each Client object.
 * `cds_status` - _[ClientStatus](#client-statuses)_ - (REQUIRED) The current status of availability for this Client.
 * `cds_status_options` - _Array[[ClientStatus](#client-statuses)]_ - (REQUIRED) What `cds_status` values to which the Client MAY change the Client when [modifying](#clients-modify) it.
-  For Client objects that have the `client_admin` scope, this list MUST NOT contain the `disabled` value, and for all other Client objects this list MUST contain at least the `disabled` value, so that Clients MAY opt to disable Client objects as needed.
+  For Client objects that have the `cds_client_admin` scope, this list MUST NOT contain the `disabled` value, and for all other Client objects this list MUST contain at least the `disabled` value, so that Clients MAY opt to disable Client objects as needed.
 * `cds_server_metadata` - _[URL](#url)_ - (REQUIRED) Where the Client can find their registration-specific version of the Servers's CDS Server Metadata [[CDS-WG1-01](#ref-cds-wg1-01)].
   If the Client's registered scopes have different [Scope Descriptions](#scope-descriptions-format) than what is in the publicly available `oauth_metadata` resource, such as more limited `coverages_supported` or different limits in `authorization_details_fields_supported`, then the `cds_server_metadata` MUST be to a resource that has an updated `oauth_metadata` resource with the Client-specific values.
   If the Client's CDS server metadata is no different from the public CDS server metadata, Servers MAY simply link to the public URL.
-  If this metadata endpoint requires authentication, Servers MUST authenticate Client requests to this endpoint via Bearer access token obtained using OAuth's `client_credentials` grant with a scope of `client_admin`, and reject unauthenticated requests with a `401 Unauthorized` Status Code.
+  If this metadata endpoint requires authentication, Servers MUST authenticate Client requests to this endpoint via Bearer access token obtained using OAuth's `client_credentials` grant with a scope of `cds_client_admin`, and reject unauthenticated requests with a `401 Unauthorized` Status Code.
   Clients know that they must use a Bearer token when Servers return a `401 Unauthorized` Status Code for this endpoint when the Client makes an unauthenticated request to the endpoint.
 * `cds_default_scope` - _[string](#string)_ - (OPTIONAL) The default scope string used when no `scope` parameter is provided as part of an authorization request.
   This MUST be included if `response_types` is not an empty list (i.e. authorization requests are enabled).
@@ -651,7 +685,7 @@ Client object `cds_status` values MUST be one of the following:
 
 ### 5.3. Listing Clients <a id="clients-list" href="#clients-list" class="permalink">🔗</a>
 
-Clients may request to list Client objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_clients_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
+Clients may request to list Client objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `cds_client_admin` scope, to the `cds_clients_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Client listing request responses are formatted as JSON objects and contain the following named values.
 
 * `clients` - _Array[[Client](#client-format)]_ - (REQUIRED) A list of Clients to which the requesting `access_token` is scoped to have access.
@@ -674,14 +708,14 @@ This creates a changelog in the Messages listing for Client object updates.
 ### 5.4. Retrieving Individual Clients <a id="clients-get" href="#clients-get" class="permalink">🔗</a>
 
 The URL to be used to send [GET](#get) requests for retrieving individual Client objects MUST be the `cds_client_uri` provided in the [Client object](#client-format).
-If a Server has optionally implemented OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)], the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the client retrieval endpoint (`cds_client_uri`).
+If a Server has optionally implemented OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)], the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `cds_client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the client retrieval endpoint (`cds_client_uri`).
 
 ### 5.5. Modifying Clients <a id="clients-modify" href="#clients-modify" class="permalink">🔗</a>
 
 This specification requires that the procedure to modify Clients MUST follow OAuth's Client Update Request [[RFC 7592 Section 2.2](#ref-rfc7592-client-mgmt-updates) section in Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)].
 
 The URL to be used to send [PUT](#put) requests for updating clients MUST be the `cds_client_uri` provided in the [Client object](#client-format).
-If a Server has optionally implemented OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)], the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the client endpoint.
+If a Server has optionally implemented OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)], the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `cds_client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the client endpoint.
 
 Servers MUST allow Clients to intially update the following fields:
 
@@ -729,7 +763,7 @@ If all submitted fields have been synchronously updated as part of the response,
 To facilitate automated communication and notificatiosn between Servers and Clients, this specification requires that official communication between Servers and Clients be performed using the Client Messages APIs.
 Servers MAY implement other means of communications for exchanging messages and notifications, such as email support, but they MUST also mirror any official communications that impact Client or Grant statuses, settings, or access using the Messages API.
 
-The Messages API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `client_admin` scope.
+The Messages API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `cds_client_admin` scope.
 
 ### 6.1. Message Object Format <a id="message-format" href="#message-format" class="permalink">🔗</a>
 
@@ -822,7 +856,7 @@ When included, Message object `related_type` values MUST be one of the following
 
 For `more_info`, `documentation`, and `support` related types, authentication for requests to these resources is unspecified, where Servers MAY allow unauthenticated requests to the resource (e.g. public webpage) or MAY require user authentication (e.g. user login).
 
-For `client_list`, `client`, `grant_list`, `grant`, `message_list`, `message`, `credential_list`, and `credential` related types, Clients MUST authenticate requests to the resource with a valid Bearer `access_token` scoped to the `client_admin` scope.
+For `client_list`, `client`, `grant_list`, `grant`, `message_list`, `message`, `credential_list`, and `credential` related types, Clients MUST authenticate requests to the resource with a valid Bearer `access_token` scoped to the `cds_client_admin` scope.
 
 ### 6.5. Client Update Request Object Format <a id="client-update-request-format" href="#client-update-request-format" class="permalink">🔗</a>
 
@@ -843,6 +877,7 @@ Client Grant Request objects are formatted as JSON objects and contain the follo
 
 * `scope` - _[string](#string)_ - (REQUIRED) The OAuth scope string being requested for the Grant.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](#ref-rfc9396-auth-details)]_ - (REQUIRED) An authorization details list as defined by [[RFC 9396 Section 7.1](#ref-rfc9396-auth-details)], to further specify the grant's requested scope.
+The `type` value of any Authorization Detail objects submitted in this list MUST be included in the Client object's `authorization_details_types` list.
 If the `scope` string is sufficient to define the requested scope being requested by the Client, this value is an empty list (`[]`).
 
 ### 6.7. Message Attachment Object Format <a id="message-attachment-format" href="#message-attachment-format" class="permalink">🔗</a>
@@ -855,7 +890,7 @@ Message Attachment objects are formatted as JSON objects and contain the followi
 
 ### 6.8. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>
 
-Clients may request to list Message objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_messages_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
+Clients may request to list Message objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `cds_client_admin` scope, to the `cds_messages_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Message listing request responses are formatted as JSON objects and contain the following named values.
 
 * `outstanding` - _Array[[ClientMessage](#message-format)]_ - (REQUIRED) A list of Messages where the `status` is `open` or `pending`.
@@ -961,7 +996,7 @@ If the submission is valid, Servers MUST synchronously modify the Message object
 To allow Clients to manage `client_secret` values used for authentication to APIs, this specification requires that Server implement a Credentials API.
 Servers MAY implement other means of managing Credentials, such as a web interface, but they MUST also mirror any Credentials managed by other means on this required Credentials API.
 
-The Credentials API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `client_admin` scope.
+The Credentials API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `cds_client_admin` scope.
 
 ### 7.1. Credentials Object Format <a id="credentials-format" href="#credentials-format" class="permalink">🔗</a>
 
@@ -987,7 +1022,7 @@ Credential object `type` values MUST be one of the following:
 
 ### 7.3. Listing Credentials <a id="credentials-list" href="#credentials-list" class="permalink">🔗</a>
 
-Clients may request to list Credential objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_credentials_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
+Clients may request to list Credential objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `cds_client_admin` scope, to the `cds_credentials_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Credential listing request responses are formatted as JSON objects and contain the following named values.
 
 * `credentials` - _Array[[ScopeCredential](#credentials-format)]_ - (REQUIRED) A list of Credentials to which the requesting `access_token` is scoped to have access.
@@ -1049,7 +1084,7 @@ If the `client_secret` is determined to be leaked or compromised, Servers MUST u
 ## 8. Grants API <a id="grants-api" href="#grants-api" class="permalink">🔗</a>
 
 This specification requires Servers provide an API allowing Clients to view and edit OAuth user authorizations and client credentials grants ("Grants") related to their registration.
-These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `client_admin` scope.
+These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `cds_client_admin` scope.
 
 ### 8.1. Grant Object Format <a id="grant-format" href="#grant-format" class="permalink">🔗</a>
 
@@ -1081,7 +1116,6 @@ Grant objects are formatted as JSON objects and contain the following named valu
 * `scope` - _[string](#string)_ - (REQUIRED) The scopes for which this Grant has issued access.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](#ref-rfc9396-auth-details)]_ - (REQUIRED) An authorization details list as defined by [[RFC 9396 Section 7.1](#ref-rfc9396-auth-details)] which contains scopes that are granted in addition to this object's `scope` value.
   If no authorization details scopes are configured in addition to the `scope` string, this value is an empty array (`[]`).
-  If the `type` field of an authorization detail object in this array is the same as a value in the `scope` string, the authorization detail object replaces the scope with additional more refined access details for the scope.
 * `receipt_confirmations` - _Array[[string](#string)]_ - (REQUIRED) For Grants with scopes that can be obtained via user authorization (`grant_types` contains `authorization_code`), this is a list of receipt confirmation codes that were provided to the end users who authorized the access.
   If no receipt was provided or the Grant did not get issued via `authorization_code` then this value is an empty list (`[]`).
 * `enabled_scope` - _[string](#string)_ - (REQUIRED) For Grants where access has been partially granted, but some access is still disabled, this value is the `scope` that has been enabled by the server.
@@ -1139,7 +1173,7 @@ Clients achieved user authorization by following OAuth's Authorization Code Gran
 
 ### 8.4. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a>
 
-Clients may request to list Grant objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `client_admin` scope, to the `cds_grants_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
+Clients may request to list Grant objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `cds_client_admin` scope, to the `cds_grants_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
 The Grant listing request responses are formatted as JSON objects and contain the following named values.
 
 * `grants` - _Array[[Grant](#grant-format)]_ - (REQUIRED) A list of Grants to which the requesting `access_token` is scoped to have access.
@@ -1193,7 +1227,7 @@ Additionally, if the `scope` or `authorization_details` has been updated, the Se
 ## 9. Server-Provided Files API <a id="server-provided-files-api" href="#server-provided-files-api" class="permalink">🔗</a>
 
 This specification defines an API by which Servers MAY provide an access to arbitrary files to Clients to download.
-These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the scope of the access token is `grant_admin` with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the [`server_provided_files`](#scopes-server-provided-files) scope.
+These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the scope of the access token is `cds_grant_admin` with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the [`cds_server_provided_files`](#scopes-server-provided-files) scope type.
 
 This API is intended to provide a convenient way for Servers to provide secure ad-hoc file access to Clients, such as sharing connectivity-related files (e.g. configs, certificates, secret keys, etc.) or manually created bulk files (e.g. initial backfill raw data, analysis reports, etc.).
 This API is NOT intended to be used for automated sharing of structured data (e.g. nightly interval extracts) because the API has limited functionality to convey the appropriate metadata for automated file sharing, such as versioning or schemas.
@@ -1218,7 +1252,7 @@ Server-Provided File objects are metadata for arbitrary files made accessible by
 
 ### 9.2. Listing Server-Provided Files <a id="server-provided-files-list" href="#server-provided-files-list" class="permalink">🔗</a>
 
-Clients may request to list Server-Provided File objects that they have access to by making an HTTPS [GET](#get) request to the `cds_server_provided_files_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format) and authenticated with a valid Bearer `access_token` scoped to the `grant_admin` scope with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the `server_provided_files` scope.
+Clients may request to list Server-Provided File objects that they have access to by making an HTTPS [GET](#get) request to the `cds_server_provided_files_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format) and authenticated with a valid Bearer `access_token` scoped to the `cds_grant_admin` scope with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the `cds_server_provided_files` scope type.
 The Server-Provided File listing request responses are formatted as JSON objects and contain the following named values.
 
 * `files` - _Array[[ServerProvidedFile](#server-provided-files-format)]_ - (REQUIRED) A list of Server-Provided File objects to which the requesting `access_token` is scoped to have access.
@@ -1239,11 +1273,11 @@ Listings of Server-Provided File objects MUST be ordered in reverse chronologica
 
 ### 9.3. Retrieving Individual Server-Provided Files <a id="server-provided-files-get" href="#server-provided-files-get" class="permalink">🔗</a>
 
-The URL to be used to send [GET](#get) requests for retrieving individual Server-Provided File objects MUST be the Server-Provided File `uri` provided in the [Server-Provided File object](#server-provided-files-format) and authenticated with a valid Bearer `access_token` scoped to the `grant_admin` scope with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the `server_provided_files` scope and include the relevant `file_id`.
+The URL to be used to send [GET](#get) requests for retrieving individual Server-Provided File objects MUST be the Server-Provided File `uri` provided in the [Server-Provided File object](#server-provided-files-format) and authenticated with a valid Bearer `access_token` scoped to the `cds_grant_admin` scope with `authorizatin_details` entries listing `grant_id` values that are for Grants that include the relevant `file_id` and have a scope with a `type` value of `cds_server_provided_files`.
 
 ### 9.4. Downloading Server-Provided File Data <a id="server-provided-files-download" href="#server-provided-files-download" class="permalink">🔗</a>
 
-The URL to be used to send [GET](#get) requests for retrieving the raw data for an individual Server-Provided File MUST be the Server-Provided File `download_uri` provided in the [Server-Provided File object](#server-provided-files-format) and authenticated with a valid Bearer `access_token` scoped to the `grant_admin` scope with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the `server_provided_files` scope and include the relevant `file_id`.
+The URL to be used to send [GET](#get) requests for retrieving the raw data for an individual Server-Provided File MUST be the Server-Provided File `download_uri` provided in the [Server-Provided File object](#server-provided-files-format) and authenticated with a valid Bearer `access_token` scoped to the `cds_grant_admin` scope with `authorizatin_details` entries listing `grant_id` values that are for Grants that include the relevant `file_id` and have a scope with a `type` value of `cds_server_provided_files`.
 
 ## 10. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a>
 
@@ -1368,8 +1402,17 @@ Content-Type: application/json;charset=UTF-8
     "response_types_supported": ["code"],
     "grant_types_supported": ["client_credentials", "authorization_code", "refresh_token"],
     "token_endpoint_auth_methods_supported": ["client_secret_basic"],
-    "scopes_supported": ["client_admin", "grant_admin", "server_provided_files", "example_custom"],
-    "authorization_details_types_supported": ["client_admin", "grant_admin", "server_provided_files", "example_custom"],
+    "scopes_supported": [
+        "cds_client_admin",
+        "cds_grant_admin",
+        "cds_server_provided_files_01",
+        "example_custom"
+    ],
+    "authorization_details_types_supported": [
+        "cds_grant_admin",
+        "cds_server_provided_files_01",
+        "example_custom"
+    ],
     "cds_oauth_version": "v1",
     "cds_human_registration": "https://example.com/clients/register",
     "cds_test_accounts": "https://example.com/docs/testing",
@@ -1379,36 +1422,41 @@ Content-Type: application/json;charset=UTF-8
     "cds_grants_api": "https://example.com/cds-api/v1/grants",
     "cds_server_provided_files_api": "https://example.com/cds-api/v1/server-provided-files"
     "cds_scope_descriptions": {
-        "client_admin": {
-            "id": "client_admin",
+        "cds_client_admin": {
+            "id": "cds_client_admin",
+            "type": "cds_client_admin",
             "name": "Client Admin",
             "description": "This scope grants administrative access to the Client management APIs.",
-            "documentation": "https://example.com/docs/oauth/scopes#client_admin",
+            "documentation": "https://example.com/docs/oauth/scopes#cds_client_admin",
             "registration_requirements": [],
             "response_types_supported": [],
             "grant_types_supported": ["client_credentials"],
             "token_endpoint_auth_methods_supported": ["client_secret_basic"],
             "code_challenge_methods_supported": [],
             "coverages_supported": [],
-            "authorization_details_fields": []
+            "authorization_details_types_supported": [],
+            "authorization_details_fields_supported": []
         },
-        "grant_admin": {
-            "id": "grant_admin",
+        "cds_grant_admin": {
+            "id": "cds_grant_admin",
+            "type": "cds_grant_admin",
             "name": "Grant Admin",
             "description": "This scope grants administrative access to previously created Grants.",
-            "documentation": "https://example.com/docs/oauth/scopes#grant_admin",
+            "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin",
             "registration_requirements": [],
             "response_types_supported": [],
             "grant_types_supported": ["client_credentials"],
             "token_endpoint_auth_methods_supported": ["client_secret_basic"],
             "code_challenge_methods_supported": [],
             "coverages_supported": [],
-            "authorization_details_fields": [
+            "authorization_details_types_supported": ["cds_grant_admin"],
+            "authorization_details_fields_supported": [
                 {
                     "id": "client_id",
                     "name": "Client object identifier",
                     "description": "The Client object identifier for which the Grant is issued.",
-                    "documentation": "https://example.com/docs/oauth/scopes#grant_admin-client_id",
+                    "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin-client_id",
+                    "for_types": ["cds_grant_admin"]
                     "format": "string",
                     "is_required": true,
                     "maximum": 1000,
@@ -1418,7 +1466,8 @@ Content-Type: application/json;charset=UTF-8
                     "id": "grant_id",
                     "name": "Grant identifier",
                     "description": "The Grant identifier for which the returned access_token will be given access.",
-                    "documentation": "https://example.com/docs/oauth/scopes#grant_admin-grant_id",
+                    "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin-grant_id",
+                    "for_types": ["cds_grant_admin"]
                     "format": "string",
                     "is_required": true,
                     "maximum": 1000,
@@ -1426,23 +1475,26 @@ Content-Type: application/json;charset=UTF-8
                 }
             ]
         },
-        "server_provided_files": {
-            "id": "server_provided_files",
+        "cds_server_provided_files_01": {
+            "id": "cds_server_provided_files_01",
+            "type": "cds_server_provided_files",
             "name": "Server-Provided Files",
             "description": "This scope grants access to specific files that the Server wants make available to the Client.",
-            "documentation": "https://example.com/docs/oauth/scopes#grant_admin",
+            "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin",
             "registration_requirements": [],
             "response_types_supported": [],
             "grant_types_supported": [],
             "token_endpoint_auth_methods_supported": [],
             "code_challenge_methods_supported": [],
             "coverages_supported": [],
-            "authorization_details_fields": [
+            "authorization_details_types_supported": ["cds_server_provided_files_01"],
+            "authorization_details_fields_supported": [
                 {
                     "id": "file_id",
                     "name": "File identifier",
                     "description": "A file provided by the Server that may be accessed by the Client as part of the Grant.",
-                    "documentation": "https://example.com/docs/oauth/scopes#server_provided_files-file_id",
+                    "documentation": "https://example.com/docs/oauth/scopes#cds_server_provided_files-file_id",
+                    "for_types": ["cds_server_provided_files_01"]
                     "format": "string",
                     "is_required": true,
                     "maximum": 1000,
@@ -1461,7 +1513,8 @@ Content-Type: application/json;charset=UTF-8
             "token_endpoint_auth_methods_supported": ["client_secret_basic"],
             "code_challenge_methods_supported": ["S256"],
             "coverages_supported": ["coverage123"],
-            "authorization_details_fields": []
+            "authorization_details_types_supported": [],
+            "authorization_details_fields_supported": []
         }
     },
     "cds_registration_fields": {
@@ -1488,7 +1541,7 @@ POST /oauth/register HTTP/1.1
 Host: example.com
 
 {
-    "scope": "client_admin grant_admin server_provided_files example_custom",
+    "scope": "cds_client_admin cds_grant_admin cds_server_provided_files_01 example_custom",
     "client_name": "My App Name",
     "cds_company_name": "My Company Name"
 }
@@ -1501,14 +1554,14 @@ Content-Type: application/json;charset=UTF-8
 {
     "client_id": "aaf026921707f5d5",
     "client_id_issued_at": 2893256800,
-    "scope": "client_admin",
+    "scope": "cds_client_admin",
     "redirect_uris": [],
     "response_types": [],
     "grant_types": ["client_credentials"],
-    "token_endpoint_auth_method": ["client_secret_basic"],
+    "token_endpoint_auth_method": "client_secret_basic",
     "client_secret": "Q3VpGy7k6Mj9Yc-F1wtujttAq2HiEel8O1Ie5zEw00AslNsoUU3SMzKPeRPZgqA6dMW3jSvZQ_O0iWpQRa1NaQ",
     "client_name": "My App Name",
-    "authorization_details_types": ["client_admin"],
+    "authorization_details_types": [],
     "cds_created": "2022-01-01T00:00:00Z",
     "cds_modified": "2022-01-01T00:00:00Z",
     "cds_client_uri": "https://example.com/cds-api/v1/clients/aaf026921707f5d5",
@@ -1530,7 +1583,7 @@ POST /oauth/token HTTP/1.1
 Host: example.com
 Authorization: Basic YWFmMDI2OTIxNzA3ZjVkNWg6UTNWcEd5N2s2TWo5WWMtRjF3dHVqdHRBcTJIaUVlbDhPMUllNXpFdzAwQXNsTnNvVVUzU016S1BlUlBaZ3FBNmRNVzNqU3ZaUV9PMGlXcFFSYTFOYVE=
 
-grant_type=client_credentials&scope=client_admin
+grant_type=client_credentials&scope=cds_client_admin
 
 ==Response==
 HTTP/1.1 200 OK
@@ -1540,7 +1593,7 @@ Content-Type: application/json;charset=UTF-8
     "access_token": "vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ",
     "token_type": "bearer",
     "expires_in": 3600,
-    "scope": "client_admin"
+    "scope": "cds_client_admin"
 }
 ```
 
@@ -1563,13 +1616,13 @@ Content-Type: application/json;charset=UTF-8
         {
             "client_id": "aaf026921707f5d5",
             "client_id_issued_at": 2893256800,
-            "scope": "client_admin",
+            "scope": "cds_client_admin",
             "redirect_uris": [],
             "response_types": [],
             "grant_types": ["client_credentials"],
             "token_endpoint_auth_method": "client_secret_basic",
             "client_name": "My App Name",
-            "authorization_details_types": ["client_admin"],
+            "authorization_details_types": [],
             "cds_created": "2022-01-01T00:00:00Z",
             "cds_modified": "2022-01-01T00:00:00Z",
             "cds_client_uri": "https://example.com/cds-api/v1/clients/aaf026921707f5d5",
@@ -1580,12 +1633,12 @@ Content-Type: application/json;charset=UTF-8
         {
             "client_id": "22bb40b5b823fa8c",
             "client_id_issued_at": 2893256800,
-            "scope": "grant_admin",
+            "scope": "cds_grant_admin",
             "redirect_uris": [],
             "response_types": [],
             "grant_types": ["client_credentials"],
             "token_endpoint_auth_method": "client_secret_basic",
-            "authorization_details_types": ["grant_admin"],
+            "authorization_details_types": ["cds_grant_admin"],
             "cds_created": "2022-01-01T00:00:00Z",
             "cds_modified": "2022-01-01T00:00:00Z",
             "cds_client_uri": "https://example.com/cds-api/v1/clients/22bb40b5b823fa8c",
@@ -1596,12 +1649,12 @@ Content-Type: application/json;charset=UTF-8
         {
             "client_id": "7e22b5568893c547",
             "client_id_issued_at": 2893256800,
-            "scope": "server_provided_files",
+            "scope": "cds_server_provided_files_01",
             "redirect_uris": [],
             "response_types": [],
             "grant_types": [],
             "token_endpoint_auth_method": null,
-            "authorization_details_types": ["server_provided_files"],
+            "authorization_details_types": ["cds_server_provided_files_01"],
             "cds_created": "2022-01-01T00:00:00Z",
             "cds_modified": "2022-01-01T00:00:00Z",
             "cds_client_uri": "https://example.com/cds-api/v1/clients/7e22b5568893c547",
@@ -1652,13 +1705,13 @@ Content-Type: application/json;charset=UTF-8
 {
     "client_id": "aaf026921707f5d5",
     "client_id_issued_at": 2893256800,
-    "scope": "client_admin",
+    "scope": "cds_client_admin",
     "redirect_uris": [],
     "response_types": [],
     "grant_types": ["client_credentials"],
     "token_endpoint_auth_method": "client_secret_basic",
     "client_name": "My App Name",
-    "authorization_details_types": ["client_admin"],
+    "authorization_details_types": [],
     "cds_created": "2022-01-01T00:00:00Z",
     "cds_modified": "2022-01-01T00:00:00Z",
     "cds_client_uri": "https://example.com/cds-api/v1/clients/aaf026921707f5d5",
@@ -2064,10 +2117,10 @@ Content-Type: application/json;charset=UTF-8
             "expires": null,
             "status": "active",
             "client_id": "aaf026921707f5d5",
-            "scope": "client_admin",
+            "scope": "cds_client_admin",
             "authorization_details": [],
             "receipt_confirmations": [],
-            "enabled_scope": "client_admin",
+            "enabled_scope": "cds_client_admin",
             "enabled_authorization_details": []
         },
         {
@@ -2085,18 +2138,18 @@ Content-Type: application/json;charset=UTF-8
             "expires": null,
             "status": "active",
             "client_id": "7e22b5568893c547",
-            "scope": "server_provided_files",
+            "scope": "cds_server_provided_files_01",
             "authorization_details": [
                 {
-                    "type": "server_provided_files",
+                    "type": "cds_server_provided_files_01",
                     "file_id": "4fcf6831957a243c"
                 }
             ],
             "receipt_confirmations": [],
-            "enabled_scope": "server_provided_files",
+            "enabled_scope": "cds_server_provided_files_01",
             "enabled_authorization_details": [
                 {
-                    "type": "server_provided_files",
+                    "type": "cds_server_provided_files_01",
                     "file_id": "4fcf6831957a243c"
                 }
             ]
@@ -2136,18 +2189,18 @@ Content-Type: application/json;charset=UTF-8
     "expires": null,
     "status": "active",
     "client_id": "7e22b5568893c547",
-    "scope": "server_provided_files",
+    "scope": "cds_server_provided_files_01",
     "authorization_details": [
         {
-            "type": "server_provided_files",
+            "type": "cds_server_provided_files_01",
             "file_id": "4fcf6831957a243c"
         }
     ],
     "receipt_confirmations": [],
-    "enabled_scope": "server_provided_files",
+    "enabled_scope": "cds_server_provided_files_01",
     "enabled_authorization_details": [
         {
-            "type": "server_provided_files",
+            "type": "cds_server_provided_files_01",
             "file_id": "4fcf6831957a243c"
         }
     ]
@@ -2188,18 +2241,18 @@ Content-Type: application/json;charset=UTF-8
     "expires": null,
     "status": "closed",
     "client_id": "7e22b5568893c547",
-    "scope": "server_provided_files",
+    "scope": "cds_server_provided_files_01",
     "authorization_details": [
         {
-            "type": "server_provided_files",
+            "type": "cds_server_provided_files_01",
             "file_id": "4fcf6831957a243c"
         }
     ],
     "receipt_confirmations": [],
-    "enabled_scope": "server_provided_files",
+    "enabled_scope": "cds_server_provided_files_01",
     "enabled_authorization_details": [
         {
-            "type": "server_provided_files",
+            "type": "cds_server_provided_files_01",
             "file_id": "4fcf6831957a243c"
         }
     ]
@@ -2208,7 +2261,7 @@ Content-Type: application/json;charset=UTF-8
 
 ### 12.19. Obtaining Server-Provided File Access via the Grant Admin Scope <a id="example-server-provided-files-access-token" href="#example-server-provided-files-access-token" class="permalink">🔗</a>
 
-The following is a non-normative example of a Client using their `grant_admin` Client object to obtain an `access_token` for a Server-Provided Files Grant.
+The following is a non-normative example of a Client using their `cds_grant_admin` Client object to obtain an `access_token` for a Server-Provided Files Grant.
 
 ```
 ==Request==
@@ -2216,7 +2269,7 @@ POST /oauth/token HTTP/1.1
 Host: example.com
 Authorization: Basic MjJiYjQwYjViODIzZmE4Yzp2aEZjcTE5cDVSMHFOWXlsaWJBNVVhdlBTOHNaTkZtQk10RGI3WklCZWRGdENuWldxZjJQa0FzMlR4NUFRcGJnVnJ6T2tmd0U2R1JoWmhLalI1OVdHUQ==
 
-grant_type=client_credentials&scope=grant_admin&authorization_details=%5B%7B%22type%22%3A%22grant_admin%22%2C%22client_id%22%3A%227e22b5568893c547%22%2C%22grant_id%22%3A%22c644a5da13f379db%22%7D%5D
+grant_type=client_credentials&scope=cds_grant_admin&authorization_details=%5B%7B%22type%22%3A%22cds_grant_admin%22%2C%22client_id%22%3A%227e22b5568893c547%22%2C%22grant_id%22%3A%22c644a5da13f379db%22%7D%5D
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2226,10 +2279,10 @@ Content-Type: application/json;charset=UTF-8
     "access_token": "oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA",
     "token_type": "bearer",
     "expires_in": 3600,
-    "scope": "grant_admin",
+    "scope": "cds_grant_admin",
     "authorization_details": [
         {
-            "type": "grant_admin",
+            "type": "cds_grant_admin",
             "client_id": "7e22b5568893c547",
             "grant_id": "c644a5da13f379db"
         }
