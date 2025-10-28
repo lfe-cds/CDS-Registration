@@ -465,12 +465,72 @@ The following list of strings are an enumerated set of registration field types 
 * `registration_field` - This field should be submitted with the [Client Registration Request](#registration-request) as the `field_name`.
   This type of registration field MUST also have `field_name` and `format` values.
   If this field is optional as part of registration, `default` must also be defined in the registration field object.
+
 * `internal_review` - This field indicates that the Server will review the registration internally before approving it for production use.
   Notifications and communication about the status of this internal review will be conveyed using the [Messages API](#messages-api).
+
 * `payment_required` - This field indicates that a setup payment will be required before the Server will approve the Client for production use.
-  Notifications and communication about how to pay and confirmation of payment will be conveyed using the [Messages API](#messages-api).
+  For Registration Field objects with a `type` value of `payment_required`, the following functionality is required:
+    * Servers MUST include the `amount` and `currency` values in Registration Field objects of this type.
+    * Servers MUST include details about the payment process, including any fees and what payment methods are accepted, in their content linked by that Registration Field object's `documentation` value.
+    * When a Client registers for scopes that require a Registration Field of this type, Servers MUST synchronously create a Message to the Client with a `type` value of `payment_request` and `related_uri` value of a link to the start of the payment process (typically an online checkout form).
+    * Servers MUST NOT make the link to the payment process single-use, so that Clients MAY repeatedly open the link before completing it.
+    * If the link expires after a certain period, Servers MUST reply to the previous `payment_request` Message with a new `payment_request` Message that has a new `related_uri` that links to the updated unexpired payment form.
+    * Clients MAY, if they want to be approved for production access, complete the payment process.
+    * When payments are submitted, Servers MUST reply to the `payment_request` Message with a `request_update` Message that has a `status` value of `pending`.
+    * When payments are accepted, Servers MUST reply to the `payment_request` Message with a `request_update` Message that has a `status` value of `complete`.
+    * When payments are rejected, Servers MUST reply to the `payment_request` Message with a `request_update` Message that has a `status` value of `rejected`.
+    * Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the email verification process.
+    * Servers MAY approve the Client for production access at any point, whether or not the Client has paid using the payment form link, if the Client has met registration requirements another way, such as mailing in a check.
+
 * `email_verification` - This field indicates that the Client must verify their email before the Server will approve the Client for production use.
-  Notifications and communication about how to verify the Client's contact email will be conveyed using the [Messages API](#messages-api).
+  For Registration Field objects with a `type` value of `email_verification`, the following functionality is required:
+    * Servers MUST include details about the email verification process, including any syntax requirements and steps the Client will need to perform, in their content linked by that Registration Field object's `documentation` value.
+    * When a Client registers for scopes that require a Registration Field of this type, Servers MUST synchronously create a Message to the Client with a `type` value of `online_form_request` and `related_uri` value of a link to the start of the email verification process (typically an online form that can trigger a email verification code to be sent to the Client's contact email).
+    * Servers MUST NOT make the link to the online form single-use, so that Clients MAY repeatedly open the link before completing it.
+    * If the link expires after a certain period, Servers MUST reply to the previous `online_form_request` Message with a new `online_form_request` Message that has a new `related_uri` that links to the updated unexpired online form.
+    * Clients MAY, if they want to be approved for production access, complete the online email verification process.
+    * When emails are verified, Servers MUST reply to the `online_form_request` Message with a `request_update` Message that has a `status` value of `complete`.
+    * Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the email verification process.
+    * Servers MAY approve the Client for production access at any point, whether or not the Client has verified their email, if the Client has met registration requirements another way, such as an online chat with the Server's tech support.
+
+* `sso_verification` - This field indicates that the Client must complete a Single Sign-On (SSO) process to associate an online account with the Client.
+  For Registration Field objects with a `type` value of `sso_verification`, the following functionality is required:
+    * Servers MUST include details about the SSO process, including what SSO methods and identity providers are supported, in their content linked by that Registration Field object's `documentation` value.
+    * When a Client registers for scopes that require a Registration Field of this type, Servers MUST synchronously create a Message to the Client with a `type` value of `online_form_request` and `related_uri` value of a link to the start of the SSO process.
+    * Servers MUST NOT make the link to the online form single-use, so that Clients MAY repeatedly open the link before completing it.
+    * If the link expires after a certain period, Servers MUST reply to the previous `online_form_request` Message with a new `online_form_request` Message that has a new `related_uri` that links to the updated unexpired online form.
+    * Clients MAY, if they want to be approved for production access, complete the SSO form.
+    * When online forms are submitted, Servers MUST reply to the `online_form_request` Message with a `request_update` Message that has a `status` value of `pending`.
+    * When online forms are reviewed and accepted, Servers MUST reply to the `online_form_request` Message with a `request_update` Message that has a `status` value of `complete`.
+    * When online forms are reviewed and rejected, Servers MUST reply to the `online_form_request` Message with a `request_update` Message that has a `status` value of `rejected`.
+    * Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the SSO process.
+    * Servers MAY approve the Client for production access at any point, whether or not the Client has completed and submitted the online form, if the Client has met registration requirements another way, such calling and providing needed information to the Server's phone support.
+
+* `pdf_form` - This field indicates that the Client must complete one or more PDF forms in order to be approved for production use.
+  For Registration Field objects with a `type` value of `pdf_form`, the following functionality is required:
+    * Servers MUST include a download link to the blank template of the PDF form in their content linked by that Registration Field object's `documentation` value.
+    * When a Client registers for scopes that require a Registration Field of this type, Servers MUST synchronously create a Message to the Client with a `type` value of `pdf_form_request` and `related_uri` value of a link to the PDF document that needs to be downloaded and filled out.
+    * Clients MAY, if they want to be approved for production access, complete the form and reply to the `pdf_form_request` Message with a new Message with a `type` value of `client_submission` and the PDF form file either attached in the `attachments` or linked to in an `updates_requested` object's `uri` value.
+    * When the PDF form is submitted, Servers MUST reply to the `pdf_form_request` Message with a `request_update` Message that has a `status` value of `pending`.
+    * When the submitted PDF form is reviewed and accepted, Servers MUST reply to the `pdf_form_request` Message with a `request_update` Message that has a `status` value of `complete`.
+    * When the submitted PDF form is reviewed and rejected, Servers MUST reply to the `pdf_form_request` Message with a `request_update` Message that has a `status` value of `rejected`.
+    * Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the approval process.
+    * Servers MAY approve the Client for production access at any point, whether or not the Client has completed and submitted the PDF form, if the Client has met registration requirements another way, such as mailing in a completed PDF form.
+    * Servers that need Clients to complete a PDF form using a specific online e-sign process MUST use the `online_form` Registration Field object type, since the Client cannot complete and submit PDF via the Messages API.
+
+* `online_form` - This field indicates that the Client must complete an online form, such as agreeing to terms of service or e-signing a document, in order to be approved for production use.
+  For Registration Field objects with a `type` value of `online_form`, the following functionality is required:
+    * Servers MUST include details about the completion process, including what information Clients must submit and steps for completion, in their content linked by that Registration Field object's `documentation` value.
+    * When a Client registers for scopes that require a Registration Field of this type, Servers MUST synchronously create a Message to the Client with a `type` value of `online_form_request` and `related_uri` value of a link to the start of the online form.
+    * Servers MUST NOT make the link to the online form single-use, so that Clients MAY repeatedly open the link before completing it.
+    * If the link expires after a certain period, Servers MUST reply to the previous `online_form_request` Message with a new `online_form_request` Message that has a new `related_uri` that links to the updated unexpired online form.
+    * Clients MAY, if they want to be approved for production access, complete the online form.
+    * When online forms are submitted, Servers MUST reply to the `online_form_request` Message with a `request_update` Message that has a `status` value of `pending`.
+    * When online forms are reviewed and accepted, Servers MUST reply to the `online_form_request` Message with a `request_update` Message that has a `status` value of `complete`.
+    * When online forms are reviewed and rejected, Servers MUST reply to the `online_form_request` Message with a `request_update` Message that has a `status` value of `rejected`.
+    * Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the online form process.
+    * Servers MAY approve the Client for production access at any point, whether or not the Client has completed and submitted the online form, if the Client has met registration requirements another way, such calling and providing needed information to the Servers phone technical support.
 
 ### 3.7. Registration Field Formats <a id="registration-field-formats" href="#registration-field-formats" class="permalink">🔗</a>
 
@@ -797,7 +857,9 @@ Message objects are formatted as JSON objects and contain the following named va
   If the Message `type` is `production_request`, this value is a relevant Client object `cds_client_uri` that has the `sandbox` value in its `cds_status_options` list for which the Client is requesting an equivalent Client object be created with `production` in the `cds_status_options` list.
   If the Message `type` is `support_request`, this value is a relevant URL for which the Client is requesting technical support.
   If the Message `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
-  If the Message `type` is `payment_request`, this is where the Client can submit their payment to the Server or if paid, a link to the payment receipt.
+  If the Message `type` is `payment_request`, this is where the Client can submit their payment to the Server, and the `related_type` value MUST be `payment_form`.
+  If the Message `type` is `online_form_request`, this is where the Client can complete the online form, and the `related_type` value MUST be `online_form`.
+  If the Message `type` is `pdf_form_request`, this is where the Client can download a blank copy of the PDF form, and the `related_type` value MUST be `pdf_form`.
   If the Message `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
   If the Message `type` is `grant_request` and `creator` is not `null`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assigned to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
 * `related_type` - _[ClientMessageRelatedType](#message-related-types)_ - (OPTIONAL) The type of object or resource linked to by the `related_uri`.
@@ -821,21 +883,27 @@ Message object `type` values MUST be one of the following:
 * `server_request` - The Server is requesting the Client submit a new Message of type `client_submission` with the fields listed in `updates_requested`.
 * `client_submission` - The Client is submitting a response to a `server_request` to update one or more fields of a specific object.
   Both Clients and Servers MAY create these types of Message requests.
-* `payment_request` - The Server is requesting payment by the Client to complete a financial payment before the Client may proceed with either registration approval or completing actions listed in the `updates_requested` list.
+* `payment_request` - The Server is requesting payment by the Client to complete a financial payment.
+* `online_form_request` - The Server is requesting the Client complete an online form.
+* `pdf_form_request` - The Server is requesting the Client complete a PDF form.
+* `request_update` - The Server is responding with an updated `status` value to a Message with a `type` value of `production_request`, `support_request`, `grant_request`, `server_request`, `client_submission`, `payment_request`, `online_form_request`, or `pdf_form_request` that is linked in this Message's `previous_uri` value.
+  Clients MUST treat the `status` value of the latest `request_update` Message as overriding the `status` value in the Message linked by the `previous_uri` value.
+  The updated `status` value MAY be the same as the previous value, which means the Message is only informational for the Client.
 
 ### 6.3. Message Statuses <a id="message-statuses" href="#message-statuses" class="permalink">🔗</a>
 
 Message object `status` values MUST be one of the following:
 
 * `complete` - For Messages with `type` values of `notification`, `private_message`, or `client_submission`, the `status` MUST be set as `complete`.
-  For Messages with `type` values of `production_request`, `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
+  For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, `payment_request`, `online_form_request`, `pdf_form_request`, or `request_update`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
   For Messages with a `type` value of `production_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `client` and `related_uri` to link to the [individual Client object](#clients-get) that has `production` in its `cds_status_options` list.
   For Messages with a `type` value of `grant_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `grant_list` and `related_uri` to link to Grants API [listing](#grants-list) with URL parameters that filter to only the relevant Grants.
-* `open` - For Messages with `type` values of `server_request` or `payment_request`, this represents that the Client has not yet submitted a response to the Server's submission or payment request.
-* `pending` - For Messages with `type` values of `production_request`, `support_request`, `grant_request`, `field_changes`, `server_request`, or `payment_request`, this represents the Server has not yet completed it's review of the Client's production or technical support request, field changes, submission, or payment.
-* `rejected` - For Messages with `type` values of `field_changes`, `server_request`, `production_request`, `grant_request`, or `payment_request`, this represents the Server has completed and rejected the Client's requested production access request, field changes, submission, grant, or payment.
+  For Messages with a `type` value of `request_update`, `status` value of `complete`, and the `related_uri` links to a Message with a `type` value of `payment_request`, Servers MUST set the `related_type` to be `payment_receipt` and `related_uri` to link to the Client's payment receipt.
+* `open` - For Messages with `type` values of `server_request`, `payment_request`, `online_form_request`, `pdf_form_request`, or `request_update`, this represents that the Client has not yet submitted a response to the Server's request.
+* `pending` - For Messages with `type` values of `production_request`, `support_request`, `grant_request`, `field_changes`, `server_request`, `payment_request`, `online_form_request`, `pdf_form_request`, or `request_update`, this represents the Server has not yet completed it's review of the Client's production or technical support request, field changes, submission, or payment.
+* `rejected` - For Messages with `type` values of `field_changes`, `server_request`, `production_request`, `grant_request`, `payment_request`, `online_form_request`, `pdf_form_request`, or `request_update`, this represents the Server has completed and rejected the Client's requested production access request, field changes, submission, grant, or payment.
   When Servers create a rejected Message, the Server's created Message MUST contain information in the `description` field on why the Message that was created by the Client, typically linked by the `previous_uri` field, was rejected.
-* `errored` - For Messages with `type` values of `field_changes`, `server_request`, or `payment_request`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
+* `errored` - For Messages with `type` values of `field_changes`, `server_request`, `payment_request`, `online_form_request`, `pdf_form_request`, or `request_update`, this represents the Server encountered an issue while processing the Client's field changes, submission, or payment.
   The Client is RECOMMENDED to submit a `support_request` Messages with the `related_uri` as the relevant errored Message's `uri`.
 
 ### 6.4. Message Related Types <a id="message-related-types" href="#message-related-types" class="permalink">🔗</a>
@@ -845,6 +913,10 @@ When included, Message object `related_type` values MUST be one of the following
 * `more_info` - The `related_uri` is to a resource (e.g. regulatory compliance details website page) with additional information for the Client to reference.
 * `documentation` - The `related_uri` is to a technical documentation resource (e.g. API documentation website page) for the Client to reference.
 * `support` - The `related_uri` is to a technical support resource (e.g. support contact form) for the Client to reference.
+* `online_form` - The `related_uri` is to a online website form (e.g. terms of service acceptance) for the Client to complete.
+* `pdf_form` - The `related_uri` is to a PDF form for the Client to complete.
+* `payment_form` - The `related_uri` is to an online checkout form the Client to use to make a payment.
+* `payment_receipt` - The `related_uri` is to a payment receipt for the Client to reference.
 * `client_list` - The `related_uri` is to a [Client list](#clients-list), which can include request parameters.
 * `client` - The `related_uri` is to a [individual Client](#clients-get).
 * `grant_list` - The `related_uri` is to a [Grant list](#grants-list), which can include request parameters.
@@ -867,7 +939,8 @@ Client Update Request objects are formatted as JSON objects and contain the foll
   For Messages with `type` values of `server_request`, this is the Server's identifier for the submission being requested from the client.
 * `name` - _[string](#string)_ - (OPTIONAL) For Messages with `type` values of `server_request`, this MUST be a human-readable name of the submission type being requested as the client.
 * `description` - _[string](#string)_ - (OPTIONAL) For Messages with `type` values of `server_request`, this MUST be a human-readable description providing the Client with more information about what this submission request item is.
-* `submitted_uri` - _[URL](#url)_ - (OPTIONAL) For Messages with `type` values of `client_submission`, this MAY be a URL that the Client is submitting as their response to the Server's `server_request`, when the Server's requested field is for a remote resource, such as an logo or binary file.
+* `uri` - _[URL](#url)_ - (OPTIONAL) For Messages with `type` values of `client_submission`, this MAY be a URL that the Client is submitting as their response to the Server's `server_request`, when the Server's requested field is for a remote resource, such as an logo or binary file.
+  For Messages with `type` values of `server_request`, this MAY be a URL the Client can open in a browser to complete an online process for the Server, such as e-signing a document or making a payment.
 * `previous_value` - _various_ - (OPTIONAL) For Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed from.
 * `new_value` - _various_ - (OPTIONAL) For Messages with `type` values of `field_changes`, this MUST be the value of the field that the is being requested to be changed to.
 
@@ -935,7 +1008,7 @@ The fields included in JSON object MUST include the following:
 
 The fields included in JSON object MAY include the following:
 
-* `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - If submitting a Client Update with a `type` value of `client_submission`, this is required and MUST be a list of [Client Update Request](#client-update-request-format) objects with `field` values matching the `field` values in the corresponding `server_request` Client Update Request objects, and `description` or `submitted_uri` values being the Client's submission response to the Server's request for that `field`.
+* `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - If submitting a Client Update with a `type` value of `client_submission`, this is required and MUST be a list of [Client Update Request](#client-update-request-format) objects with `field` values matching the `field` values in the corresponding `server_request` Client Update Request objects, and `description` or `uri` values being the Client's submission response to the Server's request for that `field`.
 * `grants_requested` - _Array[[ClientGrantRequest](#client-grant-request-format)]_ - If submitting a Client Update with a `type` value of `grant_request`, this is required and MUST be a list of [Client Grant Request](#client-grant-request-format) objects.
 * `related_uri` - _[URL](#url) or `null`_ - If submitting a Message with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
   If submitting a Message with a `type` value of `production_request`, this value is a relevant Client object `cds_client_uri` that has the `sandbox` value in its `cds_status_options` list for which the Client is requesting an equivalent Client object be created with `production` in the `cds_status_options` list.
@@ -958,14 +1031,14 @@ When committing Messages created by Clients, Servers MUST populate the following
 When Clients submit Messages with `type` value of `client_submission`, if the Message referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Message to `pending`, which indicates that the Client has submitted a response for Server review.
 
 When Clients submit Messages with `type` value of `production_request`, Servers MUST review the Client object linked in the `related_uri` and determine if an equivalent Client object with `production` in the `cds_status_options` list is appropriate.
-Servers MAY create Messages replying to the Client with any questions or information about the production request, so long as the `type` value is `pending` and the `previous_uri` value links to the prior Message.
-Clients MAY create Messages replying to the Server, so long as the `previous_uri` value links to the prior Message.
-After determining whether a production Client object should be created, Servers MUST create a new Message with the `previous_uri` value linked to the Client's `production_request` Message and has the `type` value as `complete` (if the Server has approved and created a production Client object and any relevant Credentials objects) or `rejected` (if the request is rejected for any reason).
+Servers MAY create Messages replying to the Client with any questions or information about the production request, so long as the `type` value is `private_message` and the `previous_uri` value links to the prior Message.
+Clients MAY create Messages replying to the Server, so long as the `previous_uri` value links to the relevant prior Message.
+After determining whether a production Client object should be created, Servers MUST create a new Message replying to the Client with `type` value of `request_update`, `previous_uri` value linked to the Client's `production_request` Message and has the `status` value as `complete` (if the Server has approved and created a production Client object and any relevant Credentials objects) or `rejected` (if the request is rejected for any reason).
 
 When Clients submit Messages with `type` value of `grant_request`, Servers MUST review `grants_requested` values and determine if it is appropriate to create Grant objects for the requested scope.
-Servers MAY create Messages replying to the Client with any questions or information about the grant request, so long as the `type` value is `pending` and the `previous_uri` value links to the prior Message.
-Clients MAY create Messages replying to the Server, so long as the `previous_uri` value links to the prior Message.
-After determining whether the grant request should be approved, Servers MUST create a new Message replying to the Client with `type` value of `grant_request`, `previous_uri` value of the Client's grant request Message `uri`, and `status` of `complete` (if the request is approved and Grants have been created), or `rejected` (if the request is rejected for any reason).
+Servers MAY create Messages replying to the Client with any questions or information about the grant request, so long as the `type` value is `private_message` and the `previous_uri` value links to the prior Message.
+Clients MAY create Messages replying to the Server, so long as the `previous_uri` value links to the relevant prior Message.
+After determining whether the grant request should be approved, Servers MUST create a new Message replying to the Client with `type` value of `request_update`, `previous_uri` value of the Client's `grant_request` Message, and `status` of `complete` (if the request is approved and Grants have been created), or `rejected` (if the request is rejected for any reason).
 
 ### 6.10. Retrieving Individual Messages <a id="messages-get" href="#messages-get" class="permalink">🔗</a>
 
