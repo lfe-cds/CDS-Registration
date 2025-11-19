@@ -39,7 +39,7 @@ It also defines how Servers can describe the functionality they offer (called "S
 
 Next, the specification defines protocols for [Client registration]({{ "/specs/cds-wg1-02" | relative_url }}#client-registration-process) and [Client management]({{ "/specs/cds-wg1-02" | relative_url }}#clients-api).
 Client registration is based on OAuth's [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591) ("Dynamic Client Registration Protocol").
-The Client management protocol also defines how Servers can allow Client administrators to manage and use multiple Client objects via the [Client Admin Scope]({{ "/specs/cds-wg1-02" | relative_url }}#scopes-client-admin) and [Grant Admin Scope]({{ "/specs/cds-wg1-02" | relative_url }}#scopes-grant-admin).
+The Client management protocol also defines how Servers can allow Client administrators to manage and use multiple Client Objects via the [Client Admin Scope]({{ "/specs/cds-wg1-02" | relative_url }}#scopes-client-admin) and [Grant Admin Scope]({{ "/specs/cds-wg1-02" | relative_url }}#scopes-grant-admin).
 These protocols allow for Servers to automate and scale the management of potentially high numbers of connected Clients for a diverse set of use cases.
 
 Next, the specification defines a protocol for [messaging]({{ "/specs/cds-wg1-02" | relative_url }}#messages-api) between Servers and Clients.
@@ -86,17 +86,17 @@ Registration endpoint for Clients based on OAuth's Dynamic Client Registration P
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/clients]({{ "/specs/cds-wg1-02" | relative_url }}#clients-list)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-clients-list)] -
-Lists [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) objects that have been registered.
+Lists [Client Objects]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) that have been registered.
 
 <span class="badge bg-success">GET</span>
 [/cds-api/v1/clients/*&lt;clientId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#clients-get)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-client-get)] -
-Returns an individual [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) object.
+Returns an individual [Client Object]({{ "/specs/cds-wg1-02" | relative_url }}#client-format).
 
 <span class="badge bg-warning text-dark">PUT</span>
 [/cds-api/v1/clients/*&lt;clientId&gt;*]({{ "/specs/cds-wg1-02" | relative_url }}#clients-modify)
 [[example]({{ "/specs/cds-wg1-02" | relative_url }}#example-client-modify)] -
-Modifies an individual [Client]({{ "/specs/cds-wg1-02" | relative_url }}#client-format) object.
+Modifies an individual [Client Object]({{ "/specs/cds-wg1-02" | relative_url }}#client-format).
 
 #### Messages APIs <a id="api-messages" href="#api-messages" class="permalink">🔗</a>
 
@@ -228,9 +228,9 @@ curl -v \
     ...
     "client_secret": "bbbbbbbbbbbbbbb",
     ...
-    "scope": "cds_client_admin",   # The Server creates multiple Client objects based on your registration
-    ...                            # and only returns the main cds_client_admin Client object as a response.
-                                   # Use the Clients API to manage the other Client objects that were created.
+    "scope": "cds_client_admin",   # The Server creates multiple Client Objects based on your registration
+    ...                            # and only returns the main cds_client_admin Client Object as a response.
+                                   # Use the Client Objects API to manage the other Client Objects that were created.
 }
 
 # You have now registered! Save the client_id and client_secret for use in other examples
@@ -241,9 +241,9 @@ CLIENT_SECRET="bbbbbbbbbbbbbbb"
 </details>
 
 
-#### Example: Loading the list of Client objects <a id="example-load-clients" href="#example-load-clients" class="permalink">🔗</a>
+#### Example: Loading the list of Client Objects <a id="example-load-clients" href="#example-load-clients" class="permalink">🔗</a>
 
-After registering, you can load the list of Client objects created from your registration request.
+After registering, you can load the list of Client Objects created from your registration request.
 
 <details style="margin-bottom:2em;">
 <summary>Show example</summary>
@@ -254,7 +254,7 @@ CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/cds-server-metada
 CLIENT_ID="aaaaaaaaaa"
 CLIENT_SECRET="bbbbbbbbbbbbbbb"
 
-# Get the OAuth Token and Clients API endpoints from the OAuth Authorization Server Metadata
+# Get the OAuth Token and Client Objects API endpoints from the OAuth Authorization Server Metadata
 OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
 OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
 TOKEN_ENDPOINT=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
@@ -272,10 +272,10 @@ curl -v \
     "access_token": "cccccccccccccc",
     ...
 }
-# (extract the access token for use in the Clients API)
+# (extract the access token for use in the Client Objects API)
 CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
 
-# Get your list of Client objects
+# Get your list of Client Objects
 curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
@@ -330,25 +330,25 @@ curl -v \
 </details>
 
 
-#### Example: Adding a Redirect URI to a Client object <a id="example-modify-redirect-uris" href="#example-modify-redirect-uris" class="permalink">🔗</a>
+#### Example: Adding a Redirect URI to a Client Object <a id="example-modify-redirect-uris" href="#example-modify-redirect-uris" class="permalink">🔗</a>
 
-For Client objects that require user authorization (e.g. `"response_type": ["code"]`), you can set your own list of `redirect_uris` by modifying the relevant Client object.
+For Client Objects that require user authorization (e.g. `"response_type": ["code"]`), you can set your own list of `redirect_uris` by modifying the relevant Client Object.
 
 <details style="margin-bottom:2em;">
 <summary>Show example</summary>
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL
-# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client objects" example
+# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client Objects" example
 CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/cds-server-metadata.json"
 CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
 
-# Get the Clients API endpoint from the OAuth Authorization Server Metadata
+# Get the Client Objects API endpoint from the OAuth Authorization Server Metadata
 OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
 OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
 CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
 
-# Get the Client object that needs to be updated
+# Get the Client Object that needs to be updated
 CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
@@ -360,7 +360,7 @@ DEFAULT_REDIRECT_URI=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".redirect_ur
 UPDATED_CUSTOMER_DATA_CLIENT_OBJECT=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" \
     | sed "s|\"$DEFAULT_REDIRECT_URI\"|\"$DEFAULT_REDIRECT_URI\", \"$CUSTOM_REDIRECT_URI\"|g")
 
-# Modify the Client object
+# Modify the Client Object
 CUSTOMER_DATA_CDS_CLIENT_URI=$(echo "$CUSTOMER_DATA_CLIENT_OBJECT" | jq -r ".cds_client_uri")
 curl -v -X PUT \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
@@ -397,22 +397,22 @@ curl -v -X PUT \
 
 #### Example: Obtaining a user authorization <a id="example-user-authorization" href="#example-user-authorization" class="permalink">🔗</a>
 
-For Client objects that require user authorization (e.g. `"response_type": ["code"]`), use the `authorization_endpoint` to obtain an authorization code.
+For Client Objects that require user authorization (e.g. `"response_type": ["code"]`), use the `authorization_endpoint` to obtain an authorization code.
 
-This example assumes you've already added your custom `redirect_uri` to the relevant Client object's `redirect_uris`.
+This example assumes you've already added your custom `redirect_uri` to the relevant Client Object's `redirect_uris`.
 
 <details style="margin-bottom:2em;">
 <summary>Show example</summary>
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL
-# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client objects" example
-# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client object" example
+# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client Objects" example
+# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client Object" example
 CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/cds-server-metadata.json"
 CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
 CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
 
-# Get the Authorization, Token, Clients API, and Credentials API endpoints from the OAuth Authorization Server Metadata
+# Get the Authorization, Token, Client Objects API, and Credentials API endpoints from the OAuth Authorization Server Metadata
 OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
 OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
 CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
@@ -438,7 +438,7 @@ CUSTOMER_DATA_AUTHORIZATION_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJEC
 CUSTOMER_DATA_TOKEN_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
 CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_customerdata_accounts_api")
 
-# Get the client_secret for the Client object that will be used for the authorization
+# Get the client_secret for the Client Object that will be used for the authorization
 CUSTOMER_DATA_CLIENT_SECRET=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CREDENTIALS_API?client_ids=$CUSTOMER_DATA_CLIENT_ID" \
@@ -493,7 +493,7 @@ curl -v \
 
 #### Example: Using the Grant Admin scope to load data for another Grant <a id="example-grant-admin" href="#example-grant-admin" class="permalink">🔗</a>
 
-You can use the `cds_grant_admin` Client object to generate an `access_token` that can access data for another Client object's Grants.
+You can use the `cds_grant_admin` Client Object to generate an `access_token` that can access data for another Client Object's Grants.
 
 This is useful for gaining access to data and functionality when Servers create Grants on their side (e.g. the Server-Provided Files API) or when user authorization requests use the Server's default `redirect_uri` (thus you never get a redirect back with a `code`).
 
@@ -502,13 +502,13 @@ This is useful for gaining access to data and functionality when Servers create 
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL
-# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client objects" example
-# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client object" example
+# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client Objects" example
+# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client Object" example
 CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/cds-server-metadata.json"
 CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
 CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
 
-# Get the Authorization, Token, Clients API, and Credentials API endpoints from the OAuth Authorization Server Metadata
+# Get the Authorization, Token, Client Objects API, and Credentials API endpoints from the OAuth Authorization Server Metadata
 OAUTH_METADATA_URL=$(curl "$CDS_METADATA_URL" | jq -r ".oauth_metadata")
 OAUTH_METADATA_OBJECT=$(curl "$OAUTH_METADATA_URL" | jq ".")
 CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
@@ -572,7 +572,7 @@ GRANT_ADMIN_TOKEN_ENDPOINT=$(curl -v \
     "$GRANT_ADMIN_OAUTH_METADATA_URL" \
     |jq -r ".token_endpoint")
 
-# Get the client_secret grant_admin Client object
+# Get the client_secret grant_admin Client Object
 GRANT_ADMIN_CLIENT_SECRET=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CREDENTIALS_API?client_ids=$GRANT_ADMIN_CLIENT_ID" \
@@ -624,8 +624,8 @@ This is useful for enabling device-level encryption of authorized data, where a 
 <pre class="highlight">
 <code>
 # Start with the CDS Server Metadata's well-known URL
-# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client objects" example
-# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client object" example
+# and CLIENT_ADMIN_ACCESS_TOKEN from "Loading the list of Client Objects" example
+# and CUSTOM_REDIRECT_URI from "Adding a Redirect URI to a Client Object" example
 CDS_METADATA_URL="https://cdsserver123.example.com/.well-known/cds-server-metadata.json"
 CLIENT_ADMIN_ACCESS_TOKEN="cccccccccccccc"
 CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
@@ -672,7 +672,7 @@ CUSTOMER_DATA_TOKEN_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq 
 CUSTOMER_DATA_PAR_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".pushed_authorization_request_endpoint")
 CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_customerdata_accounts_api")
 
-# Get the client_secret for the Client object that will be used for the authorization
+# Get the client_secret for the Client Object that will be used for the authorization
 CUSTOMER_DATA_CLIENT_SECRET=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CREDENTIALS_API?client_ids=$CUSTOMER_DATA_CLIENT_ID" \

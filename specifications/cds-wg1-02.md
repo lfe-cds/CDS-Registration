@@ -38,10 +38,10 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
     * [4.2. Client Registration Response](#registration-response)  
 * [5. Clients API](#clients-api)  
     * [5.1. Client Object Format](#client-format)  
-    * [5.2. Client Statuses](#client-statuses)  
-    * [5.3. Listing Clients](#clients-list)  
-    * [5.4. Retrieving Individual Clients](#clients-get)  
-    * [5.5. Modifying Clients](#clients-modify)  
+    * [5.2. Client Object Statuses](#client-statuses)  
+    * [5.3. Listing Client Objects](#clients-list)  
+    * [5.4. Retrieving Individual Client Objects](#clients-get)  
+    * [5.5. Modifying Client Objects](#clients-modify)  
 * [6. Messages API](#messages-api)  
     * [6.1. Message Object Format](#message-format)  
     * [6.2. Message Types](#message-types)  
@@ -213,7 +213,7 @@ In addition to requiring that the URL be included in CDS's Server Metadata Objec
 A Server's Authorization Server Metadata Object follows OAuth's Authorization Server Metadata object format [[RFC 8414 Section 2](#ref-rfc8414-server-metadata-obj)] with the following modifications from OPTIONAL or RECOMMENDED to REQUIRED:
 
 * `registration_endpoint` - _[URL](#url)_ - (REQUIRED) OAuth's Dynamic Client Registration [[RFC 7591](#ref-rfc7591)] functionality is required to enable the [Client Registration Process](#client-registration-process).
-  For Metadata Objects accessed by means of the `cds_server_metadata` field in a [Client object](#client-format) and subsequently the `oauth_metadata` field, the `registration_endpoint` field for the returned Metadata Object is OPTIONAL.
+  For Metadata Objects accessed by means of the `cds_server_metadata` field in a [Client Object](#client-format) and subsequently the `oauth_metadata` field, the `registration_endpoint` field for the returned Metadata Object is OPTIONAL.
 * `scopes_supported` - _Array[[string](#string)]_ - (REQUIRED) The scopes in this array MUST represent a union of all scope `id` values contained in the `cds_scope_descriptions` objects, plus any additional scopes the Server supports.
   Clients MUST assume that only scopes that have matching keys in the `cds_scope_descriptions` object are able to be registered using this specification's registration process and any other listed scopes are available for registration via some other process, which is outside the scope of this specification.
   This allows Servers to offer functionality from both this specification and other specifications that are also based on OAuth's Authorization Server Metadata, such as OpenID Connect.
@@ -243,8 +243,8 @@ In addition to the above additionally required set of OAuth Authorization Server
 
 In addition to OAuth capabilities included in the metadata object, this specification adds the following Connected Data Specifications (CDS) values:
 
-* `cds_oauth_version` - _[string](#string)_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`
-* `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register a Client using a user device
+* `cds_oauth_version` - _[string](#string)_ - (REQUIRED) The version of the CDS-WG1-02 Client Registration specification that the Server has implemented, which for this version of the specification is `v1`.
+* `cds_human_registration` - _[URL](#url)_ - (REQUIRED) Where Clients who do not have the technical capacity to use the `registration_endpoint` can visit to manually register using a user device.
 * `cds_timezone` - _[timezone](#timezone)_ - (REQUIRED) The timezone the Server uses as a point of reference for relative dates and datetimes.
 * `cds_clients_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Clients API](#clients-api).
 * `cds_messages_api` - _[URL](#url)_ - (REQUIRED) The URL for the [Messages API](#messages-api).
@@ -297,6 +297,7 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
 * `token_endpoint_auth_methods_supported` is `["client_secret_basic"]`.
 * `code_challenge_methods_supported` is `[]`.
 * `coverages_supported` is `[]`.
+* `grant_admin_scope` is `null`.
 * `authorization_details_types_supported` is `[]`.
 * `authorization_details_fields_supported` is `[]`.
 
@@ -307,7 +308,9 @@ Since Servers MAY arbitrarily create Grant objects included in the [Grants API](
 
 The following are how the [Scope Descriptions](#scope-descriptions-format) fields MUST be configured for this scope:
 
-* `id` is `"cds_grant_admin"`.
+* `id` is a unique string.
+  Servers are RECOMMENDED to prefix the string with `cds_grant_admin_` and the suffix is a short string that makes the `id` value unique.
+  For example, an `id` value could be `cds_grant_admin_1`.
 * `type` is `"cds_grant_admin"`.
 * `name` is `"Grant Admin"`.
 * `description` is `"This scope grants administrative access to previously created Grants."`.
@@ -320,13 +323,14 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
 * `token_endpoint_auth_methods_supported` is `["client_secret_basic"]`.
 * `code_challenge_methods_supported` is `[]`.
 * `coverages_supported` is `[]`.
-* `authorization_details_types_supported` is `["cds_grant_admin"]`.
-  Servers MUST treat an authorization details entries with a `type` value of `"cds_grant_admin"` as overriding the `cds_grant_admin` value in the token request's or Grant's `"scope"` string.
+* `grant_admin_scope` is `null`.
+* `authorization_details_types_supported` is `["{id}"]`, where `{id}` is the Scope Description's `id` value.
+  Servers MUST treat an authorization details entries with a `type` value of the Scope Description's `id` value as overriding the Scope Description's `id` value in the token request's or Grant's `"scope"` string.
 * `authorization_details_fields_supported` is a JSON array with the following two entries of [Authorization Details Field Objects](#auth-details-fields-format).
     * Client ID:
         * `id` is `client_id`.
-        * `name` is `"Client object identifier"`.
-        * `description` is `"The Client object identifier for which the Grant is issued."`.
+        * `name` is `"Client Object identifier"`.
+        * `description` is `"The Client Object identifier for which the Grant is issued."`.
         * `documentation` is a _[URL](#url)_ for the Server's documentation on the `client_id` authorization details field.
           Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.
         * `for_types` is `["cds_grant_admin"]`.
@@ -350,8 +354,14 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
         * `minimum` is `1`.
         * `choices` is not included.
 
-Server MUST only approve submissions of this scope to the token endpoint with a single authorization details entry to the token endpoint, ensuring the access token returned is only valid for one `grant_id`.
-Servers MUST only approve submissions of this scope to the token endpoint when the `grant_id` is for a Grant that has a matching `client_id`, has a non-empty `enabled_scope` value (i.e. the Grant is not disabled) and neither `cds_client_admin` or `cds_grant_admin` are part of the `scope`.
+To use a Grant Admin scope, Clients MUST submit a `client_credentials` grant [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)] to the Server's `token_endpoint` using credentials for the Client Object with a Grant Admin scope.
+The token request's payload MUST include an `authorization_details` list containing only one entry with a `type` value equal to the Grant Admin scope and `grant_id` and `client_id` values for a Grant the Client Object found via the [Grants API](#grants-api).
+Servers MUST only approve requests when the `grant_id` is for a Grant that has a matching `client_id`, has a non-empty `enabled_scope` value (i.e. the Grant is not disabled), and all of the `enabled_scope` values for that grant have Scope Description `grant_admin_scope` values set to the Grant Admin scope included in the authorization details entry's `type` value.
+When a valid request is made, Servers MUST respond with a valid client credentials token response that includes an `access_token` that may be used by the Client to access the Grant's enabled scope of data or functionality.
+This method allows Clients to access Grant data and functionality for server-created Grants or Grants that used a default `redirect_uri`.
+
+Servers MAY have multiple Scope Descriptions with a `type` value of `cds_grant_admin`, to allow for situations where different back-end authorization systems are used for granting access to different sets of functionality and scopes.
+Scope Descriptions that allow a Grant Admin method of access MUST set their `grant_admin_scope` value to the `id` value of the specific Scope Description of type `cds_grant_admin` that enables such access.
 
 #### 3.3.3 Server-Provided Files Scope <a id="scopes-server-provided-files" href="#scopes-server-provided-files" class="permalink">🔗</a>
 
@@ -377,6 +387,7 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
 * `token_endpoint_auth_methods_supported` is `[]`.
 * `code_challenge_methods_supported` is `[]`.
 * `coverages_supported` is `[]`.
+* `grant_admin_scope` is `"{grant_admin_scope_id}"`, where `{grant_admin_scope_id}` is the scope value that can be used for issuing [Grant Admin](#scopes-grant-admin) access tokens to access Grants for this Server-Provided Files scope.
 * `authorization_details_types_supported` is `["{id}"]`, where `{id}` is the Scope Description's `id` value.
   Servers MUST treat an authorization details entries with a `type` value of the Scope Description's `id` value as overriding the Scope Description's `id` value in the Grant's `"scope"` string.
 * `authorization_details_fields_supported` is a JSON array with a single entry [Authorization Details Field Object](#auth-details-fields-format) with the following fields.
@@ -393,13 +404,11 @@ The following are how the [Scope Descriptions](#scope-descriptions-format) field
     * `minimum` is `1`.
     * `choices` is not included.
 
-Since Grants with the scope are only created by Servers, Client do not receive an authorization code or access token for that Grant with which they may access the files.
-Instead, to access the files, Clients MUST submit a `client_credentials` grant with the scope of `cds_grant_admin` and an `authorization_details` containing the `client_id` and `grant_id` for the Grant the Client found via the [Grants API](#grants-api), which returns an `access_token` that can be used for requests to the [Server-Provided Files API](#server-provided-files-api).
-Therefore, when a Server includes this scope in the `cds_scope_descriptions` object, the Server MUST also include a scope with a `type` value of `"cds_grant_admin"`.
+Since Grants with this scope are only created by Servers, Clients do not receive an authorization code or access token for that Grant with which they may access the files.
+Instead, Clients MUST submit use the [Grant Admin](#scopes-grant-admin) method to issue an `access_token` that can be used for requests to the [Server-Provided Files API](#server-provided-files-api).
 
 Servers MAY include multiple [Scope Description objects](#scope-descriptions-format) in the `cds_scope_descriptions` that have a `type` value of `cds_server_provided_files`.
-This can be useful when a Server is using different back-end systems for different types of documents, and the Server
-needs to use different Client objects to provide access to each back-end system.
+This can be useful when a Server is using different back-end systems for different types of documents, and the Server needs to use different Client Objects to provide access to each back-end system.
 
 ### 3.4. Scope Descriptions Object Format <a id="scope-descriptions-format" href="#scope-descriptions-format" class="permalink">🔗</a>
 
@@ -410,6 +419,7 @@ The following values are included in the default list available in scope descrip
   This MUST be the same value as the object key the Metadata Object's `cds_scope_descriptions` object.
 * `type` - _[string](#string)_ - (REQUIRED) The functionality type of the scope.
   This allows Servers to define multiple scope `id` values for the same Scope Type, for situations where Coverages or Authorization Details fields may be different (e.g. the historical customer data available for one territory has smart meter interval data, and for another it only has monthly meter reading data).
+  Servers MAY set this `type` value to be the same as the `id` value, when there will only ever be one scope for that type of access or functionality (e.g. can set both `id` and `type` values as `openid`).
   NOTE: For OAuth's Rich Authorization Request [[RFC 9396](#ref-rfc9396)] `authorization_details` parameter list objects, the `type` value in those objects are the scope's `id` value, not this `type` value.
 * `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the scope.
 * `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what access or actions the scope will enable.
@@ -432,6 +442,9 @@ The following values are included in the default list available in scope descrip
   For scope descriptions where  `grant_types_supported` does not include `authorization_code`, no authorization request is performed, so no code challenge is required and this field value is an empty list (`[]`).
 * `coverages_supported` - _Array[[string](#string)]_ - (REQUIRED) A list of CDS's Coverage Entry Object [[CDS-WG1-01 Section 4.3](#ref-cds-wg1-01-coverage-entry)] `id` values for which the scope is available by the Server.
   If the scope provides functionality unrelated to a Server's coverage entries (e.g. the `cds_client_admin` scope), this value is an empty list (`[]`).
+* `grant_admin_scope` - _[string](#string) or `null`_ - (REQUIRED) The Grant Admin `scope` value used for issuing access tokens that may access Grants containing this scope.
+  When a value is set for this field, Servers MUST also include a Scope Description for that scope that has a `type` value of `cds_grant_admin`
+  If access is not available via a Grant Admin scope, this value is `null`.
 * `authorization_details_types_supported` - _Array[[string](#string)]_ - (REQUIRED) A list of strings which may be used as the OAuth's Rich Authorization Request authorization details object `type` value [RFC 9396 Section 7.1](#ref-rfc9396-auth-details)].
 * `authorization_details_fields_supported` - _Array[[AuthorizationDetailsField](#auth-details-fields-format)]_ - (REQUIRED) A list of fields that MAY be included in OAuth's Rich Authorization Request [[RFC 9396](#ref-rfc9396)] authorization details object for this scope.
   If no extra authorization details fields are available, this value is an empty list (`[]`).
@@ -634,53 +647,54 @@ This specification requires Clients and Servers follow the process described in 
   Servers MUST respond to Client registration requests with a `400 Bad Request` Status Code if scopes that are not included in the `cds_scope_descriptions` object are attempting to be registered with scopes that are included.
 * Clients MAY submit additional named values that are defined as part of scope `registration_requirements` and `registration_optional` arrays in `cds_scope_descriptions` objects, using the registration field reference's `field_name` value as the submitted key in the registration request.
 * Servers MUST ignore any submitted `redirect_uris` values.
-  Clients MAY later update individual Client object `redirect_uri` values via the [Modifying Clients](#clients-modify) process, when that Client object `response_types` list is non-empty.
+  Clients MAY later update individual Client Object `redirect_uri` values via the [Modifying Clients](#clients-modify) process, when that Client Object `response_types` list is non-empty.
 
 ### 4.2. Client Registration Response <a id="registration-response" href="#registration-response" class="permalink">🔗</a>
 
 This specification requires Servers follow the process described in OAuth's Client Registration Response [[RFC 7591 Section 3.2](#ref-rfc7591-client-reg-resp)], with the following modifications to OAuth's Client Information Response [[RFC 7591 Section 3.2.1](#ref-rfc7591-client-info-resp)] object.
 
-* The response object format MUST be the extended [Client object format](#client-format) defined by the Clients API.
+* The response object format MUST be the extended [Client Object Format](#client-format) defined by the Clients API.
 * The `scope` value MUST be `cds_client_admin`, indicating that the Client in the response is only used for `cds_client_admin` access.
 * The `redirect_uris` value MUST be an empty list (`[]`).
 * The `response_types` value MUST be an empty list (`[]`).
 * The `grant_types` value MUST contain only the `client_credentials` grant, indicating that the Client details in the response may only be used for `cds_client_admin` client credentials grant.
 * The `token_endpoint_auth_method` MUST be set to `client_secret_basic`.
-* The `client_secret` MUST be included, despite it not being included in the Client object format returned by the Clients API, and set to the same value as the `client_secret` in the created [Credential object](#credentials-format) for the Client object in the response.
+* The `client_secret` MUST be included, despite it not being included in the Client Object format returned by the Clients API, and set to the same value as the `client_secret` in the created [Credential object](#credentials-format) for the Client Object in the response.
 
-Upon valid registration, servers MUST create a Client object with the scope defined as `"cds_client_admin"`.
-This Client object scoped to `cds_client_admin` is the one returned as the main Client object as the Client Registration Response.
+Upon valid registration, Servers MUST create a [Client Object](#client-format) with the scope defined as `"cds_client_admin"`.
+This Client Object scoped to `cds_client_admin` is returned as the main Client Object in the Client Registration Response.
 
-Servers MUST also create a Client object with the scope defined as `"cds_grant_admin"`, though it is not returned as part of the Client Registration response and is only available via the [Clients API](#clients-api).
+Servers MUST also create Client Objects that are configured for any other scopes for which the Client submitted registration and the submission was accepted by the Server.
+Servers MAY combine scopes into individual Client Objects if the `response_types`, `grant_types`, and `token_endpoint_auth_method` for the scopes are the same, so that Clients MAY send authorization and token requests for multiple related scopes at the same time.
 
-Servers MUST also create Client objects that are configured for any other scopes for which the Client submitted registration and the submission was accepted by the Server.
-Servers MAY combine scopes into individual Client objects if the `response_types`, `grant_types`, and `token_endpoint_auth_method` for the scopes are the same.
+If a scope is registered that has a non-null `grant_admin_scope` value in its Scope Description, Servers MUST create a Client Object with that Grand Admin scope value, so that Clients MAY access data and functionality for that scope using the [Grant Admin](#scopes-grant-admin) access method.
 
-For each Client object created that has its `token_endpoint_auth_method` value as something other than `null`, at least one [Credential object](#credentials-format) MUST be created and made available on the [Credentials API](#credentials-api) for the Client to use.
+For each Client Object created that has its `token_endpoint_auth_method` value as something other than `null`, at least one [Credential object](#credentials-format) MUST be created and made available on the [Credentials API](#credentials-api) for the Client to use.
 
-For created Client objects that have a non-empty `response_types` list, Servers MUST create a default `redirect_uri` value and and set it as the single value in the created Client object `redirect_uris` list.
+For created Client Objects that have a non-empty `response_types` list, Servers MUST create a default `redirect_uri` value and and set it as the single value in the created Client Object `redirect_uris` list.
 The created `redirect_uri` MUST provide functionality such that if specified as part of authorization request parameters, will redirect the user to a receipt of the authorization when the authorization is submitted successfully, or show an error to the user if the authorization is declined or otherwise errors.
 This default `redirect_uri` allows Clients to request user authorization without needing to operate their own redirect endpoint.
-Clients MAY choose to update the `redirect_uris` to remove this default or add additional redirect URIs using the [Modifying Clients](#clients-modify) functionality.
+Clients MAY choose to update Client Object `redirect_uris` values to remove this default or add additional redirect URIs using the [Modifying Clients](#clients-modify) functionality.
 
-Servers MUST NOT create Clients that have both `production` and `sandbox` values in the same `cds_status_options`, so that Client objects cannot be used for both testing and production environments.
-For situations where Servers do not initially create a Client with `production` as a `cds_status_option`, such as when the Server has a manual review step, Servers MUST create a Client object with `sandbox` as a `cds_status_option` so that Clients MAY being to test their applications immediately after registration.
-Then, later if and when the Server decides to allow the Client access to the production environment, the Server MUST create a new Client object with `production` as a `cds_status_option`.
+For created Client Objects that have a non-empty `response_types` list, Servers MUST create a Client Object that has the `sandbox` value in its `cds_status_option` list, which allows the Client to immediately begin testing their application's integration after registration.
+Servers MAY forgo creating Client Objects with a `production` value in its `cds_status_options` list when the Server has additional steps to perform, such as a manual review of the registration.
+Then, later if and when the Server decides to allow the Client access to the production environment, the Server MUST create a new Client Object with a `production` value in its `cds_status_option` list.
+Servers MUST NOT create Client Objects that have both `production` and `sandbox` values in the same `cds_status_options` list, so that the same Client Object cannot be used for both testing and production environments.
 
-While Servers MAY support OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)] by including the `registration_client_uri` and `registration_access_token` values in their registration response, this specification requires that Servers MUST support the [Clients API](#clients-api) by including the `cds_clients_api` value in the [Authorization Server Metadata](#auth-server-metadata-format) as a way for Clients to manage their registrations.
-The Clients API is needed beyond the OAuth Dynamic Client Registration Management Protocol because as part of registration, Servers create multiple Clients that group the various registered scopes, and OAuth's Dynamic Client Registration Management Protocol does not support APIs for listing multiple clients or credentials that are created from a single registration request.
+While Servers MAY support OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)] by including the `registration_client_uri` and `registration_access_token` values in their registration response, this specification requires that Servers MUST support the [Clients API](#clients-api) by including the `cds_clients_api` value in the [Authorization Server Metadata](#auth-server-metadata-format) as a way for Clients to manage their Client Objects.
+The Clients API is needed beyond the OAuth Dynamic Client Registration Management Protocol because as part of registration, Servers create multiple Client Objects that group the various registered scopes, and OAuth's Dynamic Client Registration Management Protocol does not support APIs for listing multiple client objects or credentials that are created from a single registration request.
 
 ## 5. Clients API <a id="clients-api" href="#clients-api" class="permalink">🔗</a>
 
-This specification requires Servers provide a set of Application Programming Interfaces (APIs) allowing Clients to view and edit their Client registrations.
-These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `cds_client_admin` scope.
+This specification requires Servers provide a set of Application Programming Interfaces (APIs) allowing Clients to view and edit their registered Client Objects.
+These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client Object that includes the `cds_client_admin` scope.
 
 ### 5.1. Client Object Format <a id="client-format" href="#client-format" class="permalink">🔗</a>
 
-Client objects are formatted as JSON objects and contain named values.
-Client objects are required to follow the same object format as the OAuth Dynamic Client Registration Management Protocol's Client Metadata [[RFC 7591 Section 2](#ref-rfc7591-client-metadata)], with the following modifications.
+Client Objects are formatted as JSON objects and contain named values.
+Client Objects are required to follow the same object format as the OAuth Dynamic Client Registration Management Protocol's Client Metadata [[RFC 7591 Section 2](#ref-rfc7591-client-metadata)], with the following modifications.
 
-The following fields defined in OAuth's Client Metadata [[RFC 7591 Section 2](#ref-rfc7591-client-metadata)] are REQUIRED to be included with all Client objects:
+The following fields defined in OAuth's Client Metadata [[RFC 7591 Section 2](#ref-rfc7591-client-metadata)] are REQUIRED to be included with all Client Objects:
 
 * `client_id`
 * `client_id_issued_at`
@@ -692,11 +706,11 @@ The following fields defined in OAuth's Client Metadata [[RFC 7591 Section 2](#r
 * `client_name` - If no value is submitted by the Client, the default value is the `client_id`.
 * `contacts` - If no contacts are configured, this value is an empty list (`[]`).
 
-The following fields defined in OAuth's Rich Authorization Requests Metadata [[RFC 9396 Section 10](#ref-rfc9396-rar-metadata)] are REQUIRED to be included with all Client objects:
+The following fields defined in OAuth's Rich Authorization Requests Metadata [[RFC 9396 Section 10](#ref-rfc9396-rar-metadata)] are REQUIRED to be included with all Client Objects:
 
 * `authorization_details_types`
 
-The following fields MUST NOT be included, except when the Client object is returned as a [Client Registration Response](#registration-response):
+The following fields MUST NOT be included, except when the Client Object is returned as a [Client Registration Response](#registration-response):
 
 * `client_secret`
 
@@ -708,16 +722,16 @@ Other fields defined in the OAuth's Client Metadata [[RFC 7591 Section 2](#ref-r
 
 In addition to the fields defined by OAuth's Client Metadata [[RFC 7591 Section 2](#ref-rfc7591-client-metadata)] and its extensions, the following fields are additionally defined:
 
-* `cds_created` - _[datetime](#datetime)_ - (REQUIRED) When the Client object was created.
-* `cds_modified` - _[datetime](#datetime)_ - (REQUIRED) When the Client object was last modified.
+* `cds_created` - _[datetime](#datetime)_ - (REQUIRED) When the Client Object was created.
+* `cds_modified` - _[datetime](#datetime)_ - (REQUIRED) When the Client Object was last modified.
 * `cds_client_uri` - _[URL](#url)_ - (REQUIRED) Where to submit modifications using the Clients API [Modifying Clients](#clients-modify) functionality.
-  Servers MUST make this URL unique for each Client object.
-* `cds_status` - _[ClientStatus](#client-statuses)_ - (REQUIRED) The current status of availability for this Client.
-* `cds_status_options` - _Array[[ClientStatus](#client-statuses)]_ - (REQUIRED) What `cds_status` values to which the Client MAY change the Client when [modifying](#clients-modify) it.
-  For Client objects that have the `cds_client_admin` scope, this list MUST NOT contain the `disabled` value, and for all other Client objects this list MUST contain at least the `disabled` value, so that Clients MAY opt to disable Client objects as needed.
-* `cds_server_metadata` - _[URL](#url)_ - (REQUIRED) Where the Client can find their registration-specific version of the Servers's CDS Server Metadata [[CDS-WG1-01](#ref-cds-wg1-01)].
-  If the Client's registered scopes have different [Scope Descriptions](#scope-descriptions-format) than what is in the publicly available `oauth_metadata` resource, such as more limited `coverages_supported` or different limits in `authorization_details_fields_supported`, then the `cds_server_metadata` MUST be to a resource that has an updated `oauth_metadata` resource with the Client-specific values.
-  If the Client's CDS server metadata is no different from the public CDS server metadata, Servers MAY simply link to the public URL.
+  Servers MUST make this URL unique for each Client Object.
+* `cds_status` - _[ClientStatus](#client-statuses)_ - (REQUIRED) The current status of availability for this Client Object.
+* `cds_status_options` - _Array[[ClientStatus](#client-statuses)]_ - (REQUIRED) What `cds_status` values to which the Client MAY change the Client Object when [modifying](#clients-modify) it.
+  For Client Objects that have the `cds_client_admin` scope, this list MUST NOT contain the `disabled` value, and for all other Client Objects this list MUST contain at least the `disabled` value, so that Clients MAY opt to disable Client Objects as needed.
+* `cds_server_metadata` - _[URL](#url)_ - (REQUIRED) Where Clients can find a Client Object specific version of the Servers's CDS Server Metadata [[CDS-WG1-01](#ref-cds-wg1-01)].
+  If the Client Object's registered scopes have different [Scope Descriptions](#scope-descriptions-format) than what is in the publicly available `oauth_metadata` resource, such as more limited `coverages_supported` or different limits in `authorization_details_fields_supported`, then the `cds_server_metadata` MUST be to a resource that has an updated `oauth_metadata` resource with the Client Object specific values.
+  If the Client Object's CDS server metadata is no different from the public CDS server metadata, Servers MAY simply link to the public URL.
   If this metadata endpoint requires authentication, Servers MUST authenticate Client requests to this endpoint via Bearer access token obtained using OAuth's `client_credentials` grant with a scope of `cds_client_admin`, and reject unauthenticated requests with a `401 Unauthorized` Status Code.
   Clients know that they must use a Bearer token when Servers return a `401 Unauthorized` Status Code for this endpoint when the Client makes an unauthenticated request to the endpoint.
 * `cds_default_scope` - _[string](#string)_ - (OPTIONAL) The default scope string used when no `scope` parameter is provided as part of an authorization request.
@@ -733,48 +747,48 @@ In addition to the fields defined by OAuth's Client Metadata [[RFC 7591 Section 
 Servers MAY include other fields, such as required registration fields or informational fields, that the Server deems necessary for the Client to receive.
 Servers MUST describe any additional fields that may be included in their technical documentation.
 
-### 5.2. Client Statuses <a id="client-statuses" href="#client-statuses" class="permalink">🔗</a>
+### 5.2. Client Object Statuses <a id="client-statuses" href="#client-statuses" class="permalink">🔗</a>
 
-Client object `cds_status` values MUST be one of the following:
+Client Object `cds_status` values MUST be one of the following:
 
-* `production` - The Client object MAY be used on the Server's production systems.
+* `production` - The Client Object MAY be used on the Server's production systems.
   For scopes that require user authorization (e.g. `response_type` values of `code`), this `cds_status` indicates that the Client may request authorization from real users.
-* `sandbox` - The Client object MAY be used to request access on the Server's test environment systems.
+* `sandbox` - The Client Object MAY be used to request access on the Server's test environment systems.
   For scopes that require user authorization (i.e. `response_type` values of `code`), this `cds_status` indicates that the Client may request authorization from fictional test users, as provided in the Server's `cds_test_accounts` documentation.
-* `disabled` - The Client is is disabled.
+* `disabled` - The Client Object is is disabled.
 
-### 5.3. Listing Clients <a id="clients-list" href="#clients-list" class="permalink">🔗</a>
+### 5.3. Listing Client Objects <a id="clients-list" href="#clients-list" class="permalink">🔗</a>
 
-Clients may request to list Client objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `cds_client_admin` scope, to the `cds_clients_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
-The Client listing request responses are formatted as JSON objects and contain the following named values.
+Clients may request to list Client Objects that they have access to by making an HTTPS [GET](#get) request, authenticated with a valid Bearer `access_token` scoped to the `cds_client_admin` scope, to the `cds_clients_api` URL included in the [Authorization Server Metadata](#auth-server-metadata-format).
+The Client Object listing request responses are formatted as JSON objects and contain the following named values.
 
-* `clients` - _Array[[Client](#client-format)]_ - (REQUIRED) A list of Clients to which the requesting `access_token` is scoped to have access.
-  If no Clients are accessible, this value is an empty list (`[]`).
-  If more than 100 Clients are available to be listed, Servers MAY truncate the list and use the `next` value to link to the next segment of the list of Clients.
-* `next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of Clients.
+* `clients` - _Array[[Client](#client-format)]_ - (REQUIRED) A list of Client Objects to which the requesting `access_token` is scoped to have access.
+  If no Client Objects are accessible, this value is an empty list (`[]`).
+  If more than 100 Client Objects are available to be listed, Servers MAY truncate the list and use the `next` value to link to the next segment of the list of Client Objects.
+* `next` - _[URL](#url) or `null`_ - Where to request the next segment of the list of Client Objects.
   If no next segment exists (i.e. the requester is at the end of the list), this value is `null`.
-* `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Clients.
+* `previous` - _[URL](#url) or `null`_ - Where to request the previous segment of the list of Client Objects.
   If no previous segment exists (i.e. the requester is at the front of the list), this value is `null`.
 
-Servers MUST support Clients adding any of the following URL parameters to the [GET](#get) request, which will filter the list of Client objects to be the intersection of results for each of the URL parameters filters:
+Servers MUST support Clients adding any of the following URL parameters to the [GET](#get) request, which will filter the list of Client Objects to be the intersection of results for each of the URL parameters filters:
 
-* `client_ids` - A space-separated list of `client_id` values for which the Servers MUST filter the Client objects.
+* `client_ids` - A space-separated list of `client_id` values for which the Servers MUST filter the Client Objects.
 
-Listings of Client objects MUST be ordered in reverse chronological order by `cds_modified` timestamp, where the most recently updated relevant Client MUST be first in each listing.
+Listings of Client Objects MUST be ordered in reverse chronological order by `cds_modified` timestamp, where the most recently updated relevant Client Object MUST be first in each listing.
 
-For Client objects in the listing that are added, removed, or modified by the Server or Client after initial registration, Servers MUST add a message to the [listed Messages](#messages-list) notifiying the Client that a Client object has been added, removed, or modified.
-This creates a changelog in the Messages listing for Client object updates.
+For Client Objects in the listing that are added, removed, or modified by the Server or Client after initial registration, Servers MUST add a message to the [listed Messages](#messages-list) notifying the Client that a Client Object has been added, removed, or modified.
+This creates a changelog in the Messages listing for Client Object updates.
 
-### 5.4. Retrieving Individual Clients <a id="clients-get" href="#clients-get" class="permalink">🔗</a>
+### 5.4. Retrieving Individual Client Objects <a id="clients-get" href="#clients-get" class="permalink">🔗</a>
 
-The URL to be used to send [GET](#get) requests for retrieving individual Client objects MUST be the `cds_client_uri` provided in the [Client object](#client-format).
-If a Server has optionally implemented OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)], the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `cds_client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the client retrieval endpoint (`cds_client_uri`).
+The URL to be used to send [GET](#get) requests for retrieving individual Client Objects MUST be the `cds_client_uri` provided in the [Client Object](#client-format).
+If a Server has optionally implemented OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)], the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `cds_client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the Client Object retrieval endpoint (`cds_client_uri`).
 
-### 5.5. Modifying Clients <a id="clients-modify" href="#clients-modify" class="permalink">🔗</a>
+### 5.5. Modifying Client Objects <a id="clients-modify" href="#clients-modify" class="permalink">🔗</a>
 
-This specification requires that the procedure to modify Clients MUST follow OAuth's Client Update Request [[RFC 7592 Section 2.2](#ref-rfc7592-client-mgmt-updates) section in Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)].
+This specification requires that the procedure to modify Client Objects MUST follow OAuth's Client Update Request [[RFC 7592 Section 2.2](#ref-rfc7592-client-mgmt-updates) section in Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)].
 
-The URL to be used to send [PUT](#put) requests for updating clients MUST be the `cds_client_uri` provided in the [Client object](#client-format).
+The URL to be used to send [PUT](#put) requests for updating Client Objects MUST be the `cds_client_uri` provided in the [Client Object](#client-format).
 If a Server has optionally implemented OAuth's Dynamic Client Registration Management Protocol [[RFC 7592](#ref-rfc7592)], the value of `cds_client_uri` MUST be the same as `registration_client_uri`, and access tokens issued from either a `client_credentials` grant with the scope `cds_client_admin` or the access token provided as the `registration_access_token` MUST be valid access tokens to interact with the client endpoint.
 
 Servers MUST allow Clients to intially update the following fields:
@@ -794,12 +808,12 @@ Servers MUST allow Clients to intially update the following fields:
 
 Servers MUST NOT allow clients to update the following fields:
 
-* `client_id` - This value is immutable from when it was assigned upon Client registration.
-* `client_id_issued_at` - This value is immutable from when the Client initially registered.
-* `client_secret` - This value is NOT included in any Client object response, except for the initial Client registration request.
-  Clients MUST use the [Credentials API](#credentials-api) to manage client secrets.
-* `client_secret_expires_at` - This value is NOT included in any Client object response.
-  Clients MUST use the [Credentials API](#credentials-api) to discover when a client secret will expire.
+* `client_id` - This value is immutable from when it was assigned upon Client Object creation.
+* `client_id_issued_at` - This value is immutable from when the Client Object initially was created.
+* `client_secret` - This value is NOT included in any Client Object response, except for the initial [Client registration request](#registration-request).
+  Clients MUST use the [Credentials API](#credentials-api) to manage Client Object secrets.
+* `client_secret_expires_at` - This value is NOT included in any Client Object response.
+  Clients MUST use the [Credentials API](#credentials-api) to discover when a Client Object secret will expire.
 * `grant_types` - This list is determined by the Server based on the `grant_types_supported` described in the the [Scope Descriptions](#scope-descriptions-format).
 * `response_types` - This list is determined by the Server based on the `response_types_supported` described in the the [Scope Descriptions](#scope-descriptions-format).
 * `token_endpoint_auth_method` - This is set by the Server based on the `token_endpoint_auth_methods_supported` described in the the [Scope Descriptions](#scope-descriptions-format).
@@ -809,11 +823,11 @@ Servers MUST NOT allow clients to update the following fields:
 * `cds_server_metadata` - This is a URL set by the Server.
 * `cds_status_options` - This is a list set by the Server.
 
-For other fields, the Server MUST determine the validity of the submitted Client fields and reject with a `400 Bad Response` Status Code if not all submitted fields are either the same as previously set, or invalid values for that field.
+For other fields, the Server MUST determine the validity of the submitted Client Object fields and reject with a `400 Bad Response` Status Code if not all submitted fields are either the same as previously set, or invalid values for that field.
 
-If a Client does not include a field that is included in the Client object, this indicates that the Client wishes to reset the value of that field to the Server default.
+If a Client does not include a field that is included in the Client Object, this indicates that the Client wishes to reset the value of that field to the Server default.
 
-If a Server needs to asynchronously review and approve changes to any submitted Client object fields that have been submitted by the Client and are different from the current values, for valid update requests the Server MUST respond with a `202 Accepted` Status Code, which indicates that the submission was accepted but not fully saved as completed yet.
+If a Server needs to asynchronously review and approve changes to any submitted Client Object fields that have been submitted by the Client and are different from the current values, for valid update requests the Server MUST respond with a `202 Accepted` Status Code, which indicates that the submission was accepted but not fully saved as completed yet.
 Any fields that have not been synchronously updated as part of the request and response MUST remain in the response as their previous values, and the Server MUST add one or more entries to the [listed Messages](#messages-list) for the modified fields that need to be asynchronously reviewed and approved.
 Clients MAY then use the [Messages API](#messages-api) to track the asynchronous review of the modification request.
 If all submitted fields have been synchronously updated as part of the response, Servers MUST respond with a `200 OK` Status Code.
@@ -821,9 +835,9 @@ If all submitted fields have been synchronously updated as part of the response,
 ## 6. Messages API <a id="messages-api" href="#messages-api" class="permalink">🔗</a>
 
 To facilitate automated communication and notificatiosn between Servers and Clients, this specification requires that official communication between Servers and Clients be performed using the Client Messages APIs.
-Servers MAY implement other means of communications for exchanging messages and notifications, such as email support, but they MUST also mirror any official communications that impact Client or Grant statuses, settings, or access using the Messages API.
+Servers MAY implement other means of communications for exchanging messages and notifications, such as email support, but they MUST also mirror any official communications that impact Client Object or Grant statuses, settings, or access using the Messages API.
 
-The Messages API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `cds_client_admin` scope.
+The Messages API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client Object that includes the `cds_client_admin` scope.
 
 ### 6.1. Message Object Format <a id="message-format" href="#message-format" class="permalink">🔗</a>
 
@@ -836,7 +850,7 @@ Message objects are formatted as JSON objects and contain the following named va
 * `read` - _boolean_ - (REQUIRED) Whether the object has been marked as read by a Client.
   When the Server creates a Message, this value MUST be `false` by default, so that the Message appears in the [unread](#messages-list) list.
 * `creator` - _[string](#string) or `null`_ - (REQUIRED) If the Server created the Message, this value is `null`.
-  If the Client created the Message, this value is the Client's `client_id`.
+  If the Client created the Message, this value is the Client Object's `client_id`.
 * `created` - _[datetime](#datetime)_ - (REQUIRED) When the Message was created.
 * `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Message was last modified.
 * `status` - _[ClientMessageStatus](#message-statuses)_ - (REQUIRED) The current status of the Message.
@@ -854,14 +868,14 @@ Message objects are formatted as JSON objects and contain the following named va
   Message attachments are not intended to provide a means for repeatedly transferring structured data or large amounts of data.
   It is RECOMMNEDED that Servers prefer to share files via the [Server-Provided Files API](#server-provided-files-api) or other relevant APIs and only use Message attachments when the attachment is relatively small in size and only relevant to the Message.
 * `related_uri` - _[URL](#url) or `null`_ - (OPTIONAL) If the Message `type` is `notification` or `private_message`, this value is where the Client can find more information, if available.
-  If the Message `type` is `production_request`, this value is a relevant Client object `cds_client_uri` that has the `sandbox` value in its `cds_status_options` list for which the Client is requesting an equivalent Client object be created with `production` in the `cds_status_options` list.
+  If the Message `type` is `production_request`, this value is a relevant Client Object `cds_client_uri` that has the `sandbox` value in its `cds_status_options` list for which the Client is requesting an equivalent Client Object be created with `production` in the `cds_status_options` list.
   If the Message `type` is `support_request`, this value is a relevant URL for which the Client is requesting technical support.
   If the Message `type` is `field_changes`, this is where the Client can retrieve the object that has been requested to be modified.
   If the Message `type` is `payment_request`, this is where the Client can submit their payment to the Server, and the `related_type` value MUST be `payment_form`.
   If the Message `type` is `online_form_request`, this is where the Client can complete the online form, and the `related_type` value MUST be `online_form`.
   If the Message `type` is `pdf_form_request`, this is where the Client can download a blank copy of the PDF form, and the `related_type` value MUST be `pdf_form`.
   If the Message `type` is `server_request`, this is where the Client can find more information about what information is being requested by the Server.
-  If the Message `type` is `grant_request` and `creator` is not `null`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assigned to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
+  If the Message `type` is `grant_request` and `creator` is not `null`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assigned to if created by the Server, which MAY be a Client Object that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client Object with which the requesting Client is working (e.g. a "third-party" grant).
 * `related_type` - _[ClientMessageRelatedType](#message-related-types)_ - (OPTIONAL) The type of object or resource linked to by the `related_uri`.
   If `related_uri` is included, this field is REQUIRED.
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If the Message `type` is `payment_request`, this amount the Client needs to pay to satisfy the payment request.
@@ -875,7 +889,7 @@ Message object `type` values MUST be one of the following:
   This message is considered to be not individually tailored to the Client specifically, but instead directed to all relevant Clients.
 * `private_message` - The Server or Client is sending a private message to the opposite party.
   This message is considered to be individually tailored and relevant only to that Client or Server.
-* `production_request` - The Client is requesting a Client object be created that has the `production` value in the Client's `cds_status_options` list.
+* `production_request` - The Client is requesting a Client Object be created that has the `production` value in the Client's `cds_status_options` list.
 * `support_request` - The Client is submitting a technical support request to the Server.
 * `grant_request` - The Client is submitting a request for the Server to create Grants with the parameters provided in the `grants_requested` list.
 * `field_changes` - This Message represents that the Client has submitted changes to field values in other API objects, listed in the `updates_requested` list, but these changes were not synchronously approved by the Server and need to be reviewed asynchronously by the Server.
@@ -896,7 +910,7 @@ Message object `status` values MUST be one of the following:
 
 * `complete` - For Messages with `type` values of `notification`, `private_message`, or `client_submission`, the `status` MUST be set as `complete`.
   For Messages with `type` values of `support_request`, `grant_request`, `field_changes`, `server_request`, `payment_request`, `online_form_request`, `pdf_form_request`, or `request_update`, this represents the Server has completed and approved or resolved the Client's technical support request, field changes, submission, or payment.
-  For Messages with a `type` value of `production_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `client` and `related_uri` to link to the [individual Client object](#clients-get) that has `production` in its `cds_status_options` list.
+  For Messages with a `type` value of `production_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `client` and `related_uri` to link to the [individual Client Object](#clients-get) that has `production` in its `cds_status_options` list.
   For Messages with a `type` value of `grant_request` and `status` value of `complete`, Servers MUST set the `related_type` to be `grant_list` and `related_uri` to link to Grants API [listing](#grants-list) with URL parameters that filter to only the relevant Grants.
   For Messages with a `type` value of `request_update`, `status` value of `complete`, and the `related_uri` links to a Message with a `type` value of `payment_request`, Servers MUST set the `related_type` to be `payment_receipt` and `related_uri` to link to the Client's payment receipt.
 * `open` - For Messages with `type` values of `server_request`, `payment_request`, `online_form_request`, `pdf_form_request`, or `request_update`, this represents that the Client has not yet submitted a response to the Server's request.
@@ -950,7 +964,7 @@ Client Grant Request objects are formatted as JSON objects and contain the follo
 
 * `scope` - _[string](#string)_ - (REQUIRED) The OAuth scope string being requested for the Grant.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](#ref-rfc9396-auth-details)]_ - (REQUIRED) An authorization details list as defined by [[RFC 9396 Section 7.1](#ref-rfc9396-auth-details)], to further specify the grant's requested scope.
-The `type` value of any Authorization Detail objects submitted in this list MUST be included in the Client object's `authorization_details_types` list.
+The `type` value of any Authorization Detail objects submitted in this list MUST be included in the Client Object's `authorization_details_types` list.
 If the `scope` string is sufficient to define the requested scope being requested by the Client, this value is an empty list (`[]`).
 
 ### 6.7. Message Attachment Object Format <a id="message-attachment-format" href="#message-attachment-format" class="permalink">🔗</a>
@@ -1011,7 +1025,7 @@ The fields included in JSON object MAY include the following:
 * `updates_requested` - _Array[[ClientUpdateRequest](#client-update-request-format)]_ - If submitting a Client Update with a `type` value of `client_submission`, this is required and MUST be a list of [Client Update Request](#client-update-request-format) objects with `field` values matching the `field` values in the corresponding `server_request` Client Update Request objects, and `description` or `uri` values being the Client's submission response to the Server's request for that `field`.
 * `grants_requested` - _Array[[ClientGrantRequest](#client-grant-request-format)]_ - If submitting a Client Update with a `type` value of `grant_request`, this is required and MUST be a list of [Client Grant Request](#client-grant-request-format) objects.
 * `related_uri` - _[URL](#url) or `null`_ - If submitting a Message with a `type` value of `support_request`, this value MAY be a URL to the relevant API endpoint for the support request.
-  If submitting a Message with a `type` value of `production_request`, this value is a relevant Client object `cds_client_uri` that has the `sandbox` value in its `cds_status_options` list for which the Client is requesting an equivalent Client object be created with `production` in the `cds_status_options` list.
+  If submitting a Message with a `type` value of `production_request`, this value is a relevant Client Object `cds_client_uri` that has the `sandbox` value in its `cds_status_options` list for which the Client is requesting an equivalent Client Object be created with `production` in the `cds_status_options` list.
   If submitting a Message with a `type` value of `grant_request`, this value is a relevant Client `cds_client_uri` to which the requesting Client is requesting the Grants be assigned to if created by the Server, which MAY be a Client that is managed by the requesting Client (e.g. a "self" grant) or MAY be a completely separate Client with which the requesting Client is working (e.g. a "third-party" grant).
   If there is no relevant API endpoint, the Client MUST not include this field.
 
@@ -1022,7 +1036,7 @@ When committing Messages created by Clients, Servers MUST populate the following
 
 * `uri` - _[URL](#url)_ - The endpoint where the Client can retrieve the newly created Message object.
 * `read` - _boolean_ - Always set to `true`.
-* `creator` - _[string](#string)_ - Always set to the Client's `client_id`.
+* `creator` - _[string](#string)_ - Always set to the Client Object's `client_id`.
 * `created` - _[datetime](#datetime)_ - Always set to the Server's timestamp for when the Message was created.
 * `modified` - _[datetime](#datetime)_ - Always the same as `created`.
 * `status` - _[ClientMessageStatus](#message-statuses)_ - For `type` values of `private_message` or `client_submission`, this value MUST be `complete`.
@@ -1030,10 +1044,10 @@ When committing Messages created by Clients, Servers MUST populate the following
 
 When Clients submit Messages with `type` value of `client_submission`, if the Message referenced in the `previous_uri` has a `status` of `open`, then the Server MUST update the `status` of that referenced Message to `pending`, which indicates that the Client has submitted a response for Server review.
 
-When Clients submit Messages with `type` value of `production_request`, Servers MUST review the Client object linked in the `related_uri` and determine if an equivalent Client object with `production` in the `cds_status_options` list is appropriate.
+When Clients submit Messages with `type` value of `production_request`, Servers MUST review the Client Object linked in the `related_uri` and determine if an equivalent Client Object with `production` in the `cds_status_options` list is appropriate.
 Servers MAY create Messages replying to the Client with any questions or information about the production request, so long as the `type` value is `private_message` and the `previous_uri` value links to the prior Message.
 Clients MAY create Messages replying to the Server, so long as the `previous_uri` value links to the relevant prior Message.
-After determining whether a production Client object should be created, Servers MUST create a new Message replying to the Client with `type` value of `request_update`, `previous_uri` value linked to the Client's `production_request` Message and has the `status` value as `complete` (if the Server has approved and created a production Client object and any relevant Credentials objects) or `rejected` (if the request is rejected for any reason).
+After determining whether a production Client Object should be created, Servers MUST create a new Message replying to the Client with `type` value of `request_update`, `previous_uri` value linked to the Client's `production_request` Message and has the `status` value as `complete` (if the Server has approved and created a production Client Object and any relevant Credentials objects) or `rejected` (if the request is rejected for any reason).
 
 When Clients submit Messages with `type` value of `grant_request`, Servers MUST review `grants_requested` values and determine if it is appropriate to create Grant objects for the requested scope.
 Servers MAY create Messages replying to the Client with any questions or information about the grant request, so long as the `type` value is `private_message` and the `previous_uri` value links to the prior Message.
@@ -1069,7 +1083,7 @@ If the submission is valid, Servers MUST synchronously modify the Message object
 To allow Clients to manage `client_secret` values used for authentication to APIs, this specification requires that Server implement a Credentials API.
 Servers MAY implement other means of managing Credentials, such as a web interface, but they MUST also mirror any Credentials managed by other means on this required Credentials API.
 
-The Credentials API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `cds_client_admin` scope.
+The Credentials API endpoints are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client Object that includes the `cds_client_admin` scope.
 
 ### 7.1. Credentials Object Format <a id="credentials-format" href="#credentials-format" class="permalink">🔗</a>
 
@@ -1077,14 +1091,14 @@ Credentials objects are formatted as JSON objects and contain the following name
 
 * `credential_id` - _[string](#string)_ - (REQUIRED) The unique identifier for the Credential on the Server's system.
 * `uri` - _[URL](#url)_ - (REQUIRED) Where to retrieve or modify this specific Credential object.
-* `client_id` - _[string](#string)_ - (REQUIRED) Which Client this Credential belongs to.
+* `client_id` - _[string](#string)_ - (REQUIRED) Which Client Object this Credential belongs to.
 * `created` - _[datetime](#datetime)_ - (REQUIRED) When the Credential was created.
 * `modified` - _[datetime](#datetime)_ - (REQUIRED) When the Credential was last modified.
 * `type` - _[CredentialType](#credentials-types)_ - (REQUIRED) The type of credential.
 * `client_secret` - _[string](#string)_ - (OPTIONAL) A sufficiently random value generated by the Server that can be used by the Client to authenticate themselves when obtaining an `access_token` from the Server's OAuth Token Endpoint [[RFC 6749 Section 3.2](#ref-rfc6749-token-endpoint)].
   This field MUST be included if the `type` is `client_secret`.
 * `client_secret_expires_at` - _[integer](#integer)_ - (OPTIONAL) The timestamp at which the `client_secret` will expire, as defined in OAuth's Client Information Response [[RFC 7591 Section 3.2.1](#ref-rfc7591-client-info-resp)].
-  If the Client object refrenced by the `client_id` has a status of `disabled`, this value MUST be set to the time when the Client object was most recently disabled.
+  If the Client Object referenced by the `client_id` has a status of `disabled`, this value MUST be set to the time when the Client Object was most recently disabled.
   This field MUST be included if the `type` is `client_secret`.
 
 ### 7.2. Credentials Types <a id="credentials-types" href="#credentials-types" class="permalink">🔗</a>
@@ -1115,7 +1129,7 @@ Servers MUST support Clients adding any of the following URL parameters to the [
 
 Listings of Credential objects MUST be ordered in reverse chronological order by `modified` timestamp, where the most recently modified relevant Credential MUST be first in each listing.
 
-For Credential objects in the listing that are added, removed, or modified by the Server or Client after initial registration, Servers MUST add a message to the [listed Messages](#messages-list) notifiying the Client that a Credential object has been added, removed, or modified.
+For Credential objects in the listing that are added, removed, or modified by the Server or Client after initial registration, Servers MUST add a message to the [listed Messages](#messages-list) notifying the Client that a Credential object has been added, removed, or modified.
 This creates a changelog in the Messages listing for Credential object updates.
 
 ### 7.4. Retrieving Individual Credentials <a id="credentials-get" href="#credentials-get" class="permalink">🔗</a>
@@ -1127,7 +1141,7 @@ The URL to be used to send [GET](#get) requests for retrieving individual Creden
 Clients create new Credentials by sending an authenticated HTTPS [POST](#post) request to the `cds_credentials_api` endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object MUST include the following:
 
-* `client_id` - _[string](#string)_ - This value is Client object's identifier for which a new Credential object will be created.
+* `client_id` - _[string](#string)_ - This value is Client Object's identifier for which a new Credential object will be created.
 
 Servers MUST reject requests with a `400 Bad Request` Status Code when a Client submits an incomplete request or the submitted values are invalid.
 For valid [POST](#post) requests from Clients, Servers MUST respond with a `201 Created` Status Code with an updated JSON object of the created Credential object.
@@ -1157,7 +1171,7 @@ If the `client_secret` is determined to be leaked or compromised, Servers MUST u
 ## 8. Grants API <a id="grants-api" href="#grants-api" class="permalink">🔗</a>
 
 This specification requires Servers provide an API allowing Clients to view and edit OAuth user authorizations and client credentials grants ("Grants") related to their registration.
-These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client that includes the `cds_client_admin` scope.
+These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the `client_id` used is for a Client Object that includes the `cds_client_admin` scope.
 
 ### 8.1. Grant Object Format <a id="grant-format" href="#grant-format" class="permalink">🔗</a>
 
@@ -1185,7 +1199,7 @@ Grant objects are formatted as JSON objects and contain the following named valu
 * `expires` - _[datetime](#datetime) or `null`_ - (REQUIRED) When the Grant will expire and access will be removed by the Server.
   If the Grant is to continue indefinitely, this value is `null`.
 * `status` - _[GrantStatus](#grant-statuses)_ - (REQUIRED) The current [Grant Status](#grant-statuses) of the Grant.
-* `client_id` - _[string](#string)_ - (REQUIRED) Which Client for which this Grant is issued.
+* `client_id` - _[string](#string)_ - (REQUIRED) The Client Object for which this Grant is issued.
 * `scope` - _[string](#string)_ - (REQUIRED) The scopes for which this Grant has issued access.
 * `authorization_details` - _Array[[OAuth AuthorizationDetail](#ref-rfc9396-auth-details)]_ - (REQUIRED) An authorization details list as defined by [[RFC 9396 Section 7.1](#ref-rfc9396-auth-details)] which contains scopes that are granted in addition to this object's `scope` value.
   If no authorization details scopes are configured in addition to the `scope` string, this value is an empty array (`[]`).
@@ -1234,7 +1248,7 @@ Clients achieved user authorization by following OAuth's Authorization Code Gran
 * In the OAuth Authorization Request [[RFC 6749 Section 4.1.1](#ref-rfc6749-auth-request)], Clients MAY include the URL request parameter `prompt` with a value of `login`.
 * Clients MAY include `cds_grant_id` and `prompt` in the Pushed Authorization Request process [[RFC 9126](#ref-rfc9126)] to include them in the `request_uri` parameter.
   Servers MUST be able to parse `cds_grant_id` and `prompt` parameters from a received `request_uri` parameter in the authorization request.
-* Upon receiving an authorization request, prior to any necessary user authentication, Servers MUST evaluate any provided `cds_grant_id` parameter in relation to the other authorization request parameters and, if the `cds_grant_id` parameter is invalid (e.g. not appropriate for the requested `scope` or `client_id`), MUST reject the authorization request and redirect back to the Client's `redirect_uri` with an `error` parameter value of `cds_grant_id_invalid_value`.
+* Upon receiving an authorization request, prior to any necessary user authentication, Servers MUST evaluate any provided `cds_grant_id` parameter in relation to the other authorization request parameters and, if the `cds_grant_id` parameter is invalid (e.g. not appropriate for the requested `scope` or `client_id`), MUST reject the authorization request and redirect back to the Client Object's `redirect_uri` with an `error` parameter value of `cds_grant_id_invalid_value`.
   Servers MUST evaluate other authorization request parameters first, and reject the authorization request with any appropriate errors before evaluating the `cds_grant_id` parameter.
   Servers MUST ignore empty `cds_grant_id` parameters as if it were not included in the authorization request.
   Servers MUST reject authorization requests with more than one non-empty `cds_grant_id` parameter.
@@ -1300,7 +1314,7 @@ Additionally, if the `scope` or `authorization_details` has been updated, the Se
 ## 9. Server-Provided Files API <a id="server-provided-files-api" href="#server-provided-files-api" class="permalink">🔗</a>
 
 This specification defines an API by which Servers MAY provide an access to arbitrary files to Clients to download.
-These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the scope of the access token is `cds_grant_admin` with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the [`cds_server_provided_files`](#scopes-server-provided-files) scope type.
+These APIs are authenticated using a Bearer `access_token` obtained by the Client using OAuth 2.0's `client_credentials` grant process [[RFC 6749 Section 4.4](#ref-rfc6749-client-credentials)], where the scope of the access token is a [Grant Admin scope](#scopes-grant-admin) with `authorizatin_details` entries listing `grant_id` values that are for Grants that have the [`cds_server_provided_files`](#scopes-server-provided-files) scope type.
 
 This API is intended to provide a convenient way for Servers to provide secure ad-hoc file access to Clients, such as sharing connectivity-related files (e.g. configs, certificates, secret keys, etc.) or manually created bulk files (e.g. initial backfill raw data, analysis reports, etc.).
 This API is NOT intended to be used for automated sharing of structured data (e.g. nightly interval extracts) because the API has limited functionality to convey the appropriate metadata for automated file sharing, such as versioning or schemas.
@@ -1477,12 +1491,12 @@ Content-Type: application/json;charset=UTF-8
     "token_endpoint_auth_methods_supported": ["client_secret_basic"],
     "scopes_supported": [
         "cds_client_admin",
-        "cds_grant_admin",
+        "cds_grant_admin_1",
         "cds_server_provided_files_01",
         "example_custom"
     ],
     "authorization_details_types_supported": [
-        "cds_grant_admin",
+        "cds_grant_admin_1",
         "cds_server_provided_files_01",
         "example_custom"
     ],
@@ -1507,11 +1521,12 @@ Content-Type: application/json;charset=UTF-8
             "token_endpoint_auth_methods_supported": ["client_secret_basic"],
             "code_challenge_methods_supported": [],
             "coverages_supported": [],
+            "grant_admin_scope": null,
             "authorization_details_types_supported": [],
             "authorization_details_fields_supported": []
         },
-        "cds_grant_admin": {
-            "id": "cds_grant_admin",
+        "cds_grant_admin_1": {
+            "id": "cds_grant_admin_1",
             "type": "cds_grant_admin",
             "name": "Grant Admin",
             "description": "This scope grants administrative access to previously created Grants.",
@@ -1522,14 +1537,15 @@ Content-Type: application/json;charset=UTF-8
             "token_endpoint_auth_methods_supported": ["client_secret_basic"],
             "code_challenge_methods_supported": [],
             "coverages_supported": [],
-            "authorization_details_types_supported": ["cds_grant_admin"],
+            "grant_admin_scope": null,
+            "authorization_details_types_supported": ["cds_grant_admin_1"],
             "authorization_details_fields_supported": [
                 {
                     "id": "client_id",
-                    "name": "Client object identifier",
-                    "description": "The Client object identifier for which the Grant is issued.",
+                    "name": "Client Object identifier",
+                    "description": "The Client Object identifier for which the Grant is issued.",
                     "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin-client_id",
-                    "for_types": ["cds_grant_admin"]
+                    "for_types": ["cds_grant_admin_1"]
                     "format": "string",
                     "is_required": true,
                     "maximum": 1000,
@@ -1540,7 +1556,7 @@ Content-Type: application/json;charset=UTF-8
                     "name": "Grant identifier",
                     "description": "The Grant identifier for which the returned access_token will be given access.",
                     "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin-grant_id",
-                    "for_types": ["cds_grant_admin"]
+                    "for_types": ["cds_grant_admin_1"]
                     "format": "string",
                     "is_required": true,
                     "maximum": 1000,
@@ -1553,13 +1569,14 @@ Content-Type: application/json;charset=UTF-8
             "type": "cds_server_provided_files",
             "name": "Server-Provided Files",
             "description": "This scope grants access to specific files that the Server wants make available to the Client.",
-            "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin",
+            "documentation": "https://example.com/docs/oauth/scopes#cds_server_provided_files",
             "registration_requirements": [],
             "response_types_supported": [],
             "grant_types_supported": [],
             "token_endpoint_auth_methods_supported": [],
             "code_challenge_methods_supported": [],
             "coverages_supported": [],
+            "grant_admin_scope": "cds_grant_admin_1",
             "authorization_details_types_supported": ["cds_server_provided_files_01"],
             "authorization_details_fields_supported": [
                 {
@@ -1586,6 +1603,7 @@ Content-Type: application/json;charset=UTF-8
             "token_endpoint_auth_methods_supported": ["client_secret_basic"],
             "code_challenge_methods_supported": ["S256"],
             "coverages_supported": ["coverage123"],
+            "grant_admin_scope": "cds_grant_admin_1",
             "authorization_details_types_supported": [],
             "authorization_details_fields_supported": []
         }
@@ -1614,7 +1632,7 @@ POST /oauth/register HTTP/1.1
 Host: example.com
 
 {
-    "scope": "cds_client_admin cds_grant_admin cds_server_provided_files_01 example_custom",
+    "scope": "cds_client_admin cds_grant_admin_1 cds_server_provided_files_01 example_custom",
     "client_name": "My App Name",
     "cds_company_name": "My Company Name"
 }
@@ -1672,7 +1690,7 @@ Content-Type: application/json;charset=UTF-8
 
 ### 12.5. Retrieving a Client List <a id="example-clients-list" href="#example-clients-list" class="permalink">🔗</a>
 
-The following is a non-normative example of a Client loading their list of Client objects via the [Clients API](#clients-api).
+The following is a non-normative example of a Client loading their list of Client Objects via the [Clients API](#clients-api).
 
 ```
 ==Request==
@@ -1706,12 +1724,12 @@ Content-Type: application/json;charset=UTF-8
         {
             "client_id": "22bb40b5b823fa8c",
             "client_id_issued_at": 2893256800,
-            "scope": "cds_grant_admin",
+            "scope": "cds_grant_admin_1",
             "redirect_uris": [],
             "response_types": [],
             "grant_types": ["client_credentials"],
             "token_endpoint_auth_method": "client_secret_basic",
-            "authorization_details_types": ["cds_grant_admin"],
+            "authorization_details_types": ["cds_grant_admin_1"],
             "cds_created": "2022-01-01T00:00:00Z",
             "cds_modified": "2022-01-01T00:00:00Z",
             "cds_client_uri": "https://example.com/cds-api/v1/clients/22bb40b5b823fa8c",
@@ -1763,7 +1781,7 @@ Content-Type: application/json;charset=UTF-8
 
 ### 12.6. Retrieving an Individual Client <a id="example-client-get" href="#example-client-get" class="permalink">🔗</a>
 
-The following is a non-normative example of a Client loading an individual Client object via the [Clients API](#clients-api).
+The following is a non-normative example of a Client loading an individual Client Object via the [Clients API](#clients-api).
 
 ```
 ==Request==
@@ -2334,7 +2352,7 @@ Content-Type: application/json;charset=UTF-8
 
 ### 12.19. Obtaining Server-Provided File Access via the Grant Admin Scope <a id="example-server-provided-files-access-token" href="#example-server-provided-files-access-token" class="permalink">🔗</a>
 
-The following is a non-normative example of a Client using their `cds_grant_admin` Client object to obtain an `access_token` for a Server-Provided Files Grant.
+The following is a non-normative example of a Client using their `cds_grant_admin_1` Client Object to obtain an `access_token` for a Server-Provided Files Grant.
 
 ```
 ==Request==
@@ -2342,7 +2360,7 @@ POST /oauth/token HTTP/1.1
 Host: example.com
 Authorization: Basic MjJiYjQwYjViODIzZmE4Yzp2aEZjcTE5cDVSMHFOWXlsaWJBNVVhdlBTOHNaTkZtQk10RGI3WklCZWRGdENuWldxZjJQa0FzMlR4NUFRcGJnVnJ6T2tmd0U2R1JoWmhLalI1OVdHUQ==
 
-grant_type=client_credentials&scope=cds_grant_admin&authorization_details=%5B%7B%22type%22%3A%22cds_grant_admin%22%2C%22client_id%22%3A%227e22b5568893c547%22%2C%22grant_id%22%3A%22c644a5da13f379db%22%7D%5D
+grant_type=client_credentials&scope=cds_grant_admin_1&authorization_details=%5B%7B%22type%22%3A%22cds_grant_admin_1%22%2C%22client_id%22%3A%227e22b5568893c547%22%2C%22grant_id%22%3A%22c644a5da13f379db%22%7D%5D
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2352,10 +2370,10 @@ Content-Type: application/json;charset=UTF-8
     "access_token": "oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA",
     "token_type": "bearer",
     "expires_in": 3600,
-    "scope": "cds_grant_admin",
+    "scope": "cds_grant_admin_1",
     "authorization_details": [
         {
-            "type": "cds_grant_admin",
+            "type": "cds_grant_admin_1",
             "client_id": "7e22b5568893c547",
             "grant_id": "c644a5da13f379db"
         }
