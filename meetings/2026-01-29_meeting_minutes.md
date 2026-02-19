@@ -15,7 +15,7 @@ Recording: https://zoom.us/rec/share/8enWpkKA1FC7XM_VmjP75no4sDBq9tGXPd2Iu_kUEJW
 ## Minutes
 * Welcome
 * Going through creating github issues
-* Test suite discussion
+* Test suite discussion (see notes in https://github.com/lfe-cds/CDS-Registration/issues/11)
 
 ## Closing Discussion
 * Consensus to commit this to repo? Yes
