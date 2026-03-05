@@ -32,7 +32,7 @@ For more information, visit [https://lfess.energy/](https://lfess.energy/).
     * [3.7. Registration Field Formats](#registration-field-formats)  
     * [3.8. Authorization Details Field Object Format](#auth-details-fields-format)  
     * [3.9. Authorization Details Field Formats](#auth-details-field-formats)  
-    * [3.10. Authorization Details Field Choice Object Format](#auth-details-field-choice-format)  
+    * [3.10. Choice Object Format](#choice-format)  
 * [4. Client Registration Process](#client-registration-process)  
     * [4.1. Client Registration Request](#registration-request)  
     * [4.2. Client Registration Response](#registration-response)  
@@ -140,6 +140,9 @@ These entities can include, but are not limited to, utility vendors, enterprise 
 <a id="datetime" href="#datetime" class="permalink">🔗</a> "datetime" - A string representing date and time in the format of `date-time` as defined by [[RFC 3339 Section 5.6](#ref-rfc3339-datetime)] (e.g. "2024-01-01T00:00:00Z").
 
 <a id="decimal" href="#decimal" class="permalink">🔗</a> "decimal" - A decimal value as defined by `number` in [[RFC 8259 Section 6](#ref-rfc8259-numbers)].
+Decimal values MAY have any number of significant digits after the decimal point.
+When storing a decimal value, Servers MUST preserve the decimal precision of the value exactly.
+This means Servers MUST NOT store a decimal value as a float, since that format does not preserve the significant figures of the decimal value.
 
 <a id="get" href="#get" class="permalink">🔗</a> "GET" - A request method defined in [[RFC 9110 Section 9](#ref-rfc9110-methods)].
 
@@ -461,12 +464,13 @@ The following values are included in the default list available in registration 
 * `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this registration field.
 * `field_name` - _[string](#string)_ - (OPTIONAL) If type is `registration_field`, this is the name of the field to submit in the [Client Registration Request](#registration-request) and MUST start with `cds_`.
 * `format` - _[RegistrationFieldFormats](#registration-field-formats)_ - (OPTIONAL) If type is `registration_field`, this is the data format that MUST be used in the value of the field.
-* `default` - _various_ - (OPTIONAL) If type is `registration_field` and the field is optional, this is the default value that will be used in lieu of the Client submitting a value themselves.
-  Including this `default` value in the object indicates the registration field is optional.
+* `default` - _various_ - (OPTIONAL) If type is `registration_field` and the field's `id` value is listed in the `registration_optional` list of a Scope Description object, this is the default value that will be used in lieu of the Client submitting a value themselves.
+  For `string_list` and `choice_list` formats, this default value MAY be an empty array (`[]`), which means the Server will treat exclusion of this field as equivalent to no choice values being submitted.
 * `max_length` - _[integer](#integer)_ - (OPTIONAL) If format is one of `string`, `string_or_null`, `url`, `url_or_null`, `email`, or `email_or_null`, this is the maximum length of the submitted value, if not `null`.
 * `max_size` - _[integer](#integer)_ - (OPTIONAL) If format is one of `image`, `image_or_null`, `pdf`, or `pdf_or_null`, this is the maximum file size of the submitted value before Base64 encoding, if not `null`.
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If type is `payment_required`, this is the amount in `currency` that will be required to complete registration.
 * `currency` - _[string](#string)_ - (OPTIONAL) If type is `payment_required`, this is the monetary currency in [[ISO 4217](#ref-iso4217)] currency code.
+* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice` or `choice_list`, this is REQUIRED and MUST be a list of one or more available Choice objects.
 
 ### 3.6. Registration Field Types <a id="registration-field-types" href="#registration-field-types" class="permalink">🔗</a>
 
@@ -563,6 +567,8 @@ The following list of strings are an enumerated set of registration field format
 * `image_or_null` - Same as `image`, only with `null` being an additional possible value.
 * `pdf` - If required, a valid pdf file formatted encoded as a Base64 string MUST be submitted.
 * `pdf_or_null` - Same as `pdf`, only with `null` being an additional possible value.
+* `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Choice objects](#choice-format).
+* `choice_list` - A non-empty array of [string](#string) values that match `id` values present in the listed available `choices` [Choice objects](#choice-format).
 
 ### 3.8. Authorization Details Field Object Format <a id="auth-details-fields-format" href="#auth-details-fields-format" class="permalink">🔗</a>
 
@@ -582,6 +588,7 @@ The following values are included in the default list available in authorization
 * `default` - _various_ - (OPTIONAL) If `is_required` is `false`, this is the default value that will be used in lieu of the Client submitting a value themselves.
   This is also the value that will be used if a basic OAuth `scope` string parameter is used instead of an `authorization_details` parameter.
   If `is_required` is `true`, this is not included.
+  For `string_list` and `choice_list` formats, this default value MAY be an empty array (`[]`), which means the Server will treat exclusion of this field as equivalent to no choice values being submitted.
 * `maximum` - _various_ - (OPTIONAL) The largest value acceptable for this field by the Server.
   If `format` is one of `int`, `decimal`, `string`, `string_or_null`, `string_list`, `relative_or_absolute_date`, or `relative_or_absolute_datetime`, this field is REQUIRED.
   If `format` is `int`, this field MUST be an [integer](#integer), representing the field's largest possible value, or the string `"infinite"`, which represents the field's value can be unlimited.
@@ -595,7 +602,7 @@ The following values are included in the default list available in authorization
   This field is REQUIRED if the `maximum` field is included.
   When included, this field's value MUST be in the same format as the `maximum` value.
   If the authorization details field represents a negative value or historical time period (e.g. how far back of historical data to retrieve), this value represents the closest to zero or current time value that can be set.
-* `choices` - _Array[[AuthorizationDetailsFieldChoice](#auth-details-field-choice-format)]_ - (OPTIONAL) If `format` is `choice`, this is REQUIRED and MUST be a list of one or more available choice objects.
+* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice` or `choice_list`, this is REQUIRED and MUST be a list of one or more available Choice objects.
 
 ### 3.9. Authorization Details Field Formats <a id="auth-details-field-formats" href="#auth-details-field-formats" class="permalink">🔗</a>
 
@@ -604,10 +611,10 @@ Authorization Details Field formats define the data type of submitted values for
 The following list of strings are an enumerated set of authorization details field formats that are valid `format` values in the [Authorization Details Field objects](#auth-details-fields-format).
 
 * `int` - An [integer](#integer) value.
-* `decimal` - A [decimal](#decimal) value, which can have any number of significant units, but MUST NOT be stored or handled as a float value, in order to retain the precision of the value throughout Server and Client processing.
+* `decimal` - A [decimal](#decimal) value.
 * `string` - A [string](#string) value.
 * `string_or_null` - A [string](#string) value or `null`.
-* `string_list` - An array of [string](#string) values.
+* `string_list` - A non-empty array of [string](#string) values.
 * `boolean` - A [boolean](#boolean) value.
 * `relative_or_absolute_date` - A [relative or absolute date](#relative-or-absolute-date) string.
   Relative dates are relative to the current date in the `cds_timezone` listed in the Server's [Metadata](#auth-server-metadata-format), when the authorization was submitted to the Server.
@@ -617,19 +624,20 @@ The following list of strings are an enumerated set of authorization details fie
   Relative datetimes are relative to the current datetime in the `cds_timezone` listed in the Server's [Metadata](#auth-server-metadata-format), when the authorization was submitted to the Server.
   For authorization that use the `authorization_code` grant type, the datetime used is the current datetime when the User submitted an approval for the authorization request.
   For authorization that use the `client_credentials` grant type, the datetime used is the current datetime when the Client submitted the initial token request.
-* `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Authorization Details Field Choice](#auth-details-field-choice-format) objects.
+* `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Choice objects](#choice-format).
+* `choice_list` - A non-empty array of [string](#string) values that match `id` values present in the listed available `choices` [Choice objects](#choice-format).
 * `jwk_or_null` - A [JWK Public Encryption Key](#jwk-enc) object or `null`.
 
-### 3.10. Authorization Details Field Choice Object Format <a id="auth-details-field-choice-format" href="#auth-details-field-choice-format" class="permalink">🔗</a>
+### 3.10. Choice Object Format <a id="choice-format" href="#choice-format" class="permalink">🔗</a>
 
-Authorization Details Field Choice objects are formatted as JSON objects and contain named values.
-The following values are included in the default list available in Authorization Details Field Choice objects.
+Choice objects are formatted as JSON objects and contain named values.
+The following values are included in the default list available in Choice objects.
 
-* `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the authorization details field choice.
-  This is used as the value for the relvant field when that field is included in an object as part of a `authorization_details` list.
+* `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the choice.
+  This is used as the value for the relevant field when that field is included in an object with a `format` value of `choice` or `choice_list`.
 * `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the authorization details field choice.
-* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what submitting this value for the authorizations details field means.
-* `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this authorization details field choice.
+* `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what submitting this value for the field means.
+* `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this field choice.
 
 ## 4. Client Registration Process <a id="client-registration-process" href="#client-registration-process" class="permalink">🔗</a>
 
@@ -1373,7 +1381,7 @@ Other specifications and Servers MUST NOT remove required parts of this specific
 
 [Scopes Supported](#scopes) MAY be extended to add additional scope values and definitions, according to the requirements listed in [Section 3.3](#scopes).
 
-[Metadata Object](#auth-server-metadata-format), [Scope Descriptions Object](#scope-descriptions-format), [Registration Field Object](#registration-field-format), [Authorization Details Field Object](#auth-details-fields-format), [Authorization Details Field Choice Object](#auth-details-field-choice-format), [Client Object](#client-format), [Client Listing](#clients-list), [Message Object](#message-format), [Client Update Request Object](#client-update-request-format), [Client Grant Request Object](#client-grant-request-format), [Message Attachment Object](#message-attachment-format), [Message Listing](#messages-list), [Credential Object](#credentials-format), [Credential Listing](#credentials-list), [Grant Object](#grant-format), [Grant Listing](#grant-list), [Server-Provided Files Object](#server-provided-files-format), and [Server-Provided Files Listing](#server-provided-files-list) MAY be extended to allow for additional fields to be possible in their objects.
+[Metadata Object](#auth-server-metadata-format), [Scope Descriptions Object](#scope-descriptions-format), [Registration Field Object](#registration-field-format), [Authorization Details Field Object](#auth-details-fields-format), [Choice Object](#choice-format), [Client Object](#client-format), [Client Listing](#clients-list), [Message Object](#message-format), [Client Update Request Object](#client-update-request-format), [Client Grant Request Object](#client-grant-request-format), [Message Attachment Object](#message-attachment-format), [Message Listing](#messages-list), [Credential Object](#credentials-format), [Credential Listing](#credentials-list), [Grant Object](#grant-format), [Grant Listing](#grant-list), [Server-Provided Files Object](#server-provided-files-format), and [Server-Provided Files Listing](#server-provided-files-list) MAY be extended to allow for additional fields to be possible in their objects.
 When extending the object format, other specifications or Server documentation MUST reference the relevant section in this specification and denote that they are extending the object to add a new named field.
 The additional field MUST be specified with a general description, the field value's format, and whether the field is REQUIRED or OPTIONAL.
 
