@@ -465,12 +465,11 @@ The following values are included in the default list available in registration 
 * `field_name` - _[string](#string)_ - (OPTIONAL) If type is `registration_field`, this is the name of the field to submit in the [Client Registration Request](#registration-request) and MUST start with `cds_`.
 * `format` - _[RegistrationFieldFormats](#registration-field-formats)_ - (OPTIONAL) If type is `registration_field`, this is the data format that MUST be used in the value of the field.
 * `default` - _various_ - (OPTIONAL) If type is `registration_field` and the field's `id` value is listed in the `registration_optional` list of a Scope Description object, this is the default value that will be used in lieu of the Client submitting a value themselves.
-  For `string_list` and `choice_list` formats, this default value MAY be an empty array (`[]`), which means the Server will treat exclusion of this field as equivalent to no choice values being submitted.
 * `max_length` - _[integer](#integer)_ - (OPTIONAL) If format is one of `string`, `string_or_null`, `url`, `url_or_null`, `email`, or `email_or_null`, this is the maximum length of the submitted value, if not `null`.
 * `max_size` - _[integer](#integer)_ - (OPTIONAL) If format is one of `image`, `image_or_null`, `pdf`, or `pdf_or_null`, this is the maximum file size of the submitted value before Base64 encoding, if not `null`.
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If type is `payment_required`, this is the amount in `currency` that will be required to complete registration.
 * `currency` - _[string](#string)_ - (OPTIONAL) If type is `payment_required`, this is the monetary currency in [[ISO 4217](#ref-iso4217)] currency code.
-* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice` or `choice_list`, this is REQUIRED and MUST be a list of one or more available Choice objects.
+* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice`, `choice_list`, or `choice_list_or_null`, this is REQUIRED and MUST be a list of one or more available Choice objects.
 
 ### 3.6. Registration Field Types <a id="registration-field-types" href="#registration-field-types" class="permalink">🔗</a>
 
@@ -557,6 +556,8 @@ The following list of strings are an enumerated set of registration field format
 
 * `string` - If required, a [string](#string) value MUST be submitted.
 * `string_or_null` - Same as `string`, only with `null` being an additional possible value.
+* `string_list` - A non-empty array of [string](#string) values.
+* `string_list_or_null` - Same as `string_list`, only with `null` being an additional possible value which indicates that an empty set of strings is provided.
 * `url` - If required, a [URL](#url) value MUST be submitted.
 * `url_or_null` - Same as `url`, only with `null` being an additional possible value.
 * `email` - If required, a valid email address string MUST be submitted.
@@ -569,6 +570,7 @@ The following list of strings are an enumerated set of registration field format
 * `pdf_or_null` - Same as `pdf`, only with `null` being an additional possible value.
 * `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Choice objects](#choice-format).
 * `choice_list` - A non-empty array of [string](#string) values that match `id` values present in the listed available `choices` [Choice objects](#choice-format).
+* `choice_list_or_null` - Same as `choice_list`, only with `null` being an additional possible value which indicates that no choices have been selected.
 
 ### 3.8. Authorization Details Field Object Format <a id="auth-details-fields-format" href="#auth-details-fields-format" class="permalink">🔗</a>
 
@@ -588,13 +590,12 @@ The following values are included in the default list available in authorization
 * `default` - _various_ - (OPTIONAL) If `is_required` is `false`, this is the default value that will be used in lieu of the Client submitting a value themselves.
   This is also the value that will be used if a basic OAuth `scope` string parameter is used instead of an `authorization_details` parameter.
   If `is_required` is `true`, this is not included.
-  For `string_list` and `choice_list` formats, this default value MAY be an empty array (`[]`), which means the Server will treat exclusion of this field as equivalent to no choice values being submitted.
 * `maximum` - _various_ - (OPTIONAL) The largest value acceptable for this field by the Server.
-  If `format` is one of `int`, `decimal`, `string`, `string_or_null`, `string_list`, `relative_or_absolute_date`, or `relative_or_absolute_datetime`, this field is REQUIRED.
+  If `format` is one of `int`, `decimal`, `string`, `string_or_null`, `string_list`, `string_list_or_null`, `relative_or_absolute_date`, or `relative_or_absolute_datetime`, this field is REQUIRED.
   If `format` is `int`, this field MUST be an [integer](#integer), representing the field's largest possible value, or the string `"infinite"`, which represents the field's value can be unlimited.
   If `format` is `decimal`, this field MUST be a [decimal](#decimal), representing the field's largest possible value, or the string `"infinite"`, which represents the field's value can be unlimited.
   If `format` is one of `string` or `string_or_null`, this field MUST be an [integer](#integer), which represents the maximum string length if the value is a string.
-  If `format` is `string_list`, this field MUST be an [integer](#integer), representing the maximum combined length of all strings in the array of strings.
+  If `format` is `string_list` or `string_list_or_null`, this field MUST be an [integer](#integer), representing the maximum combined length of all strings in the array of strings.
   If `format` is `relative_or_absolute_date`, this field MUST be a [relative or absolute date](#relative-or-absolute-date), which represents the furthest date out that may be submitted.
   If `format` is `relative_or_absolute_datetime`, this field MUST be a [relative or absolute datetime](#relative-or-absolute-datetime), which represents the furthest datetime out that may be submitted.
   If the authorization details field represents a negative value or historical time period (e.g. how far back of historical data to retrieve), this value represents the most negative or furthest back value that can be set.
@@ -602,7 +603,7 @@ The following values are included in the default list available in authorization
   This field is REQUIRED if the `maximum` field is included.
   When included, this field's value MUST be in the same format as the `maximum` value.
   If the authorization details field represents a negative value or historical time period (e.g. how far back of historical data to retrieve), this value represents the closest to zero or current time value that can be set.
-* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice` or `choice_list`, this is REQUIRED and MUST be a list of one or more available Choice objects.
+* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice`, `choice_list`, or `choice_list_or_null`, this is REQUIRED and MUST be a list of one or more available Choice objects.
 
 ### 3.9. Authorization Details Field Formats <a id="auth-details-field-formats" href="#auth-details-field-formats" class="permalink">🔗</a>
 
@@ -615,6 +616,7 @@ The following list of strings are an enumerated set of authorization details fie
 * `string` - A [string](#string) value.
 * `string_or_null` - A [string](#string) value or `null`.
 * `string_list` - A non-empty array of [string](#string) values.
+* `string_list_or_null` - Same as `string_list`, only with `null` being an additional possible value which indicates that an empty set of strings is provided.
 * `boolean` - A [boolean](#boolean) value.
 * `relative_or_absolute_date` - A [relative or absolute date](#relative-or-absolute-date) string.
   Relative dates are relative to the current date in the `cds_timezone` listed in the Server's [Metadata](#auth-server-metadata-format), when the authorization was submitted to the Server.
@@ -626,6 +628,7 @@ The following list of strings are an enumerated set of authorization details fie
   For authorization that use the `client_credentials` grant type, the datetime used is the current datetime when the Client submitted the initial token request.
 * `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Choice objects](#choice-format).
 * `choice_list` - A non-empty array of [string](#string) values that match `id` values present in the listed available `choices` [Choice objects](#choice-format).
+* `choice_list_or_null` - Same as `choice_list`, only with `null` being an additional possible value which indicates that no choices have been selected.
 * `jwk_or_null` - A [JWK Public Encryption Key](#jwk-enc) object or `null`.
 
 ### 3.10. Choice Object Format <a id="choice-format" href="#choice-format" class="permalink">🔗</a>
@@ -634,7 +637,7 @@ Choice objects are formatted as JSON objects and contain named values.
 The following values are included in the default list available in Choice objects.
 
 * `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the choice.
-  This is used as the value for the relevant field when that field is included in an object with a `format` value of `choice` or `choice_list`.
+  This is used as the value for the relevant field when that field is included in an object with a `format` value of `choice`, `choice_list`, or `choice_list_or_null`.
 * `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the authorization details field choice.
 * `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what submitting this value for the field means.
 * `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this field choice.
