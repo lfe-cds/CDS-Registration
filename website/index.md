@@ -4,7 +4,7 @@ nav: home
 title: CDS Registration Working Group
 meta_description: Linux Foundation Energy - Connected Data Specifications (CDS) - Registration Working Group (WG1)
 ---
-<img src="{{ '/assets/cdsregistration-horizontal-color.svg' | relative_url }}" style="width:100%;max-width:30em;display:inline-block;margin-bottom:3em;">
+<img src="{{ '/assets/cdsregistration-horizontal-color.svg' | relative_url }}" style="width:100%;max-width:30em;display:inline-block;margin-bottom:3em;" alt="CDS-Registration Working Group Logo">
 
 # CDS Registration Working Group (WG1)
 
