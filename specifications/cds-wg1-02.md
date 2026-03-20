@@ -972,7 +972,8 @@ If the `scope` string is sufficient to define the requested scope being requeste
 Message Attachment objects are formatted as JSON objects and contain the following named values:
 
 * `filename` - _[string](#string)_ - (REQUIRED) The attached file's name.
-* `mime_type` - _[MIME type](#mime-type)_ - (REQUIRED) The attached file's content type. For example, an attached PDF file would have a `mime_type` of `application/pdf`. Unknown file content types MUST have a `mime_type` value of `application/octet-stream`.
+* `mime_type` - _[MIME type](#mime-type)_ - (REQUIRED) The attached file's content type. For example, an attached PDF file would have a `mime_type` of `application/pdf`.
+  Unknown file content types MUST have a `mime_type` value of `application/octet-stream`.
 * `data` - _[string](#string)_ - (REQUIRED) A Base64 encoded string of the file's data.
 
 ### 6.8. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a>

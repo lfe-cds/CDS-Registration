@@ -2,7 +2,8 @@
 
 **Visit our website: https://cds-registration.lfenergy.org/**
 
-This repository is dedicated to the CDS Registration Working Group (WG1). We focus on writing free, open specifications for utilities and other central entities to provide discovery, registration, connectivity, and profile management abilities to third party entities.
+This repository is dedicated to the CDS Registration Working Group (WG1).
+We focus on writing free, open specifications for utilities and other central entities to provide discovery, registration, connectivity, and profile management abilities to third party entities.
 
 We are part of the [Connected Data Specifications (CDS)](https://cds.lfenergy.org/), an [LF Energy](https://www.lfenergy.org/) project at the [Linux Foundation](https://www.linuxfoundation.org/projects).
 
@@ -33,13 +34,14 @@ Want to participate? Great! We're an open organization, so we welcome any compan
 * Contribute comments, suggestions, or other content that will be included in our [specifications](https://cds-registration.lfenergy.org/specs).
 * Open [pull requests](https://github.com/lfe-cds/CDS-Registration/pulls) with proposed changes to our [repository](https://github.com/lfe-cds/CDS-Registration) or [specifications](https://cds-registration.lfenergy.org/specs).
 
-NOTE: It's okay if you're not yet an [LFESS member](https://cds-registration.lfenergy.org/lfess) and comment on something (spec, issue, pull request, mailing list, slack discussion, etc.), and we want your input to be incorporated into our specifications. We'll just ask you to [join LFESS](https://cds-registration.lfenergy.org/lfess#join) before we can merge your suggestions into the specifications.
+NOTE: It's okay if you're not yet an [LFESS member](https://cds-registration.lfenergy.org/lfess) and comment on something (spec, issue, pull request, mailing list, slack discussion, etc.), and we want your input to be incorporated into our specifications.
+We'll just ask you to [join LFESS](https://cds-registration.lfenergy.org/lfess#join) before we can merge your suggestions into the specifications.
 
 ## Scope
 
 This working group focuses on writing free, open specifications for utilities and other central entities to provide discovery, registration, connectivity, and profile management abilities to third party entities.
 
-By providing standardized protocols for these abilities, utilities and other central entities can significantly scale and streamline adoption and integration of carbon tracking platforms, energy management service providers, energy flexibility providers, and other entities that can accelerate the energy transition.
+By providing standardized protocols for these abilities, utilities and other central entities can significantly scale and streamline adoption and integration of advanced energy technologies.
 
 See the [Use Cases](https://cds-registration.lfenergy.org/use-cases) for which we are writing specifications to address, along with what data types and functionalities will need to be specified to accommodate those use cases.
 

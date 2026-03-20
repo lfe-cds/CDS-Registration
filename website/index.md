@@ -8,21 +8,16 @@ meta_description: Linux Foundation Energy - Connected Data Specifications (CDS) 
 
 # CDS Registration Working Group (WG1)
 
-This is the homepage of the [Registration Working Group (WG1)](https://github.com/lfe-cds/CDS-Registration),
-part of the
-[Connected Data Specifications (CDS)](https://cds.lfenergy.org/),
-an [LF Energy](https://www.lfenergy.org/) project.
+This is the homepage of the [Registration Working Group (WG1)](https://github.com/lfe-cds/CDS-Registration), part of the [Connected Data Specifications (CDS)](https://cds.lfenergy.org/), an [LF Energy](https://www.lfenergy.org/) project.
 
 ## Scope <a id="scope" href="#scope" class="permalink">🔗</a>
 
-This repository is dedicated to the CDS Registration Working Group. We focus on writing free, open specifications for
-utilities and other central entities to provide discovery, registration, connectivity, and profile management
-abilities to third party entities.
+This repository is dedicated to the CDS Registration Working Group.
+We focus on writing free, open specifications for utilities and other central entities to provide discovery, registration, connectivity, and profile management abilities to third party entities.
 
 ## Use Cases <a id="use-cases" href="#use-cases" class="permalink">🔗</a>
 
-We have defined several broad categories of [use cases]({{ "/use-cases" | relative_url }}) we will focus on addressing,
-along with what connectivity protocols will need to be specified to accommodate those use cases.
+We have defined several broad categories of [use cases]({{ "/use-cases" | relative_url }}) we will focus on addressing, along with what connectivity protocols will need to be specified to accommodate those use cases.
 
 * `Use Case 1` - [Enabling Initial Configuration for Communication Protocols]({{ "/use-cases" | relative_url }}#initial-configuration)
 * `Use Case 2` - [Enabling Configuration Management for Communication Protocols]({{ "/use-cases" | relative_url }}#configuration-management)
@@ -57,7 +52,8 @@ Want to participate? Great! We're an open organization, so we welcome any compan
 * Contribute comments, suggestions, or other content that will be included in our [specifications](https://cds-registration.lfenergy.org/specs).
 * Open [pull requests](https://github.com/lfe-cds/CDS-Registration/pulls) with proposed changes to our [repository](https://github.com/lfe-cds/CDS-Registration) or [specifications](https://cds-registration.lfenergy.org/specs).
 
-NOTE: It's okay if you're not yet an [LFESS member]({{ "/lfess" | relative_url }}) and comment on something (spec, issue, pull request, mailing list, slack discussion, etc.), and we want your input to be incorporated into our specifications. We'll just ask you to [join LFESS]({{ "/lfess" | relative_url }}#join) before we can merge your suggestions into the specifications.
+NOTE: It's okay if you're not yet an [LFESS member]({{ "/lfess" | relative_url }}) and comment on something (spec, issue, pull request, mailing list, slack discussion, etc.), and we want your input to be incorporated into our specifications.
+We'll just ask you to [join LFESS]({{ "/lfess" | relative_url }}#join) before we can merge your suggestions into the specifications.
 
 
 ## License
