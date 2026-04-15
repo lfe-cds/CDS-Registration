@@ -469,7 +469,9 @@ The following values are included in the default list available in registration 
 * `max_size` - _[integer](#integer)_ - (OPTIONAL) If format is one of `image`, `image_or_null`, `pdf`, or `pdf_or_null`, this is the maximum file size of the submitted value before Base64 encoding, if not `null`.
 * `amount` - _[decimal](#decimal)_ - (OPTIONAL) If type is `payment_required`, this is the amount in `currency` that will be required to complete registration.
 * `currency` - _[string](#string)_ - (OPTIONAL) If type is `payment_required`, this is the monetary currency in [[ISO 4217](#ref-iso4217)] currency code.
-* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice`, `choice_list`, or `choice_list_or_null`, this is REQUIRED and MUST be a list of one or more available Choice objects.
+* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice`, `choice_list`, or `choice_list_or_null`, this is REQUIRED.
+  If `format` is `choice` or `choice_list`, this MUST be a list of one or more available Choice objects.
+  If `format` is `choice_or_null` or `choice_list_or_null`, this MAY be an empty list (`[]`) if the only available choice is `null`.
 
 ### 3.6. Registration Field Types <a id="registration-field-types" href="#registration-field-types" class="permalink">🔗</a>
 
@@ -569,6 +571,7 @@ The following list of strings are an enumerated set of registration field format
 * `pdf` - If required, a valid pdf file formatted encoded as a Base64 string MUST be submitted.
 * `pdf_or_null` - Same as `pdf`, only with `null` being an additional possible value.
 * `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Choice objects](#choice-format).
+* `choice_or_null` - Same as `choice`, only with `null` being an additional possible value which indicates that no choice has been selected.
 * `choice_list` - A non-empty array of [string](#string) values that match `id` values present in the listed available `choices` [Choice objects](#choice-format).
 * `choice_list_or_null` - Same as `choice_list`, only with `null` being an additional possible value which indicates that no choices have been selected.
 
@@ -603,7 +606,9 @@ The following values are included in the default list available in authorization
   This field is REQUIRED if the `maximum` field is included.
   When included, this field's value MUST be in the same format as the `maximum` value.
   If the authorization details field represents a negative value or historical time period (e.g. how far back of historical data to retrieve), this value represents the closest to zero or current time value that can be set.
-* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice`, `choice_list`, or `choice_list_or_null`, this is REQUIRED and MUST be a list of one or more available Choice objects.
+* `choices` - _Array[[Choice](#choice-format)]_ - (OPTIONAL) If `format` is `choice`, `choice_or_null`, `choice_list`, or `choice_list_or_null`, this is REQUIRED.
+  If `format` is `choice` or `choice_list`, this MUST be a list of one or more available Choice objects.
+  If `format` is `choice_or_null` or `choice_list_or_null`, this MAY be an empty list (`[]`) if the only available choice is `null`.
 
 ### 3.9. Authorization Details Field Formats <a id="auth-details-field-formats" href="#auth-details-field-formats" class="permalink">🔗</a>
 
@@ -627,6 +632,7 @@ The following list of strings are an enumerated set of authorization details fie
   For authorization that use the `authorization_code` grant type, the datetime used is the current datetime when the User submitted an approval for the authorization request.
   For authorization that use the `client_credentials` grant type, the datetime used is the current datetime when the Client submitted the initial token request.
 * `choice` - A [string](#string) value from the `id` parameter in one of the listed available `choices` [Choice objects](#choice-format).
+* `choice_or_null` - Same as `choice`, only with `null` being an additional possible value which indicates that no choice has been selected.
 * `choice_list` - A non-empty array of [string](#string) values that match `id` values present in the listed available `choices` [Choice objects](#choice-format).
 * `choice_list_or_null` - Same as `choice_list`, only with `null` being an additional possible value which indicates that no choices have been selected.
 * `jwk_or_null` - A [JWK Public Encryption Key](#jwk-enc) object or `null`.
@@ -637,7 +643,7 @@ Choice objects are formatted as JSON objects and contain named values.
 The following values are included in the default list available in Choice objects.
 
 * `id` - _[string](#string)_ - (REQUIRED) The unique identifier of the choice.
-  This is used as the value for the relevant field when that field is included in an object with a `format` value of `choice`, `choice_list`, or `choice_list_or_null`.
+  This is used as the value for the relevant field when that field is included in an object with a `format` value of `choice`, `choice_or_null`, `choice_list`, or `choice_list_or_null`.
 * `name` - _[string](#string)_ - (REQUIRED) A human-readable name of the authorization details field choice.
 * `description` - _[string](#string)_ - (REQUIRED) A human-readable description of what submitting this value for the field means.
 * `documentation` - _[URL](#url)_ - (REQUIRED) Where developers can find more information about this field choice.
