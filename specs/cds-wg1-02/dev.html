@@ -217,9 +217,10 @@ For more information, visit <a href="https://lfess.energy/">https://lfess.energy
       <li><a href="#grant-format">8.1. Grant Object Format</a></li>
       <li><a href="#grant-statuses">8.2. Grant Statuses</a></li>
       <li><a href="#grant-authorization-requests">8.3. Grant Authorization Requests</a></li>
-      <li><a href="#grants-list">8.4. Listing Grants</a></li>
-      <li><a href="#grants-get">8.5. Retrieving Individual Grants</a></li>
-      <li><a href="#grants-modify">8.6. Modifying Grants</a></li>
+      <li><a href="#grant-token-responses">8.4. Grants in Token Responses</a></li>
+      <li><a href="#grants-list">8.5. Listing Grants</a></li>
+      <li><a href="#grants-get">8.6. Retrieving Individual Grants</a></li>
+      <li><a href="#grants-modify">8.7. Modifying Grants</a></li>
     </ul>
   </li>
   <li><a href="#server-provided-files-api">9. Server-Provided Files API</a>
@@ -1565,7 +1566,19 @@ For example, a Grant could have its <code class="language-plaintext highlighter-
 Servers MUST NOT wait for the Access Token Request [<a href="#ref-rfc6749-token-request">RFC 6749 Section 4.1.3</a>] to update the Grant.</li>
 </ul>
 
-<h3 id="84-listing-grants-">8.4. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a></h3>
+<h3 id="84-grants-in-token-responses-">8.4. Grants in Token Responses <a id="grant-token-responses" href="#grant-token-responses" class="permalink">🔗</a></h3>
+
+<p>When an authorization request or token request, as part of an OAuth access granting process [<a href="#ref-rfc6749-auth-flows">RFC 6749 Section 4</a>], creates or updates Grant objects, there needs to be a way for the Client to ascertain which set of Grants were created or modified by the authorization request or token request.</p>
+
+<p>To accomplish this, this specification extends the OAuth token successful response object format [<a href="#ref-rfc6749-token-response">RFC 6749 Section 5.1</a>] to require that Servers include the following fields in token objects returned as responses to token requests:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">cds_grant_ids</code> - <em>Array[<a href="#string">string</a>]</em> - (OPTIONAL) A list of Grant <code class="language-plaintext highlighter-rouge">grant_id</code> values for Grant objects that have been created or modified as a result of the Client’s authorization request, such as when the token request is part of an Authorization Code Grant flow [<a href="#ref-rfc6749-code-grant">RFC 6749 Section 4.1</a>], or as the result of the Client’s token request, such as when the token request is part of a Client Credentials Grant flow [<a href="#ref-rfc6749-client-credentials">RFC 6749 Section 4.4</a>].
+If no Grant objects were created or modified, this field MUST NOT be included.
+If Grants objects were created or modified, this field MUST be included and the created or modified Grant <code class="language-plaintext highlighter-rouge">grant_id</code> values MUST be included in this field’s array.</li>
+</ul>
+
+<h3 id="85-listing-grants-">8.5. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a></h3>
 
 <p>Clients may request to list Grant objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_grants_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
 The Grant listing request responses are formatted as JSON objects and contain the following named values.</p>
@@ -1595,11 +1608,11 @@ If no previous segment exists (i.e. the requester is at the front of the list), 
 
 <p>Listings of Grant objects MUST be ordered in reverse chronological order by <code class="language-plaintext highlighter-rouge">modified</code> timestamp, where the most recently updated relevant Grant MUST be first in each listing.</p>
 
-<h3 id="85-retrieving-individual-grants-">8.5. Retrieving Individual Grants <a id="grants-get" href="#grants-get" class="permalink">🔗</a></h3>
+<h3 id="86-retrieving-individual-grants-">8.6. Retrieving Individual Grants <a id="grants-get" href="#grants-get" class="permalink">🔗</a></h3>
 
 <p>The URL to be used to send <a href="#get">GET</a> requests for retrieving individual Grant objects MUST be the Grant <code class="language-plaintext highlighter-rouge">uri</code> provided in the <a href="#grant-format">Grant object</a>.</p>
 
-<h3 id="86-modifying-grants-">8.6. Modifying Grants <a id="grants-modify" href="#grants-modify" class="permalink">🔗</a></h3>
+<h3 id="87-modifying-grants-">8.7. Modifying Grants <a id="grants-modify" href="#grants-modify" class="permalink">🔗</a></h3>
 
 <p>Clients may modify fields in the Grants API by sending an authenticated HTTPS <a href="#patch">PATCH</a> request to the Grant <code class="language-plaintext highlighter-rouge">uri</code> endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to update with the submitted fields’ values.
@@ -1999,7 +2012,8 @@ Content-Type: application/json;charset=UTF-8
     "access_token": "vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ",
     "token_type": "bearer",
     "expires_in": 3600,
-    "scope": "cds_client_admin"
+    "scope": "cds_client_admin",
+    "cds_grant_ids": ["17f0cd5c705c4d2b"]
 }
 </code></pre></div></div>
 
@@ -2677,7 +2691,8 @@ Content-Type: application/json;charset=UTF-8
             "client_id": "7e22b5568893c547",
             "grant_id": "c644a5da13f379db"
         }
-    ]
+    ],
+    "cds_grant_ids": ["3c1a0ff59d947"]
 }
 </code></pre></div></div>
 
@@ -2819,6 +2834,10 @@ Content-Disposition: attachment; filename="DR_API_docs_v1.0.pdf"
 <code class="language-plaintext highlighter-rouge">RFC 6749 Section 3.2</code> - Section 3.2: Token Endpoint, “The OAuth 2.0 Authorization Framework”, RFC 6749, Internet Engineering Task Force (IETF),<br />
 <a href="https://www.rfc-editor.org/rfc/rfc6749#section-3.2">https://www.rfc-editor.org/rfc/rfc6749#section-3.2</a></p>
 
+<p><a id="ref-rfc6749-auth-flows" href="#ref-rfc6749-auth-flows" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">RFC 6749 Section 4</code> - Section 4. Obtaining Authorization, “The OAuth 2.0 Authorization Framework”, RFC 6749, Internet Engineering Task Force (IETF),<br />
+<a href="https://www.rfc-editor.org/rfc/rfc6749#section-4">https://www.rfc-editor.org/rfc/rfc6749#section-4</a></p>
+
 <p><a id="ref-rfc6749-code-grant" href="#ref-rfc6749-code-grant" class="permalink">🔗</a>
 <code class="language-plaintext highlighter-rouge">RFC 6749 Section 4.1</code> - Section 4.1. Authorization Code Grant, “The OAuth 2.0 Authorization Framework”, RFC 6749, Internet Engineering Task Force (IETF),<br />
 <a href="https://www.rfc-editor.org/rfc/rfc6749#section-4.1">https://www.rfc-editor.org/rfc/rfc6749#section-4.1</a></p>
@@ -2838,6 +2857,10 @@ Content-Disposition: attachment; filename="DR_API_docs_v1.0.pdf"
 <p><a id="ref-rfc6749-access-tokens" href="#ref-rfc6749-access-tokens" class="permalink">🔗</a>
 <code class="language-plaintext highlighter-rouge">RFC 6749 Section 5</code> - Section 5. Issuing an Access Token, “The OAuth 2.0 Authorization Framework”, RFC 6749, Internet Engineering Task Force (IETF),<br />
 <a href="https://www.rfc-editor.org/rfc/rfc6749#section-5">https://www.rfc-editor.org/rfc/rfc6749#section-5</a></p>
+
+<p><a id="ref-rfc6749-token-response" href="#ref-rfc6749-token-response" class="permalink">🔗</a>
+<code class="language-plaintext highlighter-rouge">RFC 6749 Section 5.1</code> - Section 5.1. Successful Response, “The OAuth 2.0 Authorization Framework”, RFC 6749, Internet Engineering Task Force (IETF),<br />
+<a href="https://www.rfc-editor.org/rfc/rfc6749#section-5.1">https://www.rfc-editor.org/rfc/rfc6749#section-5.1</a></p>
 
 <p><a id="ref-rfc6750-auth-header" href="#ref-rfc6750-auth-header" class="permalink">🔗</a>
 <code class="language-plaintext highlighter-rouge">RFC 6750 Section 2.1</code> - Section 2.1. Authorization Request Header Field, “The OAuth 2.0 Authorization Framework: Bearer Token Usage”, RFC 6750, Internet Engineering Task Force (IETF),<br />
