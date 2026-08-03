@@ -328,10 +328,10 @@ curl -v "$OAUTH_METADATA_URL" | jq "."
     "registration_endpoint": "...",     # Where to register via API
     ...
     "scopes_supported": [...],          # The list of supported scopes for this CDS Server
-    ...                                 # (e.g. "cds_client_admin cds_grant_admin cds_server_provided_files_01 customer_data")
+    ...                                 # (e.g. "cds_client_admin cds_grant_admin_1 ...")
 }
 # (determine which scopes and registration requirements you want for registration)
-SCOPES_TO_REGISTER="cds_client_admin cds_grant_admin cds_server_provided_files_01 customer_data"
+SCOPES_TO_REGISTER="cds_client_admin cds_grant_admin_1 cds_server_provided_files_1 cds_grant_admin_2 customer_data_1"
 
 # Submit a OAuth Dynamic Client Registration
 # (add any additional registration fields to the submitted json)
@@ -416,18 +416,18 @@ curl -v \
             ...
             "cds_client_uri": "...",
             ...
-            "client_id": "aaaaaaaaaa-1",
+            "client_id": "aaaaaaaaaa-2",
             ...
-            "scope": "cds_grant_admin",
+            "scope": "cds_server_provided_files_1",
             ...
         },
         {
             ...
             "cds_client_uri": "...",
             ...
-            "client_id": "aaaaaaaaaa-2",
+            "client_id": "aaaaaaaaaa-1",
             ...
-            "scope": "cds_server_provided_files_01",
+            "scope": "cds_grant_admin_1",
             ...
         },
         {
@@ -440,9 +440,18 @@ curl -v \
             ...
             "response_types": ["code"],
             ...
-            "scope": "customer_data",
+            "scope": "customer_data_1",
             ...
-        }
+        },
+        {
+            ...
+            "cds_client_uri": "...",
+            ...
+            "client_id": "aaaaaaaaaa-1",
+            ...
+            "scope": "cds_grant_admin_1",
+            ...
+        },
     ],
     ...
 }
@@ -472,7 +481,7 @@ CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
 CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
-    | jq ".clients | .[] | select(.scope==\"customer_data\")")
+    | jq ".clients | .[] | select(.scope==\"customer_data_1\")")
 
 # Add your own redirect_uri to the current redirect_uris
 CUSTOM_REDIRECT_URI="https://example.com/my-redirect"
@@ -538,7 +547,7 @@ CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
 CDS_CREDENTIALS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_credentials_api")
 
 # Get the Client details to be used for getting authorization
-CUSTOMER_DATA_SCOPE="customer_data"
+CUSTOMER_DATA_SCOPE="customer_data_1"
 CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
@@ -634,7 +643,7 @@ CDS_CREDENTIALS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_credentials_ap
 CDS_GRANTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_grants_api")
 
 # Get the Client details to be used for getting authorization
-CUSTOMER_DATA_SCOPE="customer_data"
+CUSTOMER_DATA_SCOPE="customer_data_1"
 CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
@@ -674,11 +683,11 @@ GRANT_OBJECT=$(curl -v \
 GRANT_ID=$(echo "$GRANT_OBJECT" | jq -r ".grant_id")
 
 # Get the cds_grant_admin Client details
-GRANT_ADMIN_SCOPE="cds_grant_admin"
+CUSTOMER_DATA_GRANT_ADMIN_SCOPE=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_scope_descriptions | .$CUSTOMER_DATA_SCOPE | .grant_admin_scope")
 GRANT_ADMIN_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \
-    | jq -r ".clients | .[] | select(.scope==\"$GRANT_ADMIN_SCOPE\")")
+    | jq -r ".clients | .[] | select(.scope==\"$CUSTOMER_DATA_GRANT_ADMIN_SCOPE\")")
 GRANT_ADMIN_CLIENT_ID=$(echo "$GRANT_ADMIN_CLIENT_OBJECT" | jq -r ".client_id")
 GRANT_ADMIN_CDS_METADATA_URL=$(echo "$GRANT_ADMIN_CLIENT_OBJECT" | jq -r ".cds_server_metadata")
 GRANT_ADMIN_OAUTH_METADATA_URL=$(curl -v \
@@ -701,7 +710,7 @@ curl -v \
     -u "$GRANT_ADMIN_CLIENT_ID:$GRANT_ADMIN_CLIENT_SECRET" \
     -d "grant_type=client_credentials" \
     -d "authorization_details=[{
-        \"type\": \"$GRANT_ADMIN_SCOPE\",
+        \"type\": \"$CUSTOMER_DATA_GRANT_ADMIN_SCOPE\",
         \"client_id\": \"$CUSTOMER_DATA_CLIENT_ID\",
         \"grant_id\": \"$GRANT_ID\"
     }]" \
@@ -769,7 +778,7 @@ CDS_CLIENTS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_clients_api")
 CDS_CREDENTIALS_API=$(echo "$OAUTH_METADATA_OBJECT" | jq -r ".cds_credentials_api")
 
 # Get the customer data Client details to be used for getting authorization
-CUSTOMER_DATA_SCOPE="customer_data"
+CUSTOMER_DATA_SCOPE="customer_data_1"
 CUSTOMER_DATA_CLIENT_OBJECT=$(curl -v \
     -H "Authorization: Bearer $CLIENT_ADMIN_ACCESS_TOKEN" \
     "$CDS_CLIENTS_API" \

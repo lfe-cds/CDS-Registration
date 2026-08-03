@@ -413,9 +413,9 @@ If there are other scopes in the <code class="language-plaintext highlighter-rou
 <ul>
   <li><code class="language-plaintext highlighter-rouge">response_types_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) The response types in this array MUST represent at least a union of all <code class="language-plaintext highlighter-rouge">response_types_supported</code> values contained in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> objects.
 If there are other scopes in the <code class="language-plaintext highlighter-rouge">scopes_supported</code> list that do not have matching keys in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object, those scopes’ response types MAY also be included in this list.</li>
-  <li><code class="language-plaintext highlighter-rouge">grant_types_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) The response types in this array MUST represent at least a union of all <code class="language-plaintext highlighter-rouge">grant_types_supported</code> values contained in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> objects.
+  <li><code class="language-plaintext highlighter-rouge">grant_types_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) The grant types in this array MUST represent at least a union of all <code class="language-plaintext highlighter-rouge">grant_types_supported</code> values contained in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> objects.
 If there are other scopes in the <code class="language-plaintext highlighter-rouge">scopes_supported</code> list that do not have matching keys in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object, those scopes’ grant types MAY also be included in this list.</li>
-  <li><code class="language-plaintext highlighter-rouge">token_endpoint_auth_methods_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) The response types in this array MUST represent at least a union of all <code class="language-plaintext highlighter-rouge">token_endpoint_auth_methods_supported</code> values contained in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object.
+  <li><code class="language-plaintext highlighter-rouge">token_endpoint_auth_methods_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) The token endpoint authentication methods in this array MUST represent at least a union of all <code class="language-plaintext highlighter-rouge">token_endpoint_auth_methods_supported</code> values contained in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object.
 If there are other scopes in the <code class="language-plaintext highlighter-rouge">scopes_supported</code> list that do not have matching keys in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object, those scopes’ token endpoint authorization methods MAY also be included in this list.</li>
 </ul>
 
@@ -442,7 +442,7 @@ If all <code class="language-plaintext highlighter-rouge">registration_requireme
 
 <p>Scope functionality described by <a href="#scope-descriptions-format">Scope Description</a> objects included in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object MUST be available for all of the scope’s coverage, as described by the Scope Description’s <code class="language-plaintext highlighter-rouge">coverages_supported</code> list, up to any limits specified in the scopes authorization details, as described by the Scope Description’s <code class="language-plaintext highlighter-rouge">authorization_details_fields_supported</code> <a href="#auth-details-fields-format">Authorization Details Field Object’s</a> <code class="language-plaintext highlighter-rouge">maximum</code> and <code class="language-plaintext highlighter-rouge">minimum</code> values.
 For situations where the same scope is available for multiple groups of coverages and limits, multiple Scope Description entries with different <code class="language-plaintext highlighter-rouge">id</code> values MUST be included.
-For example, if a Server offers a scope that grants access to historical customer usage data, offering 24 months of usage history for electricity service contracts and and 12 months of history for natural gas service contracts, the Server MUST include two Scope Descriptions with different <code class="language-plaintext highlighter-rouge">id</code> values that include only the coverage and limits of that scope’s functionality.</p>
+For example, if a Server offers a scope that grants access to historical customer usage data, offering 24 months of usage history for electricity service contracts and 12 months of history for natural gas service contracts, the Server MUST include two Scope Descriptions with different <code class="language-plaintext highlighter-rouge">id</code> values that include only the coverage and limits of that scope’s functionality.</p>
 
 <p>Other values not mentioned here but listed in specifications for the Authorization Server Metadata specification or other extensions MAY be included as described in their respective specifications.</p>
 
@@ -453,7 +453,7 @@ For example, if a Server offers a scope that grants access to historical custome
 <p>Extensions MAY define and Servers MAY include additional scopes to the below list of defined scopes, so long as they include <a href="#scope-descriptions-format">Scope Descriptions</a> for the scopes in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code>.</p>
 
 <p>Extensions are RECOMMENDED to define additional scopes with their specification name or abbreviation as a prefix for the <code class="language-plaintext highlighter-rouge">type</code> and <code class="language-plaintext highlighter-rouge">id</code> values to prevent namespace collisions with other scopes defined by other extensions and Servers, such as <code class="language-plaintext highlighter-rouge">examplespec_*</code>.
-Server are RECOMMENDED to include their name or other relevant identifier as a prefix for the <code class="language-plaintext highlighter-rouge">type</code> and <code class="language-plaintext highlighter-rouge">id</code> values when adding additional scopes custom to their server, such as <code class="language-plaintext highlighter-rouge">examplepowercompany_*</code>.</p>
+Servers are RECOMMENDED to include their name or other relevant identifier as a prefix for the <code class="language-plaintext highlighter-rouge">type</code> and <code class="language-plaintext highlighter-rouge">id</code> values when adding additional scopes custom to their server, such as <code class="language-plaintext highlighter-rouge">examplepowercompany_*</code>.</p>
 
 <p>Clients MUST use the <code class="language-plaintext highlighter-rouge">type</code> value, rather than <code class="language-plaintext highlighter-rouge">id</code> value when determining whether they are compatible with a scope, since <code class="language-plaintext highlighter-rouge">id</code> values can be any string.
 Clients MUST ignore any scopes in a Server’s <code class="language-plaintext highlighter-rouge">scopes_supported</code> list for which the Client is not compatible.</p>
@@ -497,7 +497,7 @@ For example, an <code class="language-plaintext highlighter-rouge">id</code> val
   <li><code class="language-plaintext highlighter-rouge">type</code> is <code class="language-plaintext highlighter-rouge">"cds_grant_admin"</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">name</code> is <code class="language-plaintext highlighter-rouge">"Grant Admin"</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">description</code> is <code class="language-plaintext highlighter-rouge">"This scope grants administrative access to previously created Grants."</code>.</li>
-  <li><code class="language-plaintext highlighter-rouge">documentation</code> is a <em><a href="#url">URL</a></em> for the Server’s documentation on the <code class="language-plaintext highlighter-rouge">cds_grant_admin</code> scope.
+  <li><code class="language-plaintext highlighter-rouge">documentation</code> is a <em><a href="#url">URL</a></em> for the Server’s documentation on the Grant Admin scope.
 Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this scope.</li>
   <li><code class="language-plaintext highlighter-rouge">registration_requirements</code> is <code class="language-plaintext highlighter-rouge">[]</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">registration_optional</code> is <code class="language-plaintext highlighter-rouge">[]</code>.</li>
@@ -508,7 +508,7 @@ Servers MAY set the URL to an online publicly-available copy of this specificati
   <li><code class="language-plaintext highlighter-rouge">coverages_supported</code> is <code class="language-plaintext highlighter-rouge">[]</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">grant_admin_scope</code> is <code class="language-plaintext highlighter-rouge">null</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">authorization_details_types_supported</code> is <code class="language-plaintext highlighter-rouge">["{id}"]</code>, where <code class="language-plaintext highlighter-rouge">{id}</code> is the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value.
-Servers MUST treat an authorization details entries with a <code class="language-plaintext highlighter-rouge">type</code> value of the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value as overriding the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value in the token request’s or Grant’s <code class="language-plaintext highlighter-rouge">"scope"</code> string.</li>
+Servers MUST treat an authorization details entry with a <code class="language-plaintext highlighter-rouge">type</code> value of the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value as overriding the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value in the token request’s or Grant’s <code class="language-plaintext highlighter-rouge">"scope"</code> string.</li>
   <li><code class="language-plaintext highlighter-rouge">authorization_details_fields_supported</code> is a JSON array with the following two entries of <a href="#auth-details-fields-format">Authorization Details Field Objects</a>.
     <ul>
       <li>Client ID:
@@ -518,7 +518,7 @@ Servers MUST treat an authorization details entries with a <code class="language
           <li><code class="language-plaintext highlighter-rouge">description</code> is <code class="language-plaintext highlighter-rouge">"The Client Object identifier for which the Grant is issued."</code>.</li>
           <li><code class="language-plaintext highlighter-rouge">documentation</code> is a <em><a href="#url">URL</a></em> for the Server’s documentation on the <code class="language-plaintext highlighter-rouge">client_id</code> authorization details field.
 Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this authorization details field.</li>
-          <li><code class="language-plaintext highlighter-rouge">for_types</code> is <code class="language-plaintext highlighter-rouge">["cds_grant_admin"]</code>.</li>
+          <li><code class="language-plaintext highlighter-rouge">for_types</code> is <code class="language-plaintext highlighter-rouge">["{id}"]</code>, where <code class="language-plaintext highlighter-rouge">{id}</code> is the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value.</li>
           <li><code class="language-plaintext highlighter-rouge">format</code> is <code class="language-plaintext highlighter-rouge">string</code>.</li>
           <li><code class="language-plaintext highlighter-rouge">is_required</code> is <code class="language-plaintext highlighter-rouge">true</code>.</li>
           <li><code class="language-plaintext highlighter-rouge">default</code> is not included.</li>
@@ -571,7 +571,7 @@ For example, an <code class="language-plaintext highlighter-rouge">id</code> val
   <li><code class="language-plaintext highlighter-rouge">name</code> is <code class="language-plaintext highlighter-rouge">"Server-Provided Files"</code> or starts with <code class="language-plaintext highlighter-rouge">"Server-Provided Files: "</code> and the Server appends a relevant name, in situations where there are multiple scopes with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">cds_server_provided_files</code>.
 For example, if a Server offers two scopes where <code class="language-plaintext highlighter-rouge">type</code> value is <code class="language-plaintext highlighter-rouge">cds_server_provided_files</code>, one for security configurations and one for office paperwork pdfs, the <code class="language-plaintext highlighter-rouge">name</code> values for each scope could be <code class="language-plaintext highlighter-rouge">"Server-Provided Files: Security Configs"</code> and <code class="language-plaintext highlighter-rouge">"Server-Provided Files: Office Documents"</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">description</code> is a short description of which types of files could be shared via this scope.
-If the Server intends to share any type or arbitrary files via this scope, it is RECOMMENDED to set this value to <code class="language-plaintext highlighter-rouge">"This scope grants access to specific files that the Server wants make available to the Client."</code>.</li>
+If the Server intends to share any type of arbitrary files via this scope, it is RECOMMENDED to set this value to <code class="language-plaintext highlighter-rouge">"This scope grants access to specific files that the Server wants make available to the Client."</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">documentation</code> is a <em><a href="#url">URL</a></em> for the Server’s documentation on the <code class="language-plaintext highlighter-rouge">cds_server_provided_files</code> scope.
 Servers MAY set the URL to an online publicly-available copy of this specification as adequate documentation for this scope.</li>
   <li><code class="language-plaintext highlighter-rouge">registration_requirements</code> is <code class="language-plaintext highlighter-rouge">[]</code>.</li>
@@ -583,7 +583,7 @@ Servers MAY set the URL to an online publicly-available copy of this specificati
   <li><code class="language-plaintext highlighter-rouge">coverages_supported</code> is <code class="language-plaintext highlighter-rouge">[]</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">grant_admin_scope</code> is <code class="language-plaintext highlighter-rouge">"{grant_admin_scope_id}"</code>, where <code class="language-plaintext highlighter-rouge">{grant_admin_scope_id}</code> is the scope value that can be used for issuing <a href="#scopes-grant-admin">Grant Admin</a> access tokens to access Grants for this Server-Provided Files scope.</li>
   <li><code class="language-plaintext highlighter-rouge">authorization_details_types_supported</code> is <code class="language-plaintext highlighter-rouge">["{id}"]</code>, where <code class="language-plaintext highlighter-rouge">{id}</code> is the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value.
-Servers MUST treat an authorization details entries with a <code class="language-plaintext highlighter-rouge">type</code> value of the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value as overriding the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value in the Grant’s <code class="language-plaintext highlighter-rouge">"scope"</code> string.</li>
+Servers MUST treat an authorization details entry with a <code class="language-plaintext highlighter-rouge">type</code> value of the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value as overriding the Scope Description’s <code class="language-plaintext highlighter-rouge">id</code> value in the Grant’s <code class="language-plaintext highlighter-rouge">"scope"</code> string.</li>
   <li><code class="language-plaintext highlighter-rouge">authorization_details_fields_supported</code> is a JSON array with a single entry <a href="#auth-details-fields-format">Authorization Details Field Object</a> with the following fields.
     <ul>
       <li><code class="language-plaintext highlighter-rouge">id</code> is <code class="language-plaintext highlighter-rouge">file_id</code>.</li>
@@ -603,7 +603,7 @@ Servers MAY set the URL to an online publicly-available copy of this specificati
 </ul>
 
 <p>Since Grants with this scope are only created by Servers, Clients do not receive an authorization code or access token for that Grant with which they may access the files.
-Instead, Clients MUST submit use the <a href="#scopes-grant-admin">Grant Admin</a> method to issue an <code class="language-plaintext highlighter-rouge">access_token</code> that can be used for requests to the <a href="#server-provided-files-api">Server-Provided Files API</a>.</p>
+Instead, Clients MUST use the <a href="#scopes-grant-admin">Grant Admin</a> method to issue an <code class="language-plaintext highlighter-rouge">access_token</code> that can be used for requests to the <a href="#server-provided-files-api">Server-Provided Files API</a>.</p>
 
 <p>Servers MAY include multiple <a href="#scope-descriptions-format">Scope Description objects</a> in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> that have a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">cds_server_provided_files</code>.
 This can be useful when a Server is using different back-end systems for different types of documents, and the Server needs to use different Client Objects to provide access to each back-end system.</p>
@@ -633,16 +633,16 @@ This value follows the same behavior as OAuth’s Authorization Server Metadata 
 If a scope is not available for OAuth authorization requests (e.g. a <code class="language-plaintext highlighter-rouge">client_credentials</code>-only scope), this value is an empty array (<code class="language-plaintext highlighter-rouge">[]</code>).</li>
   <li><code class="language-plaintext highlighter-rouge">grant_types_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) The OAuth grant type values that can be used with this scope.
 This value follows the same behavior as OAuth’s Authorization Server Metadata object’s <code class="language-plaintext highlighter-rouge">grant_types_supported</code> field [<a href="#ref-rfc8414-server-metadata-obj">RFC 8414 Section 2</a>], except that this value represents the grant types supported for this individual scope and not all scopes for the Client.
-This array MUST contain at least one grant type.</li>
+If this value is an empty array (<code class="language-plaintext highlighter-rouge">[]</code>), the <code class="language-plaintext highlighter-rouge">grant_admin_scope</code> MUST NOT be <code class="language-plaintext highlighter-rouge">null</code>, meaning that Servers MUST offer the <a href="#scopes-grant-admin">Grant Admin</a> method of access for this Scope.</li>
   <li><code class="language-plaintext highlighter-rouge">token_endpoint_auth_methods_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) The OAuth client authentication methods that can be used for granting tokens with this scope.
 This value follows the same behavior as OAuth’s Authorization Server Metadata object’s <code class="language-plaintext highlighter-rouge">token_endpoint_auth_methods_supported</code> field [<a href="#ref-rfc8414-server-metadata-obj">RFC 8414 Section 2</a>], except that this value represents the client authentication methods supported for this individual scope and not all scopes for the Client.
-A value of <code class="language-plaintext highlighter-rouge">"none"</code> this array indicates that the scope may be used for public application without using a client secret.</li>
+A value of <code class="language-plaintext highlighter-rouge">"none"</code> in this array indicates that the scope may be used for public application without using a client secret.</li>
   <li><code class="language-plaintext highlighter-rouge">code_challenge_methods_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) For scope descriptions where <code class="language-plaintext highlighter-rouge">grant_types_supported</code> includes the value <code class="language-plaintext highlighter-rouge">authorization_code</code>, OAuth’s Proof Key for Code Exchange by OAuth Public Clients [<a href="#ref-rfc7636">RFC 7636</a>] functionality is required, and Servers MUST offer <code class="language-plaintext highlighter-rouge">S256</code> and MUST NOT offer <code class="language-plaintext highlighter-rouge">plain</code> code verifier methods.
 For scope descriptions where  <code class="language-plaintext highlighter-rouge">grant_types_supported</code> does not include <code class="language-plaintext highlighter-rouge">authorization_code</code>, no authorization request is performed, so no code challenge is required and this field value is an empty list (<code class="language-plaintext highlighter-rouge">[]</code>).</li>
   <li><code class="language-plaintext highlighter-rouge">coverages_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) A list of CDS’s Coverage Entry Object [<a href="#ref-cds-wg1-01-coverage-entry">CDS-WG1-01 Section 4.3</a>] <code class="language-plaintext highlighter-rouge">id</code> values for which the scope is available by the Server.
 If the scope provides functionality unrelated to a Server’s coverage entries (e.g. the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope), this value is an empty list (<code class="language-plaintext highlighter-rouge">[]</code>).</li>
   <li><code class="language-plaintext highlighter-rouge">grant_admin_scope</code> - <em><a href="#string">string</a> or <code class="language-plaintext highlighter-rouge">null</code></em> - (REQUIRED) The Grant Admin <code class="language-plaintext highlighter-rouge">scope</code> value used for issuing access tokens that may access Grants containing this scope.
-When a value is set for this field, Servers MUST also include a Scope Description for that scope that has a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">cds_grant_admin</code>
+When a value is set for this field, Servers MUST also include a Scope Description for that scope that has a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">cds_grant_admin</code>.
 If access is not available via a Grant Admin scope, this value is <code class="language-plaintext highlighter-rouge">null</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">authorization_details_types_supported</code> - <em>Array[<a href="#string">string</a>]</em> - (REQUIRED) A list of strings which may be used as the OAuth’s Rich Authorization Request authorization details object <code class="language-plaintext highlighter-rouge">type</code> value <a href="#ref-rfc9396-auth-details">RFC 9396 Section 7.1</a>].</li>
   <li><code class="language-plaintext highlighter-rouge">authorization_details_fields_supported</code> - <em>Array[<a href="#auth-details-fields-format">AuthorizationDetailsField</a>]</em> - (REQUIRED) A list of fields that MAY be included in OAuth’s Rich Authorization Request [<a href="#ref-rfc9396">RFC 9396</a>] authorization details object for this scope.
@@ -701,7 +701,7 @@ For Registration Field objects with a <code class="language-plaintext highlighte
       <li>When payments are submitted, Servers MUST reply to the <code class="language-plaintext highlighter-rouge">payment_request</code> Message with a <code class="language-plaintext highlighter-rouge">request_update</code> Message that has a <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">pending</code>.</li>
       <li>When payments are accepted, Servers MUST reply to the <code class="language-plaintext highlighter-rouge">payment_request</code> Message with a <code class="language-plaintext highlighter-rouge">request_update</code> Message that has a <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">complete</code>.</li>
       <li>When payments are rejected, Servers MUST reply to the <code class="language-plaintext highlighter-rouge">payment_request</code> Message with a <code class="language-plaintext highlighter-rouge">request_update</code> Message that has a <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">rejected</code>.</li>
-      <li>Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the email verification process.</li>
+      <li>Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the payment process.</li>
       <li>Servers MAY approve the Client for production access at any point, whether or not the Client has paid using the payment form link, if the Client has met registration requirements another way, such as mailing in a check.</li>
     </ul>
   </li>
@@ -730,7 +730,7 @@ For Registration Field objects with a <code class="language-plaintext highlighte
       <li>When online forms are reviewed and accepted, Servers MUST reply to the <code class="language-plaintext highlighter-rouge">online_form_request</code> Message with a <code class="language-plaintext highlighter-rouge">request_update</code> Message that has a <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">complete</code>.</li>
       <li>When online forms are reviewed and rejected, Servers MUST reply to the <code class="language-plaintext highlighter-rouge">online_form_request</code> Message with a <code class="language-plaintext highlighter-rouge">request_update</code> Message that has a <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">rejected</code>.</li>
       <li>Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the SSO process.</li>
-      <li>Servers MAY approve the Client for production access at any point, whether or not the Client has completed and submitted the online form, if the Client has met registration requirements another way, such calling and providing needed information to the Server’s phone support.</li>
+      <li>Servers MAY approve the Client for production access at any point, whether or not the Client has completed and submitted the online form, if the Client has met registration requirements another way, such as calling and providing needed information to the Server’s phone support.</li>
     </ul>
   </li>
   <li><code class="language-plaintext highlighter-rouge">pdf_form</code> - This field indicates that the Client must complete one or more PDF forms in order to be approved for production use.
@@ -759,7 +759,7 @@ For Registration Field objects with a <code class="language-plaintext highlighte
       <li>When online forms are reviewed and accepted, Servers MUST reply to the <code class="language-plaintext highlighter-rouge">online_form_request</code> Message with a <code class="language-plaintext highlighter-rouge">request_update</code> Message that has a <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">complete</code>.</li>
       <li>When online forms are reviewed and rejected, Servers MUST reply to the <code class="language-plaintext highlighter-rouge">online_form_request</code> Message with a <code class="language-plaintext highlighter-rouge">request_update</code> Message that has a <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">rejected</code>.</li>
       <li>Servers and Clients MAY, as needed, create additional Messages to communicate between each other with questions or information about the online form process.</li>
-      <li>Servers MAY approve the Client for production access at any point, whether or not the Client has completed and submitted the online form, if the Client has met registration requirements another way, such calling and providing needed information to the Servers phone technical support.</li>
+      <li>Servers MAY approve the Client for production access at any point, whether or not the Client has completed and submitted the online form, if the Client has met registration requirements another way, such as calling and providing needed information to the Server’s phone technical support.</li>
     </ul>
   </li>
 </ul>
@@ -781,9 +781,9 @@ For Registration Field objects with a <code class="language-plaintext highlighte
   <li><code class="language-plaintext highlighter-rouge">email_or_null</code> - Same as <code class="language-plaintext highlighter-rouge">email</code>, only with <code class="language-plaintext highlighter-rouge">null</code> being an additional possible value.</li>
   <li><code class="language-plaintext highlighter-rouge">boolean</code> - If required, a <a href="#boolean">boolean</a> value MUST be submitted.</li>
   <li><code class="language-plaintext highlighter-rouge">boolean_or_null</code> - Same as <code class="language-plaintext highlighter-rouge">boolean</code>, only with <code class="language-plaintext highlighter-rouge">null</code> being an additional possible value.</li>
-  <li><code class="language-plaintext highlighter-rouge">image</code> - If required, a valid image file formatted as <code class="language-plaintext highlighter-rouge">image/jpeg</code> or <code class="language-plaintext highlighter-rouge">image/png</code> encoded as a Base64 string using MUST be submitted.</li>
+  <li><code class="language-plaintext highlighter-rouge">image</code> - If required, a valid image file formatted as <code class="language-plaintext highlighter-rouge">image/jpeg</code> or <code class="language-plaintext highlighter-rouge">image/png</code> and encoded as a Base64 string MUST be submitted.</li>
   <li><code class="language-plaintext highlighter-rouge">image_or_null</code> - Same as <code class="language-plaintext highlighter-rouge">image</code>, only with <code class="language-plaintext highlighter-rouge">null</code> being an additional possible value.</li>
-  <li><code class="language-plaintext highlighter-rouge">pdf</code> - If required, a valid pdf file formatted encoded as a Base64 string MUST be submitted.</li>
+  <li><code class="language-plaintext highlighter-rouge">pdf</code> - If required, a valid pdf file encoded as a Base64 string MUST be submitted.</li>
   <li><code class="language-plaintext highlighter-rouge">pdf_or_null</code> - Same as <code class="language-plaintext highlighter-rouge">pdf</code>, only with <code class="language-plaintext highlighter-rouge">null</code> being an additional possible value.</li>
   <li><code class="language-plaintext highlighter-rouge">choice</code> - A <a href="#string">string</a> value from the <code class="language-plaintext highlighter-rouge">id</code> parameter in one of the listed available <code class="language-plaintext highlighter-rouge">choices</code> <a href="#choice-format">Choice objects</a>.</li>
   <li><code class="language-plaintext highlighter-rouge">choice_or_null</code> - Same as <code class="language-plaintext highlighter-rouge">choice</code>, only with <code class="language-plaintext highlighter-rouge">null</code> being an additional possible value which indicates that no choice has been selected.</li>
@@ -883,7 +883,7 @@ The Server then responds with either an error or a generated Client registration
 <ul>
   <li>Clients MUST submit the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope as part of their <code class="language-plaintext highlighter-rouge">scope</code> string value, which indicates to the Server that they are registering a Client following this specification.
 Clients that submit scopes that do not include the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope are assumed to be attempting to register a Client that does not follow this specification.</li>
-  <li>Clients MUST only submit <code class="language-plaintext highlighter-rouge">scope</code> string values that are included in the the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object, which indicates that those scopes are supported with the functionality of this specification.
+  <li>Clients MUST only submit <code class="language-plaintext highlighter-rouge">scope</code> string values that are included in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object, which indicates that those scopes are supported with the functionality of this specification.
 Servers MUST respond to Client registration requests with a <code class="language-plaintext highlighter-rouge">400 Bad Request</code> Status Code if scopes that are not included in the <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> object are attempting to be registered with scopes that are included.</li>
   <li>Clients MAY submit additional named values that are defined as part of scope <code class="language-plaintext highlighter-rouge">registration_requirements</code> and <code class="language-plaintext highlighter-rouge">registration_optional</code> arrays in <code class="language-plaintext highlighter-rouge">cds_scope_descriptions</code> objects, using the registration field reference’s <code class="language-plaintext highlighter-rouge">field_name</code> value as the submitted key in the registration request.</li>
   <li>Servers MUST ignore any submitted <code class="language-plaintext highlighter-rouge">redirect_uris</code> values.
@@ -910,16 +910,16 @@ This Client Object scoped to <code class="language-plaintext highlighter-rouge">
 <p>Servers MUST also create Client Objects that are configured for any other scopes for which the Client submitted registration and the submission was accepted by the Server.
 Servers MAY combine scopes into individual Client Objects if the <code class="language-plaintext highlighter-rouge">response_types</code>, <code class="language-plaintext highlighter-rouge">grant_types</code>, and <code class="language-plaintext highlighter-rouge">token_endpoint_auth_method</code> for the scopes are the same, so that Clients MAY send authorization and token requests for multiple related scopes at the same time.</p>
 
-<p>If a scope is registered that has a non-null <code class="language-plaintext highlighter-rouge">grant_admin_scope</code> value in its Scope Description, Servers MUST create a Client Object with that Grand Admin scope value, so that Clients MAY access data and functionality for that scope using the <a href="#scopes-grant-admin">Grant Admin</a> access method.</p>
+<p>If a scope is registered that has a non-null <code class="language-plaintext highlighter-rouge">grant_admin_scope</code> value in its Scope Description, Servers MUST create a Client Object with that Grant Admin scope value, so that Clients MAY access data and functionality for that scope using the <a href="#scopes-grant-admin">Grant Admin</a> access method.</p>
 
 <p>For each Client Object created that has its <code class="language-plaintext highlighter-rouge">token_endpoint_auth_method</code> value as something other than <code class="language-plaintext highlighter-rouge">null</code>, at least one <a href="#credentials-format">Credential object</a> MUST be created and made available on the <a href="#credentials-api">Credentials API</a> for the Client to use.</p>
 
-<p>For created Client Objects that have a non-empty <code class="language-plaintext highlighter-rouge">response_types</code> list, Servers MUST create a default <code class="language-plaintext highlighter-rouge">redirect_uri</code> value and and set it as the single value in the created Client Object <code class="language-plaintext highlighter-rouge">redirect_uris</code> list.
+<p>For created Client Objects that have a non-empty <code class="language-plaintext highlighter-rouge">response_types</code> list, Servers MUST create a default <code class="language-plaintext highlighter-rouge">redirect_uri</code> value and set it as the single value in the created Client Object <code class="language-plaintext highlighter-rouge">redirect_uris</code> list.
 The created <code class="language-plaintext highlighter-rouge">redirect_uri</code> MUST provide functionality such that if specified as part of authorization request parameters, will redirect the user to a receipt of the authorization when the authorization is submitted successfully, or show an error to the user if the authorization is declined or otherwise errors.
 This default <code class="language-plaintext highlighter-rouge">redirect_uri</code> allows Clients to request user authorization without needing to operate their own redirect endpoint.
 Clients MAY choose to update Client Object <code class="language-plaintext highlighter-rouge">redirect_uris</code> values to remove this default or add additional redirect URIs using the <a href="#clients-modify">Modifying Clients</a> functionality.</p>
 
-<p>For created Client Objects that have a non-empty <code class="language-plaintext highlighter-rouge">response_types</code> list, Servers MUST create a Client Object that has the <code class="language-plaintext highlighter-rouge">sandbox</code> value in its <code class="language-plaintext highlighter-rouge">cds_status_option</code> list, which allows the Client to immediately begin testing their application’s integration after registration.
+<p>For created Client Objects that have a non-empty <code class="language-plaintext highlighter-rouge">response_types</code> list, Servers MUST create a Client Object that has the <code class="language-plaintext highlighter-rouge">sandbox</code> value in its <code class="language-plaintext highlighter-rouge">cds_status_options</code> list, which allows the Client to immediately begin testing their application’s integration after registration.
 Servers MAY forgo creating Client Objects with a <code class="language-plaintext highlighter-rouge">production</code> value in its <code class="language-plaintext highlighter-rouge">cds_status_options</code> list when the Server has additional steps to perform, such as a manual review of the registration.
 Then, later if and when the Server decides to allow the Client access to the production environment, the Server MUST create a new Client Object with a <code class="language-plaintext highlighter-rouge">production</code> value in its <code class="language-plaintext highlighter-rouge">cds_status_option</code> list.
 Servers MUST NOT create Client Objects that have both <code class="language-plaintext highlighter-rouge">production</code> and <code class="language-plaintext highlighter-rouge">sandbox</code> values in the same <code class="language-plaintext highlighter-rouge">cds_status_options</code> list, so that the same Client Object cannot be used for both testing and production environments.</p>
@@ -981,7 +981,7 @@ Servers MUST make this URL unique for each Client Object.</li>
   <li><code class="language-plaintext highlighter-rouge">cds_status</code> - <em><a href="#client-statuses">ClientStatus</a></em> - (REQUIRED) The current status of availability for this Client Object.</li>
   <li><code class="language-plaintext highlighter-rouge">cds_status_options</code> - <em>Array[<a href="#client-statuses">ClientStatus</a>]</em> - (REQUIRED) What <code class="language-plaintext highlighter-rouge">cds_status</code> values to which the Client MAY change the Client Object when <a href="#clients-modify">modifying</a> it.
 For Client Objects that have the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, this list MUST NOT contain the <code class="language-plaintext highlighter-rouge">disabled</code> value, and for all other Client Objects this list MUST contain at least the <code class="language-plaintext highlighter-rouge">disabled</code> value, so that Clients MAY opt to disable Client Objects as needed.</li>
-  <li><code class="language-plaintext highlighter-rouge">cds_server_metadata</code> - <em><a href="#url">URL</a></em> - (REQUIRED) Where Clients can find a Client Object specific version of the Servers’s CDS Server Metadata [<a href="#ref-cds-wg1-01">CDS-WG1-01</a>].
+  <li><code class="language-plaintext highlighter-rouge">cds_server_metadata</code> - <em><a href="#url">URL</a></em> - (REQUIRED) Where Clients can find a Client Object specific version of the Server’s CDS Server Metadata [<a href="#ref-cds-wg1-01">CDS-WG1-01</a>].
 If the Client Object’s registered scopes have different <a href="#scope-descriptions-format">Scope Descriptions</a> than what is in the publicly available <code class="language-plaintext highlighter-rouge">oauth_metadata</code> resource, such as more limited <code class="language-plaintext highlighter-rouge">coverages_supported</code> or different limits in <code class="language-plaintext highlighter-rouge">authorization_details_fields_supported</code>, then the <code class="language-plaintext highlighter-rouge">cds_server_metadata</code> MUST be to a resource that has an updated <code class="language-plaintext highlighter-rouge">oauth_metadata</code> resource with the Client Object specific values.
 If the Client Object’s CDS server metadata is no different from the public CDS server metadata, Servers MAY simply link to the public URL.
 If this metadata endpoint requires authentication, Servers MUST authenticate Client requests to this endpoint via Bearer access token obtained using OAuth’s <code class="language-plaintext highlighter-rouge">client_credentials</code> grant with a scope of <code class="language-plaintext highlighter-rouge">cds_client_admin</code>, and reject unauthenticated requests with a <code class="language-plaintext highlighter-rouge">401 Unauthorized</code> Status Code.
@@ -1009,12 +1009,12 @@ Servers MUST describe any additional fields that may be included in their techni
 For scopes that require user authorization (e.g. <code class="language-plaintext highlighter-rouge">response_type</code> values of <code class="language-plaintext highlighter-rouge">code</code>), this <code class="language-plaintext highlighter-rouge">cds_status</code> indicates that the Client may request authorization from real users.</li>
   <li><code class="language-plaintext highlighter-rouge">sandbox</code> - The Client Object MAY be used to request access on the Server’s test environment systems.
 For scopes that require user authorization (i.e. <code class="language-plaintext highlighter-rouge">response_type</code> values of <code class="language-plaintext highlighter-rouge">code</code>), this <code class="language-plaintext highlighter-rouge">cds_status</code> indicates that the Client may request authorization from fictional test users, as provided in the Server’s <code class="language-plaintext highlighter-rouge">cds_test_accounts</code> documentation.</li>
-  <li><code class="language-plaintext highlighter-rouge">disabled</code> - The Client Object is is disabled.</li>
+  <li><code class="language-plaintext highlighter-rouge">disabled</code> - The Client Object is disabled.</li>
 </ul>
 
 <h3 id="53-listing-client-objects-">5.3. Listing Client Objects <a id="clients-list" href="#clients-list" class="permalink">🔗</a></h3>
 
-<p>Clients may request to list Client Objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_clients_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
+<p>Clients MAY request to list Client Objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_clients_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
 The Client Object listing request responses are formatted as JSON objects and contain the following named values.</p>
 
 <ul>
@@ -1045,12 +1045,12 @@ If a Server has optionally implemented OAuth’s Dynamic Client Registration Man
 
 <h3 id="55-modifying-client-objects-">5.5. Modifying Client Objects <a id="clients-modify" href="#clients-modify" class="permalink">🔗</a></h3>
 
-<p>This specification requires that the procedure to modify Client Objects MUST follow OAuth’s Client Update Request [<a href="#ref-rfc7592-client-mgmt-updates">RFC 7592 Section 2.2</a> section in Dynamic Client Registration Management Protocol [<a href="#ref-rfc7592">RFC 7592</a>].</p>
+<p>This specification requires that the procedure to modify Client Objects MUST follow OAuth’s Client Update Request [<a href="#ref-rfc7592-client-updates">RFC 7592 Section 2.2</a> section in Dynamic Client Registration Management Protocol [<a href="#ref-rfc7592">RFC 7592</a>].</p>
 
 <p>The URL to be used to send <a href="#put">PUT</a> requests for updating Client Objects MUST be the <code class="language-plaintext highlighter-rouge">cds_client_uri</code> provided in the <a href="#client-format">Client Object</a>.
 If a Server has optionally implemented OAuth’s Dynamic Client Registration Management Protocol [<a href="#ref-rfc7592">RFC 7592</a>], the value of <code class="language-plaintext highlighter-rouge">cds_client_uri</code> MUST be the same as <code class="language-plaintext highlighter-rouge">registration_client_uri</code>, and access tokens issued from either a <code class="language-plaintext highlighter-rouge">client_credentials</code> grant with the scope <code class="language-plaintext highlighter-rouge">cds_client_admin</code> or the access token provided as the <code class="language-plaintext highlighter-rouge">registration_access_token</code> MUST be valid access tokens to interact with the client endpoint.</p>
 
-<p>Servers MUST allow Clients to intially update the following fields:</p>
+<p>Servers MUST allow Clients to initially update the following fields:</p>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">redirect_uris</code></li>
@@ -1086,7 +1086,7 @@ Clients MUST use the <a href="#credentials-api">Credentials API</a> to discover 
   <li><code class="language-plaintext highlighter-rouge">cds_status_options</code> - This is a list set by the Server.</li>
 </ul>
 
-<p>For other fields, the Server MUST determine the validity of the submitted Client Object fields and reject with a <code class="language-plaintext highlighter-rouge">400 Bad Response</code> Status Code if not all submitted fields are either the same as previously set, or invalid values for that field.</p>
+<p>For other fields, the Server MUST determine the validity of the submitted Client Object fields and reject with a <code class="language-plaintext highlighter-rouge">400 Bad R</code> Status Code if not all submitted fields are either the same as previously set, or invalid values for that field.</p>
 
 <p>If a Client does not include a field that is included in the Client Object, this indicates that the Client wishes to reset the value of that field to the Server default.</p>
 
@@ -1123,14 +1123,14 @@ If the Message <code class="language-plaintext highlighter-rouge">type</code> is
   <li><code class="language-plaintext highlighter-rouge">description</code> - <em><a href="#string">string</a></em> - (REQUIRED) A human-readable description of the Message.
 If the Message <code class="language-plaintext highlighter-rouge">type</code> is <code class="language-plaintext highlighter-rouge">notification</code>, <code class="language-plaintext highlighter-rouge">private_message</code>, or <code class="language-plaintext highlighter-rouge">support_request</code>, this is the message body.</li>
   <li><code class="language-plaintext highlighter-rouge">updates_requested</code> - <em>Array[<a href="#client-update-request-format">ClientUpdateRequest</a>]</em> - (OPTIONAL) The list of values that a Client has requested to be updated.
-This field is required for Messages with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">field_changes</code> or <code class="language-plaintext highlighter-rouge">server_request</code>.</li>
+This field is required for Messages with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">field_changes</code>, <code class="language-plaintext highlighter-rouge">server_request</code>, or <code class="language-plaintext highlighter-rouge">client_submission</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">grants_requested</code> - <em>Array[<a href="#client-grant-request-format">ClientGrantRequest</a>]</em> - (OPTIONAL) The list of grants with their parameters that a Client has requested to be issued by the Server.
 This field is required for Messages with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">grant_request</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">attachments</code> - <em>Array[<a href="#message-attachment-format">MessageAttachment</a>]</em> - (OPTIONAL) A list of file attachments associated with the Message.
 Message attachments are intended to allow Clients and Servers to attach relatively small unstructured files, such as PDF documents, to their messages that are relevant.
 For example, a Client MAY attach a letter of authorization scanned PDF as part their <code class="language-plaintext highlighter-rouge">grant_request</code> Message.
 Message attachments are not intended to provide a means for repeatedly transferring structured data or large amounts of data.
-It is RECOMMNEDED that Servers prefer to share files via the <a href="#server-provided-files-api">Server-Provided Files API</a> or other relevant APIs and only use Message attachments when the attachment is relatively small in size and only relevant to the Message.</li>
+It is RECOMMENDED that Servers prefer to share files via the <a href="#server-provided-files-api">Server-Provided Files API</a> or other relevant APIs and only use Message attachments when the attachment is relatively small in size and only relevant to the Message.</li>
   <li><code class="language-plaintext highlighter-rouge">related_uri</code> - <em><a href="#url">URL</a> or <code class="language-plaintext highlighter-rouge">null</code></em> - (OPTIONAL) If the Message <code class="language-plaintext highlighter-rouge">type</code> is <code class="language-plaintext highlighter-rouge">notification</code> or <code class="language-plaintext highlighter-rouge">private_message</code>, this value is where the Client can find more information, if available.
 If the Message <code class="language-plaintext highlighter-rouge">type</code> is <code class="language-plaintext highlighter-rouge">production_request</code>, this value is a relevant Client Object <code class="language-plaintext highlighter-rouge">cds_client_uri</code> that has the <code class="language-plaintext highlighter-rouge">sandbox</code> value in its <code class="language-plaintext highlighter-rouge">cds_status_options</code> list for which the Client is requesting an equivalent Client Object be created with <code class="language-plaintext highlighter-rouge">production</code> in the <code class="language-plaintext highlighter-rouge">cds_status_options</code> list.
 If the Message <code class="language-plaintext highlighter-rouge">type</code> is <code class="language-plaintext highlighter-rouge">support_request</code>, this value is a relevant URL for which the Client is requesting technical support.
@@ -1182,11 +1182,11 @@ For Messages with a <code class="language-plaintext highlighter-rouge">type</cod
 For Messages with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">grant_request</code> and <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">complete</code>, Servers MUST set the <code class="language-plaintext highlighter-rouge">related_type</code> to be <code class="language-plaintext highlighter-rouge">grant_list</code> and <code class="language-plaintext highlighter-rouge">related_uri</code> to link to Grants API <a href="#grants-list">listing</a> with URL parameters that filter to only the relevant Grants.
 For Messages with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">request_update</code>, <code class="language-plaintext highlighter-rouge">status</code> value of <code class="language-plaintext highlighter-rouge">complete</code>, and the <code class="language-plaintext highlighter-rouge">related_uri</code> links to a Message with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">payment_request</code>, Servers MUST set the <code class="language-plaintext highlighter-rouge">related_type</code> to be <code class="language-plaintext highlighter-rouge">payment_receipt</code> and <code class="language-plaintext highlighter-rouge">related_uri</code> to link to the Client’s payment receipt.</li>
   <li><code class="language-plaintext highlighter-rouge">open</code> - For Messages with <code class="language-plaintext highlighter-rouge">type</code> values of <code class="language-plaintext highlighter-rouge">server_request</code>, <code class="language-plaintext highlighter-rouge">payment_request</code>, <code class="language-plaintext highlighter-rouge">online_form_request</code>, <code class="language-plaintext highlighter-rouge">pdf_form_request</code>, or <code class="language-plaintext highlighter-rouge">request_update</code>, this represents that the Client has not yet submitted a response to the Server’s request.</li>
-  <li><code class="language-plaintext highlighter-rouge">pending</code> - For Messages with <code class="language-plaintext highlighter-rouge">type</code> values of <code class="language-plaintext highlighter-rouge">production_request</code>, <code class="language-plaintext highlighter-rouge">support_request</code>, <code class="language-plaintext highlighter-rouge">grant_request</code>, <code class="language-plaintext highlighter-rouge">field_changes</code>, <code class="language-plaintext highlighter-rouge">server_request</code>, <code class="language-plaintext highlighter-rouge">payment_request</code>, <code class="language-plaintext highlighter-rouge">online_form_request</code>, <code class="language-plaintext highlighter-rouge">pdf_form_request</code>, or <code class="language-plaintext highlighter-rouge">request_update</code>, this represents the Server has not yet completed it’s review of the Client’s production or technical support request, field changes, submission, or payment.</li>
+  <li><code class="language-plaintext highlighter-rouge">pending</code> - For Messages with <code class="language-plaintext highlighter-rouge">type</code> values of <code class="language-plaintext highlighter-rouge">production_request</code>, <code class="language-plaintext highlighter-rouge">support_request</code>, <code class="language-plaintext highlighter-rouge">grant_request</code>, <code class="language-plaintext highlighter-rouge">field_changes</code>, <code class="language-plaintext highlighter-rouge">server_request</code>, <code class="language-plaintext highlighter-rouge">payment_request</code>, <code class="language-plaintext highlighter-rouge">online_form_request</code>, <code class="language-plaintext highlighter-rouge">pdf_form_request</code>, or <code class="language-plaintext highlighter-rouge">request_update</code>, this represents the Server has not yet completed its review of the Client’s production or technical support request, field changes, submission, or payment.</li>
   <li><code class="language-plaintext highlighter-rouge">rejected</code> - For Messages with <code class="language-plaintext highlighter-rouge">type</code> values of <code class="language-plaintext highlighter-rouge">field_changes</code>, <code class="language-plaintext highlighter-rouge">server_request</code>, <code class="language-plaintext highlighter-rouge">production_request</code>, <code class="language-plaintext highlighter-rouge">grant_request</code>, <code class="language-plaintext highlighter-rouge">payment_request</code>, <code class="language-plaintext highlighter-rouge">online_form_request</code>, <code class="language-plaintext highlighter-rouge">pdf_form_request</code>, or <code class="language-plaintext highlighter-rouge">request_update</code>, this represents the Server has completed and rejected the Client’s requested production access request, field changes, submission, grant, or payment.
 When Servers create a rejected Message, the Server’s created Message MUST contain information in the <code class="language-plaintext highlighter-rouge">description</code> field on why the Message that was created by the Client, typically linked by the <code class="language-plaintext highlighter-rouge">previous_uri</code> field, was rejected.</li>
   <li><code class="language-plaintext highlighter-rouge">errored</code> - For Messages with <code class="language-plaintext highlighter-rouge">type</code> values of <code class="language-plaintext highlighter-rouge">field_changes</code>, <code class="language-plaintext highlighter-rouge">server_request</code>, <code class="language-plaintext highlighter-rouge">payment_request</code>, <code class="language-plaintext highlighter-rouge">online_form_request</code>, <code class="language-plaintext highlighter-rouge">pdf_form_request</code>, or <code class="language-plaintext highlighter-rouge">request_update</code>, this represents the Server encountered an issue while processing the Client’s field changes, submission, or payment.
-The Client is RECOMMENDED to submit a <code class="language-plaintext highlighter-rouge">support_request</code> Messages with the <code class="language-plaintext highlighter-rouge">related_uri</code> as the relevant errored Message’s <code class="language-plaintext highlighter-rouge">uri</code>.</li>
+The Client is RECOMMENDED to submit a <code class="language-plaintext highlighter-rouge">support_request</code> Message with the <code class="language-plaintext highlighter-rouge">related_uri</code> as the relevant errored Message’s <code class="language-plaintext highlighter-rouge">uri</code>.</li>
 </ul>
 
 <h3 id="64-message-related-types-">6.4. Message Related Types <a id="message-related-types" href="#message-related-types" class="permalink">🔗</a></h3>
@@ -1255,7 +1255,7 @@ Unknown file content types MUST have a <code class="language-plaintext highlight
 
 <h3 id="68-listing-messages-">6.8. Listing Messages <a id="messages-list" href="#messages-list" class="permalink">🔗</a></h3>
 
-<p>Clients may request to list Message objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_messages_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
+<p>Clients MAY request to list Message objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_messages_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
 The Message listing request responses are formatted as JSON objects and contain the following named values.</p>
 
 <ul>
@@ -1315,7 +1315,7 @@ If submitting a Message with a <code class="language-plaintext highlighter-rouge
 If there is no relevant API endpoint, the Client MUST not include this field.</li>
 </ul>
 
-<p>Servers MUST reject requests with a <code class="language-plaintext highlighter-rouge">400 Bad Request</code> Status Code when a Client submits an incomplete request, the submitted values are invalid.
+<p>Servers MUST reject requests with a <code class="language-plaintext highlighter-rouge">400 Bad Request</code> Status Code when a Client submits an incomplete request or the submitted values are invalid.
 Servers MUST reject requests with a <code class="language-plaintext highlighter-rouge">413 Content Too Large</code> Status Code when a Client submits a Message with attachments that exceed the Server’s submission size limit, which MUST be equal to or greater than 10 megabytes.
 For valid <a href="#post">POST</a> requests from Clients, Servers MUST respond with a <code class="language-plaintext highlighter-rouge">201 Created</code> Status Code with a JSON object of the complete newly created Message object.
 When committing Messages created by Clients, Servers MUST populate the following fields in addition to the Client’s submitted fields:</p>
@@ -1348,7 +1348,7 @@ After determining whether the grant request should be approved, Servers MUST cre
 
 <h3 id="611-modifying-messages-">6.11. Modifying Messages <a id="messages-modify" href="#messages-modify" class="permalink">🔗</a></h3>
 
-<p>Clients may modify fields in a Messages object by sending an authenticated HTTPS <a href="#patch">PATCH</a> request to the Message <code class="language-plaintext highlighter-rouge">uri</code> endpoint with the body of the request formatted a JSON object.
+<p>Clients MAY modify fields in a Messages object by sending an authenticated HTTPS <a href="#patch">PATCH</a> request to the Message <code class="language-plaintext highlighter-rouge">uri</code> endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to modify with the submitted fields’ values.
 If a field is not included in the <a href="#patch">PATCH</a> request, the Server MUST leave the field unmodified from its current value.</p>
 
@@ -1359,12 +1359,12 @@ If a field is not included in the <a href="#patch">PATCH</a> request, the Server
 </ul>
 
 <p>If a Client wishes to modify a previously submitted Message of type <code class="language-plaintext highlighter-rouge">client_submission</code> they created, the Client MUST <a href="#messages-create">create a new Message</a> with the same <code class="language-plaintext highlighter-rouge">previous_uri</code> value as the Message the Client is wishing to supersede.
-Severs MUST process newer Messages created by the Client as overriding the Client’s previous submission.</p>
+Servers MUST process newer Messages created by the Client as overriding the Client’s previous submission.</p>
 
 <p>If a Client wishes to amend a previously created Message of type <code class="language-plaintext highlighter-rouge">private_message</code> or <code class="language-plaintext highlighter-rouge">support_request</code> they created, the Client MUST <a href="#messages-create">create a new Message</a> with the <code class="language-plaintext highlighter-rouge">previous_uri</code> value set as the Message <code class="language-plaintext highlighter-rouge">uri</code> for which they are wanting to amend.
-Severs MUST consider newer Messages created by the Client as amending the Client’s previous support request or message.</p>
+Servers MUST consider newer Messages created by the Client as amending the Client’s previous support request or message.</p>
 
-<p>Servers MUST validate the values of the submitted Message fields that are able to be modified and reject with a <code class="language-plaintext highlighter-rouge">400 Bad Response</code> Status Code if any of those fields are submitted with invalid values.
+<p>Servers MUST validate the values of the submitted Message fields that are able to be modified and reject with a <code class="language-plaintext highlighter-rouge">400 Bad Request</code> Status Code if any of those fields are submitted with invalid values.
 Servers MUST ignore any fields submitted that are not able to be modified by the Client.
 If the submission is valid, Servers MUST synchronously modify the Message object and respond with a <code class="language-plaintext highlighter-rouge">200 OK</code> Status Code where the response body is the updated Message object.</p>
 
@@ -1398,18 +1398,18 @@ This field MUST be included if the <code class="language-plaintext highlighter-r
 <p>Credential object <code class="language-plaintext highlighter-rouge">type</code> values MUST be one of the following:</p>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">client_secret</code> - The Credential is a shared secret string string in the <code class="language-plaintext highlighter-rouge">client_secret</code> value on the Credential object.</li>
+  <li><code class="language-plaintext highlighter-rouge">client_secret</code> - The Credential is a shared secret string in the <code class="language-plaintext highlighter-rouge">client_secret</code> value on the Credential object.</li>
 </ul>
 
 <h3 id="73-listing-credentials-">7.3. Listing Credentials <a id="credentials-list" href="#credentials-list" class="permalink">🔗</a></h3>
 
-<p>Clients may request to list Credential objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_credentials_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
+<p>Clients MAY request to list Credential objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_credentials_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
 The Credential listing request responses are formatted as JSON objects and contain the following named values.</p>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">credentials</code> - <em>Array[<a href="#credentials-format">ScopeCredential</a>]</em> - (REQUIRED) A list of Credentials to which the requesting <code class="language-plaintext highlighter-rouge">access_token</code> is scoped to have access.
 If no Credentials are accessible, this value is an empty list (<code class="language-plaintext highlighter-rouge">[]</code>).
-If more than 100 sCredentials are available to be listed, Servers MAY truncate the list and use the <code class="language-plaintext highlighter-rouge">next</code> value to link to the next segment of the list of Credentials.</li>
+If more than 100 Credentials are available to be listed, Servers MAY truncate the list and use the <code class="language-plaintext highlighter-rouge">next</code> value to link to the next segment of the list of Credentials.</li>
   <li><code class="language-plaintext highlighter-rouge">next</code> - <em><a href="#url">URL</a> or <code class="language-plaintext highlighter-rouge">null</code></em> - Where to request the next segment of the list of Credentials.
 If no next segment exists (i.e. the requester is at the end of the list), this value is <code class="language-plaintext highlighter-rouge">null</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">previous</code> - <em><a href="#url">URL</a> or <code class="language-plaintext highlighter-rouge">null</code></em> - Where to request the previous segment of the list of Credentials.
@@ -1448,7 +1448,7 @@ For valid <a href="#post">POST</a> requests from Clients, Servers MUST respond w
 
 <h3 id="76-modifying-credentials-">7.6. Modifying Credentials <a id="credentials-modify" href="#credentials-modify" class="permalink">🔗</a></h3>
 
-<p>Clients may modify fields in the Credentials API by sending an authenticated HTTPS <a href="#patch">PATCH</a> request to the Credential <code class="language-plaintext highlighter-rouge">uri</code> endpoint with the body of the request formatted a JSON object.
+<p>Clients MAY modify fields in the Credentials API by sending an authenticated HTTPS <a href="#patch">PATCH</a> request to the Credential <code class="language-plaintext highlighter-rouge">uri</code> endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to update with the submitted fields’ values.
 If a field is not included in the <a href="#patch">PATCH</a> request, the Server MUST leave the field unmodified from its current value.</p>
 
@@ -1456,10 +1456,10 @@ If a field is not included in the <a href="#patch">PATCH</a> request, the Server
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">client_secret_expires_at</code> - Servers MUST only accept valid timestamp values greater than or equal to the current time and less than or equal to the current value.
-When the current value is <code class="language-plaintext highlighter-rouge">0</code>, indicating no expiration time, Severs MUST allow Clients to set a value of <code class="language-plaintext highlighter-rouge">0</code> or any timestamp greater than or equal to the current time.</li>
+When the current value is <code class="language-plaintext highlighter-rouge">0</code>, indicating no expiration time, Servers MUST allow Clients to set a value of <code class="language-plaintext highlighter-rouge">0</code> or any timestamp greater than or equal to the current time.</li>
 </ul>
 
-<p>Servers MUST validate the values of the submitted Credential fields that are able to be modified and reject with a <code class="language-plaintext highlighter-rouge">400 Bad Response</code> Status Code if any of those fields are submitted with invalid values.
+<p>Servers MUST validate the values of the submitted Credential fields that are able to be modified and reject with a <code class="language-plaintext highlighter-rouge">400 Bad Request</code> Status Code if any of those fields are submitted with invalid values.
 Servers MUST ignore any fields submitted that are not able to be modified by the Client.
 If the submission is valid, Servers MUST synchronously modify the Credential object and respond with a <code class="language-plaintext highlighter-rouge">200 OK</code> Status Code where the response body is the updated Credential object.</p>
 
@@ -1493,8 +1493,8 @@ If this Grant does not have any sub-Grants, this value is an empty list (<code c
   <li><code class="language-plaintext highlighter-rouge">created</code> - <em><a href="#datetime">datetime</a></em> - (REQUIRED) When the Grant was created.</li>
   <li><code class="language-plaintext highlighter-rouge">modified</code> - <em><a href="#datetime">datetime</a></em> - (REQUIRED) When the Grant was most recently modified.
 If the Grant has not been modified since creation, this is the same value as <code class="language-plaintext highlighter-rouge">created</code>.</li>
-  <li><code class="language-plaintext highlighter-rouge">not_before</code> - <em><a href="#datetime">datetime</a> or <code class="language-plaintext highlighter-rouge">null</code></em> - (REQUIRED) When a Grant that is for future access, Grant’s <code class="language-plaintext highlighter-rouge">status</code> will be switched from <code class="language-plaintext highlighter-rouge">future</code> to another value.
-If the Grant is not for future access and access is available immediately upon creation, this value is <code class="language-plaintext highlighter-rouge">null</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">not_before</code> - <em><a href="#datetime">datetime</a> or <code class="language-plaintext highlighter-rouge">null</code></em> - (REQUIRED) When a Grant’s <code class="language-plaintext highlighter-rouge">status</code> value is <code class="language-plaintext highlighter-rouge">future</code>, this value MUST be the datetime when the Server is expecting to update the <code class="language-plaintext highlighter-rouge">status</code> value from <code class="language-plaintext highlighter-rouge">future</code> to <code class="language-plaintext highlighter-rouge">active</code>.
+If the Grant’s <code class="language-plaintext highlighter-rouge">status</code> value is not <code class="language-plaintext highlighter-rouge">future</code>, this value MUST be <code class="language-plaintext highlighter-rouge">null</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">not_after</code> - <em><a href="#datetime">datetime</a> or <code class="language-plaintext highlighter-rouge">null</code></em> - (REQUIRED) When a Grant has access that will expire in the future, this value indicates when the Grant’s <code class="language-plaintext highlighter-rouge">status</code> will be switched to <code class="language-plaintext highlighter-rouge">expired</code>.
 If the Grant does not expire, this value is <code class="language-plaintext highlighter-rouge">null</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">eta</code> - <em><a href="#datetime">datetime</a> or <code class="language-plaintext highlighter-rouge">null</code></em> - (REQUIRED) When a Grant has a <code class="language-plaintext highlighter-rouge">status</code> with the value <code class="language-plaintext highlighter-rouge">pending</code>, this value indicates an estimated time for when the status is expected to be switched to another value.
@@ -1510,10 +1510,12 @@ If no authorization details scopes are configured in addition to the <code class
 If no receipt was provided or the Grant did not get issued via <code class="language-plaintext highlighter-rouge">authorization_code</code> then this value is an empty list (<code class="language-plaintext highlighter-rouge">[]</code>).</li>
   <li><code class="language-plaintext highlighter-rouge">enabled_scope</code> - <em><a href="#string">string</a></em> - (REQUIRED) For Grants where access has been partially granted, but some access is still disabled, this value is the <code class="language-plaintext highlighter-rouge">scope</code> that has been enabled by the server.
 For Grants where access has been fully granted, this value is the same as the <code class="language-plaintext highlighter-rouge">scope</code> value.
-For Grants that have had their access removed (e.g. <code class="language-plaintext highlighter-rouge">disabled</code>), this value is an empty string (<code class="language-plaintext highlighter-rouge">""</code>).</li>
+For Grants that have had their access removed (e.g. the Grant’s <code class="language-plaintext highlighter-rouge">status</code> value is <code class="language-plaintext highlighter-rouge">disabled</code>), this value is an empty string (<code class="language-plaintext highlighter-rouge">""</code>).
+When a Grant’s <code class="language-plaintext highlighter-rouge">status</code> value is <code class="language-plaintext highlighter-rouge">future</code>, this value MUST be the scope that will be enabled when the <code class="language-plaintext highlighter-rouge">status</code> is switched to <code class="language-plaintext highlighter-rouge">active</code> on the Grant’s <code class="language-plaintext highlighter-rouge">not_before</code> datetime.</li>
   <li><code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> - <em>Array[<a href="#ref-rfc9396-auth-details">OAuth AuthorizationDetail</a>]</em> - (REQUIRED) For Grants where access has been partially granted, but some access is still disabled, this value is an authorization details list as defined by [<a href="#ref-rfc9396-auth-details">RFC 9396 Section 7.1</a>] that has the scopes which have been enabled by the server.
 For Grants where access has been fully granted, this value is the same as the <code class="language-plaintext highlighter-rouge">authorization_details</code> value.
-For Grants that have had their access removed (e.g. <code class="language-plaintext highlighter-rouge">disabled</code>), this value is an empty list (<code class="language-plaintext highlighter-rouge">[]</code>).</li>
+For Grants that have had their access removed (e.g. the Grant’s <code class="language-plaintext highlighter-rouge">status</code> value is <code class="language-plaintext highlighter-rouge">disabled</code>), this value is an empty list (<code class="language-plaintext highlighter-rouge">[]</code>).
+When a Grant’s <code class="language-plaintext highlighter-rouge">status</code> value is <code class="language-plaintext highlighter-rouge">future</code>, this value MUST be the authorization details that will be enabled when the <code class="language-plaintext highlighter-rouge">status</code> is switched to <code class="language-plaintext highlighter-rouge">active</code> on the Grant’s <code class="language-plaintext highlighter-rouge">not_before</code> datetime.</li>
 </ul>
 
 <h3 id="82-grant-statuses-">8.2. Grant Statuses <a id="grant-statuses" href="#grant-statuses" class="permalink">🔗</a></h3>
@@ -1523,10 +1525,11 @@ For Grants that have had their access removed (e.g. <code class="language-plaint
 <ul>
   <li><code class="language-plaintext highlighter-rouge">active</code> - The Grant is active and access for the features and data specified in the <code class="language-plaintext highlighter-rouge">scope</code> or <code class="language-plaintext highlighter-rouge">authorization_details</code> is currently enabled.
 For Grants that provide access to data APIs that are being regularly updated, this status also indicates that the Server is currently on schedule to provide the expected ongoing data updates.</li>
-  <li><code class="language-plaintext highlighter-rouge">future</code> - The Grant will be made in the future, and the Client should check the <code class="language-plaintext highlighter-rouge">not_before</code> value for when the Grant will have its status switched to <code class="language-plaintext highlighter-rouge">active</code>.</li>
-  <li><code class="language-plaintext highlighter-rouge">pending</code> - The Grant has been create and is valid, but the Server is still processing or reviewing the Grant and the status will be changed to another status at approximately the time provided in the Grant’s <code class="language-plaintext highlighter-rouge">eta</code> value.
+  <li><code class="language-plaintext highlighter-rouge">future</code> - The Grant has been created and is valid, but it is scheduled to be activated in the future.
+When the <code class="language-plaintext highlighter-rouge">status</code> is this value, the Grant’s <code class="language-plaintext highlighter-rouge">not_before</code> value MUST be set to when the <code class="language-plaintext highlighter-rouge">status</code> value is currently scheduled to be updated from <code class="language-plaintext highlighter-rouge">future</code> to <code class="language-plaintext highlighter-rouge">active</code>, and the Grant’s <code class="language-plaintext highlighter-rouge">enabled_scope</code> and <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> values MUST be set to the scope that is currently scheduled to be enabled after the <code class="language-plaintext highlighter-rouge">not_before</code> datetime.</li>
+  <li><code class="language-plaintext highlighter-rouge">pending</code> - The Grant has been created and is valid, but the Server is still processing or reviewing the Grant and the status will be changed to another status at approximately the time provided in the Grant’s <code class="language-plaintext highlighter-rouge">eta</code> value.
 While a Grant’s status is <code class="language-plaintext highlighter-rouge">pending</code>, Servers MUST provide access to the granted scope’s features or data as the Server processes and the features or data becomes available.</li>
-  <li><code class="language-plaintext highlighter-rouge">partial</code> - The Grant was submitted originally with the <code class="language-plaintext highlighter-rouge">scope</code> and <code class="language-plaintext highlighter-rouge">authorization_details</code> values, but the Server has limited the Client’s access a subset of the Grant’s <code class="language-plaintext highlighter-rouge">scope</code>.
+  <li><code class="language-plaintext highlighter-rouge">partial</code> - The Grant was submitted originally with the <code class="language-plaintext highlighter-rouge">scope</code> and <code class="language-plaintext highlighter-rouge">authorization_details</code> values, but the Server has limited the Client’s access to a subset of the Grant’s <code class="language-plaintext highlighter-rouge">scope</code>.
 The enabled access is listed in the <code class="language-plaintext highlighter-rouge">enabled_scope</code> and <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> values.</li>
   <li><code class="language-plaintext highlighter-rouge">needs_authorization</code> - The Grant has been created, but access is limited to the <code class="language-plaintext highlighter-rouge">enabled_scope</code> and <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> until a user authorizes the listed <code class="language-plaintext highlighter-rouge">scope</code> and <code class="language-plaintext highlighter-rouge">authorization_details</code> values using an authorization URL with a <code class="language-plaintext highlighter-rouge">cds_grant_id</code> parameter of this <code class="language-plaintext highlighter-rouge">grant_id</code> as described in <a href="#grant-authorization-requests">Grant Authorization Requests</a>.</li>
   <li><code class="language-plaintext highlighter-rouge">needs_sub_grants</code> - The Grant has been created, but access is limited to the <code class="language-plaintext highlighter-rouge">enabled_scope</code> and <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> until listed <code class="language-plaintext highlighter-rouge">children</code> Grant objects’ <code class="language-plaintext highlighter-rouge">status</code> values change to an appropriate value determined by the Server for the Grant scope’s use case.
@@ -1548,7 +1551,7 @@ Access to existing data is still available, but the Client should not expect upd
 <h3 id="83-grant-authorization-requests-">8.3. Grant Authorization Requests <a id="grant-authorization-requests" href="#grant-authorization-requests" class="permalink">🔗</a></h3>
 
 <p>When a Grant <code class="language-plaintext highlighter-rouge">status</code> has a value of <code class="language-plaintext highlighter-rouge">needs_authorization</code>, the Grant needs a user authorization for the Grant to be approved.
-Clients achieved user authorization by following OAuth’s Authorization Code Grant process [<a href="#ref-rfc6749-code-grant">RFC 6749 Section 4.1</a>], with the following modifications.</p>
+Clients achieve user authorization by following OAuth’s Authorization Code Grant process [<a href="#ref-rfc6749-code-grant">RFC 6749 Section 4.1</a>], with the following modifications.</p>
 
 <ul>
   <li>In the OAuth Authorization Request [<a href="#ref-rfc6749-auth-request">RFC 6749 Section 4.1.1</a>], Clients MUST include the URL request parameter <code class="language-plaintext highlighter-rouge">cds_grant_id</code> with a value of the <code class="language-plaintext highlighter-rouge">grant_id</code> for the Grant for which the Client is requesting user authorization.</li>
@@ -1580,7 +1583,7 @@ If Grants objects were created or modified, this field MUST be included and the 
 
 <h3 id="85-listing-grants-">8.5. Listing Grants <a id="grants-list" href="#grants-list" class="permalink">🔗</a></h3>
 
-<p>Clients may request to list Grant objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_grants_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
+<p>Clients MAY request to list Grant objects that they have access to by making an HTTPS <a href="#get">GET</a> request, authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_client_admin</code> scope, to the <code class="language-plaintext highlighter-rouge">cds_grants_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
 The Grant listing request responses are formatted as JSON objects and contain the following named values.</p>
 
 <ul>
@@ -1614,7 +1617,7 @@ If no previous segment exists (i.e. the requester is at the front of the list), 
 
 <h3 id="87-modifying-grants-">8.7. Modifying Grants <a id="grants-modify" href="#grants-modify" class="permalink">🔗</a></h3>
 
-<p>Clients may modify fields in the Grants API by sending an authenticated HTTPS <a href="#patch">PATCH</a> request to the Grant <code class="language-plaintext highlighter-rouge">uri</code> endpoint with the body of the request formatted a JSON object.
+<p>Clients MAY modify fields in the Grants API by sending an authenticated HTTPS <a href="#patch">PATCH</a> request to the Grant <code class="language-plaintext highlighter-rouge">uri</code> endpoint with the body of the request formatted a JSON object.
 The fields included in JSON object are the fields the Client intends to update with the submitted fields’ values.
 If a field is not included in the <a href="#patch">PATCH</a> request, the Server MUST leave the field unmodified from its current value.</p>
 
@@ -1630,7 +1633,7 @@ Servers MUST NOT require another user authorization if the updated scope is a re
 If a new user authorization or sub-Grants are required, the Server MUST update the <code class="language-plaintext highlighter-rouge">status</code> to one of <code class="language-plaintext highlighter-rouge">needs_authorization</code> or <code class="language-plaintext highlighter-rouge">needs_sub_grants</code> and update the <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> to be the value of the current authorization details for which the Client is allowed access.</li>
 </ul>
 
-<p>Servers MUST validate the values of the submitted Grant fields that are able to be modified and reject with a <code class="language-plaintext highlighter-rouge">400 Bad Response</code> Status Code if any of those fields are submitted with invalid values.
+<p>Servers MUST validate the values of the submitted Grant fields that are able to be modified and reject with a <code class="language-plaintext highlighter-rouge">400 Bad Request</code> Status Code if any of those fields are submitted with invalid values.
 Servers MUST ignore any fields submitted that are not able to be modified by the Client.</p>
 
 <p>If a Server does not need to asynchronously review the changes, the Server MUST synchronously modify the Grant object and respond with a <code class="language-plaintext highlighter-rouge">200 OK</code> Status Code where the response body is the updated Grant object.
@@ -1639,8 +1642,8 @@ Additionally, if the <code class="language-plaintext highlighter-rouge">scope</c
 
 <h2 id="9-server-provided-files-api-">9. Server-Provided Files API <a id="server-provided-files-api" href="#server-provided-files-api" class="permalink">🔗</a></h2>
 
-<p>This specification defines an API by which Servers MAY provide an access to arbitrary files to Clients to download.
-These APIs are authenticated using a Bearer <code class="language-plaintext highlighter-rouge">access_token</code> obtained by the Client using OAuth 2.0’s <code class="language-plaintext highlighter-rouge">client_credentials</code> grant process [<a href="#ref-rfc6749-client-credentials">RFC 6749 Section 4.4</a>], where the scope of the access token is a <a href="#scopes-grant-admin">Grant Admin scope</a> with <code class="language-plaintext highlighter-rouge">authorizatin_details</code> entries listing <code class="language-plaintext highlighter-rouge">grant_id</code> values that are for Grants that have the <a href="#scopes-server-provided-files"><code class="language-plaintext highlighter-rouge">cds_server_provided_files</code></a> scope type.</p>
+<p>This specification defines an API by which Servers MAY provide access to arbitrary files to Clients to download.
+These APIs are authenticated using a Bearer <code class="language-plaintext highlighter-rouge">access_token</code> obtained by the Client using OAuth 2.0’s <code class="language-plaintext highlighter-rouge">client_credentials</code> grant process [<a href="#ref-rfc6749-client-credentials">RFC 6749 Section 4.4</a>], where the scope of the access token is a <a href="#scopes-grant-admin">Grant Admin scope</a> with <code class="language-plaintext highlighter-rouge">authorization_details</code> entries listing <code class="language-plaintext highlighter-rouge">grant_id</code> values that are for Grants that have the <a href="#scopes-server-provided-files"><code class="language-plaintext highlighter-rouge">cds_server_provided_files</code></a> scope type.</p>
 
 <p>This API is intended to provide a convenient way for Servers to provide secure ad-hoc file access to Clients, such as sharing connectivity-related files (e.g. configs, certificates, secret keys, etc.) or manually created bulk files (e.g. initial backfill raw data, analysis reports, etc.).
 This API is NOT intended to be used for automated sharing of structured data (e.g. nightly interval extracts) because the API has limited functionality to convey the appropriate metadata for automated file sharing, such as versioning or schemas.
@@ -1667,7 +1670,11 @@ Servers MUST authenticate this download endpoint using the same authentication r
 
 <h3 id="92-listing-server-provided-files-">9.2. Listing Server-Provided Files <a id="server-provided-files-list" href="#server-provided-files-list" class="permalink">🔗</a></h3>
 
-<p>Clients may request to list Server-Provided File objects that they have access to by making an HTTPS <a href="#get">GET</a> request to the <code class="language-plaintext highlighter-rouge">cds_server_provided_files_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a> and authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_grant_admin</code> scope with <code class="language-plaintext highlighter-rouge">authorizatin_details</code> entries listing <code class="language-plaintext highlighter-rouge">grant_id</code> values that are for Grants that have the <code class="language-plaintext highlighter-rouge">cds_server_provided_files</code> scope type.
+<p>Clients MAY request to list Server-Provided File objects that they have access to by making an HTTPS <a href="#get">GET</a> request to the <code class="language-plaintext highlighter-rouge">cds_server_provided_files_api</code> URL included in the <a href="#auth-server-metadata-format">Authorization Server Metadata</a>.
+The request MUST include an <code class="language-plaintext highlighter-rouge">Authorization</code> header that has a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> that is scoped to a <a href="#scopes-grant-admin">Grant Admin</a> Grant.
+The Grant MUST have a <code class="language-plaintext highlighter-rouge">client_id</code> value that is equal to the Grantd Admin Client object that is referenced in a Server-Provided Files <a href="#scope-descriptions-format">Scope Description</a> <code class="language-plaintext highlighter-rouge">grant_admin_scope</code> value.
+The Grant MUST have <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> entries listing <code class="language-plaintext highlighter-rouge">client_id</code> and <code class="language-plaintext highlighter-rouge">grant_id</code> values for Server-Provided Files Grants.
+The Server-Provided Files Grants MUST have <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> entries listing <code class="language-plaintext highlighter-rouge">file_id</code> values which specify which Server-Provided File objects are accessible by those Grants, and the list of Server-Provided File objects returned by this endpoint MUST be a subset of those objects.
 The Server-Provided File listing request responses are formatted as JSON objects and contain the following named values.</p>
 
 <ul>
@@ -1692,15 +1699,27 @@ If no previous segment exists (i.e. the requester is at the front of the list), 
 
 <h3 id="93-retrieving-individual-server-provided-files-">9.3. Retrieving Individual Server-Provided Files <a id="server-provided-files-get" href="#server-provided-files-get" class="permalink">🔗</a></h3>
 
-<p>The URL to be used to send <a href="#get">GET</a> requests for retrieving individual Server-Provided File objects MUST be the Server-Provided File <code class="language-plaintext highlighter-rouge">uri</code> provided in the <a href="#server-provided-files-format">Server-Provided File object</a> and authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_grant_admin</code> scope with <code class="language-plaintext highlighter-rouge">authorizatin_details</code> entries listing <code class="language-plaintext highlighter-rouge">grant_id</code> values that are for Grants that include the relevant <code class="language-plaintext highlighter-rouge">file_id</code> and have a scope with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">cds_server_provided_files</code>.</p>
+<p>The URL to be used to send <a href="#get">GET</a> requests for retrieving individual Server-Provided File objects MUST be the Server-Provided File <code class="language-plaintext highlighter-rouge">uri</code> provided in the <a href="#server-provided-files-format">Server-Provided File object</a>.
+The request MUST include an <code class="language-plaintext highlighter-rouge">Authorization</code> header that has a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> that is scoped to a <a href="#scopes-grant-admin">Grant Admin</a> Grant.
+The Grant MUST have a <code class="language-plaintext highlighter-rouge">client_id</code> value that is equal to the Grantd Admin Client object that is referenced in a Server-Provided Files <a href="#scope-descriptions-format">Scope Description</a> <code class="language-plaintext highlighter-rouge">grant_admin_scope</code> value.
+The Grant MUST have <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> entries listing <code class="language-plaintext highlighter-rouge">client_id</code> and <code class="language-plaintext highlighter-rouge">grant_id</code> values for Server-Provided Files Grants.
+The Server-Provided Files Grants MUST have <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> entries that include a <code class="language-plaintext highlighter-rouge">file_id</code> value that matches this individual Server-Provided File object <code class="language-plaintext highlighter-rouge">file_id</code> value.</p>
+
+<p>Responses for individual Server-Provided File object requests are the JSON formatted Server-Provided File object.</p>
 
 <h3 id="94-downloading-server-provided-file-data-">9.4. Downloading Server-Provided File Data <a id="server-provided-files-download" href="#server-provided-files-download" class="permalink">🔗</a></h3>
 
-<p>The URL to be used to send <a href="#get">GET</a> requests for retrieving the raw data for an individual Server-Provided File MUST be the Server-Provided File <code class="language-plaintext highlighter-rouge">download_uri</code> provided in the <a href="#server-provided-files-format">Server-Provided File object</a> and authenticated with a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> scoped to the <code class="language-plaintext highlighter-rouge">cds_grant_admin</code> scope with <code class="language-plaintext highlighter-rouge">authorizatin_details</code> entries listing <code class="language-plaintext highlighter-rouge">grant_id</code> values that are for Grants that include the relevant <code class="language-plaintext highlighter-rouge">file_id</code> and have a scope with a <code class="language-plaintext highlighter-rouge">type</code> value of <code class="language-plaintext highlighter-rouge">cds_server_provided_files</code>.</p>
+<p>The URL to be used to send <a href="#get">GET</a> requests for retrieving the raw data for an individual Server-Provided File MUST be the Server-Provided File <code class="language-plaintext highlighter-rouge">download_uri</code> provided in the <a href="#server-provided-files-format">Server-Provided File object</a>.
+The request MUST include an <code class="language-plaintext highlighter-rouge">Authorization</code> header that has a valid Bearer <code class="language-plaintext highlighter-rouge">access_token</code> that is scoped to a <a href="#scopes-grant-admin">Grant Admin</a> Grant.
+The Grant MUST have a <code class="language-plaintext highlighter-rouge">client_id</code> value that is equal to the Grantd Admin Client object that is referenced in a Server-Provided Files <a href="#scope-descriptions-format">Scope Description</a> <code class="language-plaintext highlighter-rouge">grant_admin_scope</code> value.
+The Grant MUST have <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> entries listing <code class="language-plaintext highlighter-rouge">client_id</code> and <code class="language-plaintext highlighter-rouge">grant_id</code> values for Server-Provided Files Grants.
+The Server-Provided Files Grants MUST have <code class="language-plaintext highlighter-rouge">enabled_authorization_details</code> entries that include a <code class="language-plaintext highlighter-rouge">file_id</code> value that matches this individual Server-Provided File object’s <code class="language-plaintext highlighter-rouge">file_id</code> value.</p>
+
+<p>Responses for individual Server-Provided File download requests are the raw data for the Server-Provided File.</p>
 
 <h2 id="10-extensions-">10. Extensions <a id="extensions" href="#extensions" class="permalink">🔗</a></h2>
 
-<p>Other specifications and Servers MAY extend this specification to as necessary to address their use cases.
+<p>Other specifications and Servers MAY extend this specification as necessary to address their use cases.
 Other specifications and Servers MUST NOT remove required parts of this specification in their specifications or implementations.</p>
 
 <p><a href="#scopes">Scopes Supported</a> MAY be extended to add additional scope values and definitions, according to the requirements listed in <a href="#scopes">Section 3.3</a>.</p>
@@ -1729,18 +1748,18 @@ These best practices include requiring <a href="#https">HTTPS</a> for API endpoi
 <p>Servers MUST include the appropriate <code class="language-plaintext highlighter-rouge">registration_requirements</code> values in their <a href="#scope-descriptions-format">Scope Descriptions</a> for each scope’s use case and capabilities to ensure that Clients submit all required disclosures (e.g. contact information) and be appropriately informed about any required steps (e.g. manual review) or payments (e.g. registration fees).
 Servers MUST NOT impose overly burdensome registration requirements beyond what is deemed necessary by the Server’s jurisdiction requirements for the type of capabilities or data made available by an offered scope.</p>
 
-<p>Severs MUST be responsible for appropriately monitoring and reviewing the use of registered Clients as necessary for their legal and regulatory jurisdictions.</p>
+<p>Servers MUST be responsible for appropriately monitoring and reviewing the use of registered Clients as necessary for their legal and regulatory jurisdictions.</p>
 
 <h3 id="112-restricted-access-">11.2. Restricted Access <a id="restricted-access" href="#restricted-access" class="permalink">🔗</a></h3>
 
 <p>For unauthenticated endpoints (<a href="#auth-server-metadata">Authorization Server Metadata</a>, <a href="#client-registration-process">Client Registration Process</a>), while Servers can add <a href="#rate-limiting">rate limiting</a> configurations to protect their systems from being overwhelmed with requests, Servers MUST NOT add anti-bot blocking measures (e.g. captchas) that prevent automated requests from other systems.
 The functionality described in this specification is intended to be able to be integrated in other platforms to allow those platforms to automate interactions with Servers on their users’ behalf.</p>
 
-<p>If <a href="#auth-server-metadata">Authorization Server Metadata</a> is referenced in a public CDS Server Metadata Endpoint [<a href="#ref-cds-wg1-01-metadata-endpoint">CDS-WG1-01 Section 3</a>], then the <a href="#auth-server-metadata">Authorization Server Metadata</a> and <a href="#client-registration-process">Client Registration Process</a> must also be public.</p>
+<p>If <a href="#auth-server-metadata">Authorization Server Metadata</a> is referenced in a public CDS Server Metadata Endpoint [<a href="#ref-cds-wg1-01-metadata-endpoint">CDS-WG1-01 Section 3</a>], then the <a href="#auth-server-metadata">Authorization Server Metadata</a> and <a href="#client-registration-process">Client Registration Process</a> MUST also be public.</p>
 
-<p>Servers that wish to restrict access of by-default unauthenticated endpoints to certain Clients MUST configure well established authentication processes for Clients to ensure that only the approved Clients may access the restricted endpoint.
+<p>Servers that wish to restrict access of by-default unauthenticated endpoints to certain Clients MUST configure well established authentication processes for Clients to ensure that only the approved Clients can access the restricted endpoint.
 This specification does not describe specifically how Servers will authenticate Clients for by-default unauthenticated endpoints, as these restricted access protocols are context dependent.
-For example, if a Server providing a private Client Registration endpoint as part of an existing logged in portal, then they can use that logged in portal’s session cookie to authenticate Client requests to the registration endpoint.</p>
+For example, if a Server is providing a private Client Registration endpoint as part of an existing logged in portal, then they can use that logged in portal’s session cookie to authenticate Client requests to the registration endpoint.</p>
 
 <p>For authenticated endpoints (<a href="#clients-api">Clients API</a>, <a href="#messages-api">Messages API</a>, <a href="#credentials-api">Credentials API</a>, <a href="#grants-api">Grants API</a>, <a href="#server-provided-files-api">Server-Provided Files API</a>), Servers MUST authenticate requests using OAuth’s Authorization Request Header Field [<a href="#ref-rfc6750-auth-header">RFC 6750 Section 2.1</a>] with access tokens obtained using the OAuth 2.0’s Issuing an Access Token process [<a href="#ref-rfc6749-access-tokens">RFC 6749 Section 5</a>].</p>
 
@@ -1837,7 +1856,7 @@ Content-Type: application/json;charset=UTF-8
     "cds_messages_api": "https://example.com/cds-api/v1/messages",
     "cds_credentials_api": "https://example.com/cds-api/v1/credentials",
     "cds_grants_api": "https://example.com/cds-api/v1/grants",
-    "cds_server_provided_files_api": "https://example.com/cds-api/v1/server-provided-files"
+    "cds_server_provided_files_api": "https://example.com/cds-api/v1/server-provided-files",
     "cds_scope_descriptions": {
         "cds_client_admin": {
             "id": "cds_client_admin",
@@ -1875,7 +1894,7 @@ Content-Type: application/json;charset=UTF-8
                     "name": "Client Object identifier",
                     "description": "The Client Object identifier for which the Grant is issued.",
                     "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin-client_id",
-                    "for_types": ["cds_grant_admin_1"]
+                    "for_types": ["cds_grant_admin_1"],
                     "format": "string",
                     "is_required": true,
                     "maximum": 1000,
@@ -1886,7 +1905,7 @@ Content-Type: application/json;charset=UTF-8
                     "name": "Grant identifier",
                     "description": "The Grant identifier for which the returned access_token will be given access.",
                     "documentation": "https://example.com/docs/oauth/scopes#cds_grant_admin-grant_id",
-                    "for_types": ["cds_grant_admin_1"]
+                    "for_types": ["cds_grant_admin_1"],
                     "format": "string",
                     "is_required": true,
                     "maximum": 1000,
@@ -2024,7 +2043,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/clients HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2114,7 +2133,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/clients/aaf026921707f5d5 HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2146,7 +2165,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 PUT /cds-api/v1/clients/af653d57fa364da5 HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 {
     "scope": "example_custom",
@@ -2193,7 +2212,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/messages HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2266,7 +2285,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 POST /cds-api/v1/messages HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 {
     "type": "private_message",
@@ -2301,7 +2320,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/messages/9047a057519c0ea4 HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2331,7 +2350,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 PATCH /cds-api/v1/messages/9047a057519c0ea4 HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 {
     "read": true
@@ -2366,7 +2385,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/credentials HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2417,7 +2436,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 POST /cds-api/v1/credentials HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 {
     "client_id": "af653d57fa364da5",
@@ -2447,7 +2466,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/credentials/8406a1fd23d73417 HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2472,7 +2491,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 PATCH /cds-api/v1/credentials/8406a1fd23d73417 HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 {
     "client_secret_expires_at": 1760125049
@@ -2502,7 +2521,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/grants HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2575,7 +2594,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/grants/c644a5da13f379db HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2621,7 +2640,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 PATCH /cds-api/v1/grants/c644a5da13f379db HTTP/1.1
 Host: example.com
-Authorizatin: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
+Authorization: Bearer vjzia9aP-os_rw-bPvMe--uIniUWdmGmXtHH7XaVbTM_KS8eBYCp7IWyoNDC1KCc7DtkVm8fKYIBaOja_08xEQ
 
 {
     "status": "closed"
@@ -2655,13 +2674,8 @@ Content-Type: application/json;charset=UTF-8
         }
     ],
     "receipt_confirmations": [],
-    "enabled_scope": "cds_server_provided_files_01",
-    "enabled_authorization_details": [
-        {
-            "type": "cds_server_provided_files_01",
-            "file_id": "4fcf6831957a243c"
-        }
-    ]
+    "enabled_scope": "",
+    "enabled_authorization_details": []
 }
 </code></pre></div></div>
 
@@ -2703,7 +2717,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/server-provided-files HTTP/1.1
 Host: example.com
-Authorizatin: Bearer oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA
+Authorization: Bearer oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2735,7 +2749,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/server-provided-files/4fcf6831957a243c HTTP/1.1
 Host: example.com
-Authorizatin: Bearer oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA
+Authorization: Bearer oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA
 
 ==Response==
 HTTP/1.1 200 OK
@@ -2761,7 +2775,7 @@ Content-Type: application/json;charset=UTF-8
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>==Request==
 GET /cds-api/v1/server-provided-files/4fcf6831957a243c/download HTTP/1.1
 Host: example.com
-Authorizatin: Bearer oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA
+Authorization: Bearer oeatueF_TdVjcygl3REDApTtYDDqapwEaYEO9djPDvq1V3aLAlAOHt5k-wO6fwxcCheXPmq_f8x1nYYtSGqKRA
 
 ==Response==
 HTTP/1.1 200 OK
