@@ -160,6 +160,7 @@ Listings of Coverage Entry objects MUST be ordered in reverse chronological orde
 Servers MUST support Clients adding any of the following URL parameters to the [Coverage Endpoint](#coverage-endpoint) GET request, which will filter the list of Coverage Entry objects to be the intersection of results for each of the URL parameters filters:
 
 * `ids` - A space-separated list of `id` values for which the Servers MUST filter the Coverage Entries.
+* `entity_numbers` - A space-separated list of `entity_number` values for which the Servers MUST filter the Coverage Entries.
 
 ### 4.3. Coverage Entry Format <a id="coverage-entry-format" href="#coverage-entry-format" class="permalink">🔗</a>
 
@@ -169,6 +170,8 @@ The following values are included in the default list available in coverage entr
 * `id` - _[string](#string)_ - (REQUIRED) A unique identifier for the coverage entry.
 * `created` - _[datetime](#datetime)_ - (REQUIRED) When this coverage entry was first made available.
 * `updated` - _[datetime](#datetime)_ - (REQUIRED) When this coverage entry was last modified.
+* `entity_number` - _[string](#string)_ - (REQUIRED)  A value that acts as a unique identifier for the Entity (e.g. "US-CA-IOU-EE&E").
+  If no prior value exists to uniquely identify the entity or the Server does not know a unique identifier for the entity, the Server MUST generate an `entity_number` value that uniquely identifies the entity in the Server's systems.
 * `entity_name` - _[string](#string)_ - (REQUIRED) A human readable name for the entity being covered (e.g. "Demo Gas & Electric").
   The entity name in a coverage entry MAY be different than the Server metadata `name` value in situations where the Server is operated by a parent or other entity.
 * `entity_abbreviation` - _`null` or [string](#string)_ - (REQUIRED) The abbreviation for the entity being covered by the coverage entry (e.g. "DG&E").
@@ -320,6 +323,7 @@ Content-Type: application/json;charset=UTF-8
             "created": "2022-06-01T00:00:00.000000Z",
             "updated": "2022-06-01T00:00:00.000000Z",
 
+            "entity_number": "DG&E_01",
             "entity_name": "Demo Gas & Electric",
             "entity_abbreviation": "DG&E",
 
