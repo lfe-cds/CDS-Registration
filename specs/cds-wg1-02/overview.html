@@ -449,7 +449,7 @@ curl -v \
             ...
             "client_id": "aaaaaaaaaa-1",
             ...
-            "scope": "cds_grant_admin_1",
+            "scope": "cds_grant_admin_2",
             ...
         },
     ],
@@ -564,7 +564,7 @@ CUSTOMER_DATA_OAUTH_METADATA_OBJECT=$(curl -v \
     | jq ".")
 CUSTOMER_DATA_AUTHORIZATION_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
 CUSTOMER_DATA_TOKEN_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
-CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_customerdata_accounts_api")
+CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_accounts_api")
 
 # Get the client_secret for the Client Object that will be used for the authorization
 CUSTOMER_DATA_CLIENT_SECRET=$(curl -v \
@@ -660,7 +660,7 @@ CUSTOMER_DATA_OAUTH_METADATA_OBJECT=$(curl -v \
     "$CUSTOMER_DATA_OAUTH_METADATA_URL" \
     | jq ".")
 CUSTOMER_DATA_AUTHORIZATION_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
-CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_customerdata_accounts_api")
+CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_accounts_api")
 
 # Build the Authorization Request URL
 AUTHORIZATION_REQUEST_URL="$CUSTOMER_DATA_AUTHORIZATION_ENDPOINT\
@@ -796,7 +796,7 @@ CUSTOMER_DATA_OAUTH_METADATA_OBJECT=$(curl -v \
 CUSTOMER_DATA_AUTHORIZATION_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".authorization_endpoint")
 CUSTOMER_DATA_TOKEN_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".token_endpoint")
 CUSTOMER_DATA_PAR_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".pushed_authorization_request_endpoint")
-CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_customerdata_accounts_api")
+CUSTOMER_DATA_ACCOUNTS_ENDPOINT=$(echo "$CUSTOMER_DATA_OAUTH_METADATA_OBJECT" | jq -r ".cds_accounts_api")
 
 # Get the client_secret for the Client Object that will be used for the authorization
 CUSTOMER_DATA_CLIENT_SECRET=$(curl -v \
