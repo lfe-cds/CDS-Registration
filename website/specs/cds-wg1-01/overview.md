@@ -84,6 +84,7 @@ Content-Type: application/json;charset=UTF-8
             "created": "2022-06-01T00:00:00.000000Z",
             "updated": "2022-06-01T00:00:00.000000Z",
 
+            "entity_number": "DG&E_01",
             "entity_name": "Demo Gas & Electric",
             "entity_abbreviation": "DG&E",
 
