@@ -1,6 +1,6 @@
 # CDS WG1 (Registration) Meeting 2026-09-03
 
-Recording: TODO
+Recording: https://zoom.us/rec/share/P29zrjd0fWsQ5tro3yvJnuetRWRrtdzG3M3hRZAi66jNdfoPV_vuSCTad8e46h9c.v8OygN_JaY6VMP9f
 
 ## Agenda
 * Welcome
